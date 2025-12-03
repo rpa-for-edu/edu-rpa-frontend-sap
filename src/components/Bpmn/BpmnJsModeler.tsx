@@ -6,23 +6,23 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-} from 'react';
-import CamundaBpmnModeler from 'bpmn-js/lib/Modeler';
+} from "react";
+import CamundaBpmnModeler from "bpmn-js/lib/Modeler";
 import {
   BpmnJsReactHandle,
   BpmnJsReactProps,
-} from '@/interfaces/bpmnJsReact.interface';
+} from "@/interfaces/bpmnJsReact.interface";
 //@ts-ignore
-import BpmnColorPickerModule from 'bpmn-js-color-picker';
+import BpmnColorPickerModule from "bpmn-js-color-picker";
 //@ts-ignore
-import gridModule from 'diagram-js-grid';
-import 'bpmn-js/dist/assets/diagram-js.css';
-import 'bpmn-font/dist/css/bpmn-embedded.css';
-import { useParams } from 'next/navigation';
-import { QUERY_KEY } from '@/constants/queryKey';
-import processApi from '@/apis/processApi';
-import { useQuery } from '@tanstack/react-query';
-import CustomContextPadProvider from './CustomContextPadProvider';
+import gridModule from "diagram-js-grid";
+import "bpmn-js/dist/assets/diagram-js.css";
+import "bpmn-font/dist/css/bpmn-embedded.css";
+import { useParams } from "next/navigation";
+import { QUERY_KEY } from "@/constants/queryKey";
+import processApi from "@/apis/processApi";
+import { useQuery } from "@tanstack/react-query";
+import CustomContextPadProvider from "./CustomContextPadProvider";
 
 const BpmnJsModeler: ForwardRefRenderFunction<
   BpmnJsReactHandle,
@@ -46,7 +46,7 @@ const BpmnJsModeler: ForwardRefRenderFunction<
 
   useEffect(() => {
     const newModeler = new CamundaBpmnModeler({
-      container: '#bpmnview',
+      container: "#bpmnview",
       keyboard: {
         bindTo: window,
       },
@@ -55,7 +55,7 @@ const BpmnJsModeler: ForwardRefRenderFunction<
         BpmnColorPickerModule,
         gridModule,
       ],
-      height: '80vh',
+      height: "100%",
     });
     useBpmnJsReact?.setBpmnModeler(newModeler);
     setBpmnEditor(newModeler);
@@ -65,7 +65,7 @@ const BpmnJsModeler: ForwardRefRenderFunction<
   useEffect(() => {
     if (isLoading && !processDetail) return;
     bpmnEditor?.importXML(processDetail?.xml as string);
-    bpmnEditor?.on('import.done', (event: any) => {
+    bpmnEditor?.on("import.done", (event: any) => {
       const { error, warning } = event;
       if (error) {
         return onError(error);
@@ -76,12 +76,12 @@ const BpmnJsModeler: ForwardRefRenderFunction<
   }, [bpmnEditor]);
 
   const zoomFit = () => {
-    (bpmnEditor as any).get('canvas').zoom('fit-viewport');
+    (bpmnEditor as any).get("canvas").zoom("fit-viewport");
   };
 
   return (
-    <div className="bpmn-wrapper">
-      <div id="bpmnview"></div>
+    <div className="bpmn-wrapper" style={{ width: "100%", height: "100%" }}>
+      <div id="bpmnview" style={{ width: "100%", height: "100%" }}></div>
     </div>
   );
 };

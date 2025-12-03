@@ -20,9 +20,7 @@ import {
   updateProcessInProcessList,
 } from "@/utils/processService";
 import { useRouter } from "next/router";
-import VariablesSideBar from "./VariablesSideBar/VariablesSideBar";
 import { LocalStorage } from "@/constants/localStorage";
-import { ChevronLeftIcon } from "@chakra-ui/icons";
 import { exportFile, stringifyCyclicObject } from "@/utils/common";
 
 import {
@@ -40,8 +38,10 @@ import { SaveProcessDto } from "@/dtos/processDto";
 import { useDispatch, useSelector } from "react-redux";
 import { bpmnSelector } from "@/redux/selector";
 import { isSavedChange } from "@/redux/slice/bpmnSlice";
-import FunctionalTabBar from "./FunctionalTabBar/FunctionalTabBar";
 import DisplayRobotCode from "./DisplayRobotCode/DisplayRobotCode";
+import BpmnModelerLayout from "./BpmnModelerLayout";
+import BpmnRightSidebar from "./BpmnRightSidebar";
+import BpmnBottomPanel from "./BpmnBottomPanel";
 import { BpmnParseError } from "@/utils/bpmn-parser/error";
 
 interface OriginalObject {
@@ -62,6 +62,13 @@ function CustomModeler() {
   const processID = params.id;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [errorTrace, setErrorTrace] = useState<string>("");
+  const [showRobotCode, setShowRobotCode] = useState(false);
+  const [activityItem, setActivityItem] = useState({
+    activityID: "",
+    activityName: "",
+    activityType: "",
+    properties: {},
+  });
   const isSavedChanges = useSelector(bpmnSelector);
 
   const processName = router?.query?.name as string;
@@ -187,20 +194,11 @@ function CustomModeler() {
         variableList ? variableList.variables : []
       );
 
-      // toast({
-      //   title: 'Compile Successfully!',
-      //   status: 'success',
-      //   position: 'bottom-right',
-      //   duration: 1000,
-      //   isClosable: true,
-      // });
       console.log("Robot Code:", robotCode);
+      setShowRobotCode(true);
       return robotCode;
     } catch (error) {
       setErrorTrace(error.stack.toString());
-      // let _bpmnId = error.bpmnId.split(",")[0]
-      // console.log(_bpmnId)
-      // bpmnReactJs.addMarker(_bpmnId, "djs-search-overlay");
 
       if (error instanceof BpmnParseError) {
         toast({
@@ -221,111 +219,140 @@ function CustomModeler() {
     }
   };
 
+  const handlePublish = () => {
+    // Will be implemented - open publish modal
+    toast({
+      title: "Publish feature coming soon",
+      status: "info",
+      position: "top-right",
+      duration: 2000,
+    });
+  };
+
+  const handleRobotCode = () => {
+    compileRobotCode(processID as string);
+  };
+
+  // Listen to element click events
+  useEffect(() => {
+    console.log("=== 🔍 CUSTOM MODELER useEffect ===");
+    console.log("bpmnReactJs", bpmnReactJs.bpmnModeler);
+    if (!bpmnReactJs.bpmnModeler) return;
+
+    const handleElementClick = (event: any) => {
+      console.log("=== 🎯 ELEMENT CLICK ===");
+      console.log("Event:", event);
+
+      // Get element from event
+      const element = event.element;
+      if (!element || !element.businessObject) {
+        console.log("❌ No valid element - ignoring");
+        return;
+      }
+
+      const eventInfo = element.businessObject;
+      console.log("✅ Clicked element:", {
+        id: eventInfo.id,
+        name: eventInfo.name,
+        type: eventInfo.$type,
+      });
+
+      // Ignore sequence flows and labels
+      // const ignoredTypes = ["bpmn:SequenceFlow", "label"];
+      // if (ignoredTypes.some((type) => eventInfo.$type?.includes(type))) {
+      //   console.log("⏭️ Ignoring element type:", eventInfo.$type);
+      //   return;
+      // }
+
+      const currentActivity = {
+        activityID: eventInfo.id,
+        activityName: eventInfo.name || "",
+        activityType: eventInfo.$type,
+        keyword: "",
+        properties: {},
+      };
+
+      console.log("📝 Setting activityItem:", currentActivity);
+      setActivityItem(currentActivity);
+      console.log("✅ activityItem state updated");
+
+      if (!isOpen) {
+        console.log("🔓 Opening sidebar (was closed)");
+        onOpen();
+      } else {
+        console.log("ℹ️ Sidebar already open");
+      }
+
+      console.log("=== END ELEMENT CLICK ===\n");
+    };
+
+    const handleDoubleClick = (event: any) => {
+      if (!isOpen) {
+        onOpen();
+      }
+    };
+
+    const eventBus = bpmnReactJs.bpmnModeler.get("eventBus");
+    console.log("✅ EventBus obtained:", eventBus);
+
+    // Listen to element.click instead of selection.changed
+    eventBus.on("element.click", handleElementClick);
+    eventBus.on("element.dblclick", handleDoubleClick);
+
+    console.log("✅ Events registered: element.click, element.dblclick");
+
+    return () => {
+      console.log("🧹 Cleaning up event listeners");
+      eventBus.off("element.click", handleElementClick);
+      eventBus.off("element.dblclick", handleDoubleClick);
+    };
+  }, [bpmnReactJs.bpmnModeler]);
+
   if (isLoading) {
     return <LoadingIndicator />;
   }
 
   return (
-    <div className="mt-[20px]">
-      <Box className="flex justify-between items-center mx-[25px]">
-        <Box className="flex justify-between items-center">
-          <IconButton
-            colorScheme="teal"
-            aria-label="Prev to home"
-            variant="outline"
-            isRound={true}
-            size="lg"
-            onClick={() => router.push("/studio")}
-            icon={<ChevronLeftIcon />}
-          />
-          <Box>
-            <h1 className="text-primary font-bold text-2xl mx-[20px]">
-              {processID}{" "}
-              {!isSavedChanges.isSaved && (
-                <span className="text-red-500">{"*"}</span>
-              )}
-            </h1>
-            <Box className="flex justify-between items-center">
-              <h1 className="text-gray-500 text-xl mx-[20px]">
-                Name: {processName || ""}
-              </h1>
-            </Box>
-          </Box>
-        </Box>
-
-        <FunctionalTabBar
+    <BpmnModelerLayout
+      processID={processID as string}
+      processName={processName}
+      isSaved={isSavedChanges.isSaved}
+      version={version}
+      onSaveAll={handleSaveAll}
+      onPublish={handlePublish}
+      onRobotCode={handleRobotCode}
+      modelerRef={bpmnReactJs}
+      rightSidebar={
+        <BpmnRightSidebar
           processID={processID as string}
-          genRobotCode={compileRobotCode}
-          onSaveAll={handleSaveAll}
+          activityItem={activityItem}
+          isOpen={isOpen}
+          onClose={onClose}
+          modelerRef={bpmnReactJs}
         />
-      </Box>
-
+      }
+      bottomPanel={<BpmnBottomPanel processID={processID as string} />}
+    >
       <BpmnJsReact mode="edit" useBpmnJsReact={bpmnReactJs} ref={ref} />
+
+      {/* Hidden components for legacy functionality */}
       {bpmnReactJs.bpmnModeler && (
         <ModelerSideBar
-          isOpen={isOpen}
+          isOpen={false}
           onClose={onClose}
           onOpen={onOpen}
           modeler={bpmnReactJs}
         />
       )}
 
-      <Button
-        colorScheme="teal"
-        size="md"
-        className="mx-[5px]"
-        onClick={async () => {
-          const res = await bpmnReactJs.saveXML();
-          exportFile(res.xml as string, `${processID}.xml`);
-          // console.log(res.xml);
-        }}
-      >
-        Save XML
-      </Button>
-
-      {/* <Button
-        colorScheme="blue"
-        size="md"
-        className="mx-[5px]"
-        onClick={async () => {
-          const res = await bpmnReactJs.saveXML();
-          const bpmnParser = new BpmnParser();
-          const jsonProcess = stringifyCyclicObject(
-            bpmnParser.parseXML(res.xml as string)
-          );
-          exportFile(jsonProcess, `${processID}.json`);
-          console.log(bpmnParser.parseXML(res.xml as string));
-        }}>
-        Save JSON
-      </Button> */}
-
-      {/* <Button
-        colorScheme="orange"
-        size="md"
-        className="mx-[5px]"
-        onClick={() => {
-          const processProperties = getProcessFromLocalStorage(
-            processID as string
-          );
-          console.log(processProperties);
-          delete processProperties['xml'];
-          exportFile(
-            JSON.stringify(processProperties),
-            `${processID}_properties.json`
-          );
-        }}>
-        Save Properties
-      </Button> */}
-
-      <DisplayRobotCode
-        compileRobotCode={() => compileRobotCode(processID as string)}
-        errorTrace={errorTrace}
-        setErrorTrace={setErrorTrace}
-      />
-
-      <VariablesSideBar processID={processID as string} />
-      <br />
-    </div>
+      {showRobotCode && (
+        <DisplayRobotCode
+          compileRobotCode={() => compileRobotCode(processID as string)}
+          errorTrace={errorTrace}
+          setErrorTrace={setErrorTrace}
+        />
+      )}
+    </BpmnModelerLayout>
   );
 }
 
