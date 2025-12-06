@@ -18,6 +18,7 @@ import {
 import {
   getProcessFromLocalStorage,
   updateProcessInProcessList,
+  updateLocalStorage,
 } from "@/utils/processService";
 import { useRouter } from "next/router";
 import { LocalStorage } from "@/constants/localStorage";
@@ -94,13 +95,20 @@ function CustomModeler() {
   // sync data from api to localStorage
   useEffect(() => {
     if (!processDetailByID) return;
+    console.log("Process Detail By ID", processDetailByID);
+    console.log("Process Detail  XML", processDetailByID.xml);
+    console.log("Process Detail Variables", processDetailByID.variables);
+    console.log("Process Detail Activities", processDetailByID.activities);
+
     const currentprocessID = getProcessFromLocalStorage(processID as string);
+    console.log("Current Process ID", currentprocessID);
     const updateStorageByID = {
       ...currentprocessID,
       xml: processDetailByID.xml,
       variables: processDetailByID.variables,
       activities: processDetailByID.activities,
     };
+    console.log("Update Storage By ID", updateStorageByID);
     const replaceStorageSnapshot = updateProcessInProcessList(
       processID as string,
       updateStorageByID
@@ -188,13 +196,13 @@ function CustomModeler() {
       const bpmnParser = new BpmnParser();
       const processProperties = getProcessFromLocalStorage(processID as string);
       const variableList = getVariableItemFromLocalStorage(processID as string);
+      console.log("Process Properties", processProperties.xml);
       const robotCode = bpmnParser.parse(
         processProperties.xml,
         processProperties.activities,
         variableList ? variableList.variables : []
       );
 
-      console.log("Robot Code:", robotCode);
       setShowRobotCode(true);
       return robotCode;
     } catch (error) {
@@ -229,7 +237,46 @@ function CustomModeler() {
     });
   };
 
-  const handleRobotCode = () => {
+  const handleRobotCode = async () => {
+    // Sync XML and activities from modeler to localStorage before compiling
+    // This ensures we're parsing the latest state, not stale data
+    if (bpmnReactJs.bpmnModeler) {
+      try {
+        const xmlResult = await bpmnReactJs.saveXML();
+        const activityList = bpmnReactJs
+          .getElementList(processID as string)
+          .slice(1);
+
+        // Log for debugging
+        console.log("📦 [Sync] Current XML from modeler:", xmlResult.xml);
+        console.log(
+          "📦 [Sync] Current activities from modeler:",
+          activityList.map((a: any) => a.activityID)
+        );
+
+        const currentProcess = getProcessFromLocalStorage(processID as string);
+        const updatedProcess = {
+          ...currentProcess,
+          xml: xmlResult.xml,
+          activities: activityList,
+        };
+        const newLocalStorage = updateLocalStorage(updatedProcess);
+        setLocalStorageObject(LocalStorage.PROCESS_LIST, newLocalStorage);
+
+        console.log("📦 Synced modeler state to localStorage before compiling");
+      } catch (syncError) {
+        console.error("Failed to sync modeler state:", syncError);
+        toast({
+          title: "Failed to sync workflow state. Please try again.",
+          status: "warning",
+          position: "top-right",
+          duration: 3000,
+          isClosable: true,
+        });
+        return; // Don't compile if sync failed
+      }
+    }
+
     compileRobotCode(processID as string);
   };
 
@@ -350,6 +397,11 @@ function CustomModeler() {
           compileRobotCode={() => compileRobotCode(processID as string)}
           errorTrace={errorTrace}
           setErrorTrace={setErrorTrace}
+          isOpen={showRobotCode}
+          onClose={() => {
+            setShowRobotCode(false);
+            setErrorTrace("");
+          }}
         />
       )}
     </BpmnModelerLayout>

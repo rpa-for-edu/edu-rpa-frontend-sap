@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -10,17 +10,70 @@ import {
   IconButton,
   Collapse,
   Text,
-} from '@chakra-ui/react';
-import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import VariablesPanel from './VariablesPanel/VariablesPanel';
+} from "@chakra-ui/react";
+import { ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
+import VariablesPanel from "./VariablesPanel/VariablesPanel";
 
 interface BpmnBottomPanelProps {
   processID: string;
 }
 
+const MIN_HEIGHT = 150;
+const MAX_HEIGHT = 600;
+const DEFAULT_HEIGHT = 300;
+
 export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [panelHeight, setPanelHeight] = useState(DEFAULT_HEIGHT);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeRef = useRef<HTMLDivElement>(null);
+  const startYRef = useRef(0);
+  const startHeightRef = useRef(0);
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsResizing(true);
+      startYRef.current = e.clientY;
+      startHeightRef.current = panelHeight;
+    },
+    [panelHeight]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const deltaY = startYRef.current - e.clientY;
+      const newHeight = Math.min(
+        MAX_HEIGHT,
+        Math.max(MIN_HEIGHT, startHeightRef.current + deltaY)
+      );
+      setPanelHeight(newHeight);
+    },
+    [isResizing]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "ns-resize";
+      document.body.style.userSelect = "none";
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   return (
     <Box
@@ -37,7 +90,7 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
         py={2}
         cursor="pointer"
         onClick={() => setIsOpen(!isOpen)}
-        _hover={{ bg: 'gray.50' }}
+        _hover={{ bg: "gray.50" }}
       >
         <Tabs
           index={activeTab}
@@ -48,9 +101,9 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
           <TabList>
             <Tab
               _selected={{
-                color: 'teal.600',
-                borderBottom: '2px solid',
-                borderColor: 'teal.600',
+                color: "teal.600",
+                borderBottom: "2px solid",
+                borderColor: "teal.600",
               }}
               fontSize="sm"
               fontWeight="medium"
@@ -63,9 +116,9 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
             </Tab>
             <Tab
               _selected={{
-                color: 'teal.600',
-                borderBottom: '2px solid',
-                borderColor: 'teal.600',
+                color: "teal.600",
+                borderBottom: "2px solid",
+                borderColor: "teal.600",
               }}
               fontSize="sm"
               fontWeight="medium"
@@ -78,9 +131,9 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
             </Tab>
             <Tab
               _selected={{
-                color: 'teal.600',
-                borderBottom: '2px solid',
-                borderColor: 'teal.600',
+                color: "teal.600",
+                borderBottom: "2px solid",
+                borderColor: "teal.600",
               }}
               fontSize="sm"
               fontWeight="medium"
@@ -93,9 +146,9 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
             </Tab>
             <Tab
               _selected={{
-                color: 'teal.600',
-                borderBottom: '2px solid',
-                borderColor: 'teal.600',
+                color: "teal.600",
+                borderBottom: "2px solid",
+                borderColor: "teal.600",
               }}
               fontSize="sm"
               fontWeight="medium"
@@ -110,7 +163,7 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
         </Tabs>
 
         <IconButton
-          aria-label={isOpen ? 'Collapse panel' : 'Expand panel'}
+          aria-label={isOpen ? "Collapse panel" : "Expand panel"}
           icon={isOpen ? <ChevronDownIcon /> : <ChevronUpIcon />}
           size="sm"
           variant="ghost"
@@ -119,8 +172,26 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
 
       {/* Panel Content */}
       <Collapse in={isOpen} animateOpacity>
+        {/* Resize Handle */}
         <Box
-          height="300px"
+          ref={resizeRef}
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          height="6px"
+          cursor="ns-resize"
+          bg="transparent"
+          _hover={{ bg: "teal.200" }}
+          sx={{
+            transition: isResizing ? "none" : "background-color 0.2s",
+            ...(isResizing && { bg: "teal.400" }),
+          }}
+          onMouseDown={handleMouseDown}
+          zIndex={10}
+        />
+        <Box
+          height={`${panelHeight}px`}
           overflowY="auto"
           borderTop="1px solid"
           borderColor="gray.200"
@@ -165,4 +236,3 @@ export default function BpmnBottomPanel({ processID }: BpmnBottomPanelProps) {
     </Box>
   );
 }
-

@@ -14,6 +14,7 @@ import {
 } from "@/interfaces/bpmnJsReact.interface";
 //@ts-ignore
 import BpmnColorPickerModule from "bpmn-js-color-picker";
+import minimapModule from "diagram-js-minimap";
 //@ts-ignore
 import gridModule from "diagram-js-grid";
 import "bpmn-js/dist/assets/diagram-js.css";
@@ -54,6 +55,7 @@ const BpmnJsModeler: ForwardRefRenderFunction<
         CustomContextPadProvider,
         BpmnColorPickerModule,
         gridModule,
+        minimapModule,
       ],
       height: "100%",
     });
