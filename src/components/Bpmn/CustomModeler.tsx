@@ -1,20 +1,20 @@
-import { useBpmn } from "@/hooks/useBpmn";
-import { BpmnJsReactHandle } from "@/interfaces/bpmnJsReact.interface";
-import { useEffect, useRef, useState } from "react";
-import BpmnJsReact from "./BpmnJsReact";
+import { useBpmn } from '@/hooks/useBpmn';
+import { BpmnJsReactHandle } from '@/interfaces/bpmnJsReact.interface';
+import { useEffect, useRef, useState } from 'react';
+import BpmnJsReact from './BpmnJsReact';
 import {
   Box,
   Button,
   IconButton,
   useDisclosure,
   useToast,
-} from "@chakra-ui/react";
-import ModelerSideBar from "./ModelerSidebar";
-import { BpmnParser } from "@/utils/bpmn-parser/bpmn-parser.util";
+} from '@chakra-ui/react';
+import ModelerSideBar from './ModelerSidebar';
+import { BpmnParser } from '@/utils/bpmn-parser/bpmn-parser.util';
 import {
   getLocalStorageObject,
   setLocalStorageObject,
-} from "@/utils/localStorageService";
+} from '@/utils/localStorageService';
 import {
   getProcessFromLocalStorage,
   updateProcessInProcessList,
@@ -28,7 +28,7 @@ import {
   convertToRefactoredObject,
   getIndexVariableStorage,
   getVariableItemFromLocalStorage,
-} from "@/utils/variableService";
+} from '@/utils/variableService';
 
 import { useParams } from "next/navigation";
 import { QUERY_KEY } from "@/constants/queryKey";
@@ -148,9 +148,9 @@ function CustomModeler() {
     },
     onSuccess: () => {
       toast({
-        title: "Save all changes sucessfully!",
-        status: "success",
-        position: "top-right",
+        title: 'Save all changes sucessfully!',
+        status: 'success',
+        position: 'top-right',
         duration: 1000,
         isClosable: true,
       });
@@ -158,9 +158,9 @@ function CustomModeler() {
     },
     onError: () => {
       toast({
-        title: "There are some errors, try again !",
-        status: "error",
-        position: "top-right",
+        title: 'There are some errors, try again !',
+        status: 'error',
+        position: 'top-right',
         duration: 1000,
         isClosable: true,
       });
@@ -171,9 +171,9 @@ function CustomModeler() {
     const processProperties = getProcessFromLocalStorage(processID as string);
     if (!processProperties) {
       toast({
-        title: "There are some errors, please refresh the page!",
-        status: "error",
-        position: "top-right",
+        title: 'There are some errors, please refresh the page!',
+        status: 'error',
+        position: 'top-right',
         duration: 1000,
         isClosable: true,
       });
@@ -210,17 +210,17 @@ function CustomModeler() {
 
       if (error instanceof BpmnParseError) {
         toast({
-          title: error.message + ": " + error.bpmnId,
-          status: "error",
-          position: "bottom-right",
+          title: error.message + ': ' + error.bpmnId,
+          status: 'error',
+          position: 'bottom-right',
           duration: 1000,
           isClosable: true,
         });
       }
       toast({
         title: (error as Error).message,
-        status: "error",
-        position: "bottom-right",
+        status: 'error',
+        position: 'bottom-right',
         duration: 1000,
         isClosable: true,
       });
