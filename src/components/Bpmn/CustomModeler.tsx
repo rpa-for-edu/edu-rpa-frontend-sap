@@ -44,6 +44,8 @@ import BpmnModelerLayout from "./BpmnModelerLayout";
 import BpmnRightSidebar from "./BpmnRightSidebar";
 import BpmnBottomPanel from "./BpmnBottomPanel";
 import { BpmnParseError } from "@/utils/bpmn-parser/error";
+import { CreateVersionModal } from "./VersionsPanel";
+import versionApi from "@/apis/versionApi";
 
 interface OriginalObject {
   [key: string]: {
@@ -62,6 +64,11 @@ function CustomModeler() {
   const dispatch = useDispatch();
   const processID = params.id;
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isCreateVersionOpen,
+    onOpen: onOpenCreateVersion,
+    onClose: onCloseCreateVersion,
+  } = useDisclosure();
   const [errorTrace, setErrorTrace] = useState<string>("");
   const [showRobotCode, setShowRobotCode] = useState(false);
   const [activityItem, setActivityItem] = useState({
@@ -167,6 +174,31 @@ function CustomModeler() {
     },
   });
 
+  const mutateCreateVersion = useMutation({
+    mutationFn: async (data: { tag: string; description: string }) => {
+      return await versionApi.createVersion(processID as string, data);
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Version created successfully!',
+        status: 'success',
+        position: 'top-right',
+        duration: 2000,
+        isClosable: true,
+      });
+      onCloseCreateVersion();
+    },
+    onError: () => {
+      toast({
+        title: 'Failed to create version',
+        status: 'error',
+        position: 'top-right',
+        duration: 2000,
+        isClosable: true,
+      });
+    },
+  });
+
   const handleSaveAll = () => {
     const processProperties = getProcessFromLocalStorage(processID as string);
     if (!processProperties) {
@@ -234,6 +266,17 @@ function CustomModeler() {
       status: "info",
       position: "top-right",
       duration: 2000,
+    });
+  };
+
+  const handleCreateVersion = () => {
+    onOpenCreateVersion();
+  };
+
+  const handleShowVersions = () => {
+    router.push({
+      pathname: `/studio/modeler/${processID}/versions`,
+      query: { name: processName },
     });
   };
 
@@ -368,6 +411,8 @@ function CustomModeler() {
       onSaveAll={handleSaveAll}
       onPublish={handlePublish}
       onRobotCode={handleRobotCode}
+      onCreateVersion={handleCreateVersion}
+      onShowVersions={handleShowVersions}
       modelerRef={bpmnReactJs}
       rightSidebar={
         <BpmnRightSidebar
@@ -404,6 +449,15 @@ function CustomModeler() {
           }}
         />
       )}
+
+      {/* Create Version Modal */}
+      <CreateVersionModal
+        isOpen={isCreateVersionOpen}
+        onClose={onCloseCreateVersion}
+        onCreateVersion={(data) => mutateCreateVersion.mutate(data)}
+        lastVersionTag="Autosaved"
+        isLoading={mutateCreateVersion.isPending}
+      />
     </BpmnModelerLayout>
   );
 }
