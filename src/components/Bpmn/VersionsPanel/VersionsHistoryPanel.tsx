@@ -11,13 +11,8 @@ import {
   MenuItem,
   IconButton,
   Badge,
-  Tooltip,
 } from "@chakra-ui/react";
-import { Version } from "@/interfaces/version";
-import {
-  getVersionsGroupedByDate,
-  formatVersionTime,
-} from "@/mocks/versionMockData";
+import { VersionListItem } from "@/interfaces/version";
 import {
   FiMoreVertical,
   FiRotateCcw,
@@ -27,17 +22,63 @@ import {
 } from "react-icons/fi";
 
 interface VersionsHistoryPanelProps {
-  versions: Version[];
+  versions: VersionListItem[];
   // Support selecting 2 versions for comparison
   baseVersionId?: string;
   compareVersionId?: string;
-  onVersionSelect: (version: Version, isBaseVersion: boolean) => void;
+  onVersionSelect: (version: VersionListItem, isBaseVersion: boolean) => void;
   showChanges: boolean;
-  onRestoreVersion?: (version: Version) => void;
-  onEditVersion?: (version: Version) => void;
-  onDownloadVersion?: (version: Version) => void;
-  onDeleteVersion?: (version: Version) => void;
+  onRestoreVersion?: (version: VersionListItem) => void;
+  onEditVersion?: (version: VersionListItem) => void;
+  onDownloadVersion?: (version: VersionListItem) => void;
+  onDeleteVersion?: (version: VersionListItem) => void;
 }
+
+// Helper function to group versions by date
+const getVersionsGroupedByDate = (
+  versions: VersionListItem[]
+): Record<string, VersionListItem[]> => {
+  const groups: Record<string, VersionListItem[]> = {};
+
+  versions.forEach((version) => {
+    const date = new Date(version.updatedAt);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    let dateKey: string;
+
+    if (date.toDateString() === today.toDateString()) {
+      dateKey = "Today";
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      dateKey = "Yesterday";
+    } else {
+      dateKey = date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year:
+          date.getFullYear() !== today.getFullYear() ? "numeric" : undefined,
+      });
+    }
+
+    if (!groups[dateKey]) {
+      groups[dateKey] = [];
+    }
+    groups[dateKey].push(version);
+  });
+
+  return groups;
+};
+
+// Helper function to format time
+const formatVersionTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
 
 export default function VersionsHistoryPanel({
   versions,
@@ -58,7 +99,7 @@ export default function VersionsHistoryPanel({
     return null;
   };
 
-  const handleVersionClick = (version: Version) => {
+  const handleVersionClick = (version: VersionListItem) => {
     if (!showChanges) {
       // When showChanges is off, only select one version (base)
       onVersionSelect(version, true);
@@ -89,6 +130,14 @@ export default function VersionsHistoryPanel({
     }
   };
 
+  // Get creator display name
+  const getCreatorName = (version: VersionListItem): string => {
+    if (version.creator?.name) {
+      return version.creator.name;
+    }
+    return `User ${version.createdBy}`;
+  };
+
   return (
     <Box
       w="280px"
@@ -101,7 +150,7 @@ export default function VersionsHistoryPanel({
       {/* Header */}
       <Box p={3} borderBottom="1px solid" borderColor="gray.200">
         <Text fontSize="sm" fontWeight="semibold" color="gray.800">
-          Versions
+          Versions ({versions.length})
         </Text>
       </Box>
 
@@ -124,21 +173,17 @@ export default function VersionsHistoryPanel({
         </Box>
       )}
 
-      {/* Current Label */}
-
       {/* Versions List */}
       <VStack spacing={0} align="stretch">
         {Object.entries(groupedVersions).map(
           ([date, dateVersions], groupIndex) => (
             <Box key={date}>
               {/* Date Separator */}
-              {groupIndex > 0 && (
-                <Box px={3} py={2} bg="gray.50">
-                  <Text fontSize="xs" color="gray.500" fontWeight="medium">
-                    {date}
-                  </Text>
-                </Box>
-              )}
+              <Box px={3} py={2} bg="gray.50">
+                <Text fontSize="xs" color="gray.500" fontWeight="medium">
+                  {date}
+                </Text>
+              </Box>
 
               {/* Versions for this date */}
               {dateVersions.map((version) => {
@@ -181,7 +226,7 @@ export default function VersionsHistoryPanel({
                       {/* Avatar */}
                       <Avatar
                         size="sm"
-                        name={version.createdBy.name}
+                        name={getCreatorName(version)}
                         bg="cyan.500"
                         color="white"
                         fontSize="xs"
@@ -197,6 +242,7 @@ export default function VersionsHistoryPanel({
                           >
                             {version.tag}
                           </Text>
+
                           {showChanges && selectionState && (
                             <Badge
                               colorScheme={
@@ -209,7 +255,7 @@ export default function VersionsHistoryPanel({
                               {selectionState === "base" ? "Base" : "Compare"}
                             </Badge>
                           )}
-                          {!showChanges && isSelected && (
+                          {/* {!showChanges && isSelected && !version.isCurrent && (
                             <Badge
                               colorScheme="blue"
                               fontSize="xs"
@@ -218,11 +264,11 @@ export default function VersionsHistoryPanel({
                             >
                               Selected
                             </Badge>
-                          )}
+                          )} */}
                         </HStack>
                         <Text fontSize="xs" color="gray.500">
-                          {formatVersionTime(version.createdAt)} - Created by{" "}
-                          {version.createdBy.name}
+                          {formatVersionTime(version.updatedAt)} -{" "}
+                          {getCreatorName(version)}
                         </Text>
                         {version.description && (
                           <Text
@@ -248,21 +294,23 @@ export default function VersionsHistoryPanel({
                           _hover={{ bg: "gray.200" }}
                         />
                         <MenuList minW="160px" shadow="lg">
-                          <MenuItem
-                            icon={<FiRotateCcw />}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onRestoreVersion?.(version);
-                            }}
-                            _hover={{
-                              bg: "transparent",
-                              outline: "2px solid",
-                              outlineColor: "#5B5DD9",
-                              outlineOffset: "-2px",
-                            }}
-                          >
-                            Restore as latest
-                          </MenuItem>
+                          {!version.isCurrent && (
+                            <MenuItem
+                              icon={<FiRotateCcw />}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onRestoreVersion?.(version);
+                              }}
+                              _hover={{
+                                bg: "transparent",
+                                outline: "2px solid",
+                                outlineColor: "#5B5DD9",
+                                outlineOffset: "-2px",
+                              }}
+                            >
+                              Restore as latest
+                            </MenuItem>
+                          )}
                           <MenuItem
                             icon={<FiEdit2 />}
                             onClick={(e) => {
@@ -293,22 +341,24 @@ export default function VersionsHistoryPanel({
                           >
                             Download
                           </MenuItem>
-                          <MenuItem
-                            icon={<FiTrash2 />}
-                            color="red.500"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDeleteVersion?.(version);
-                            }}
-                            _hover={{
-                              bg: "transparent",
-                              outline: "2px solid",
-                              outlineColor: "#5B5DD9",
-                              outlineOffset: "-2px",
-                            }}
-                          >
-                            Delete
-                          </MenuItem>
+                          {!version.isCurrent && (
+                            <MenuItem
+                              icon={<FiTrash2 />}
+                              color="red.500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteVersion?.(version);
+                              }}
+                              _hover={{
+                                bg: "transparent",
+                                outline: "2px solid",
+                                outlineColor: "#5B5DD9",
+                                outlineOffset: "-2px",
+                              }}
+                            >
+                              Delete
+                            </MenuItem>
+                          )}
                         </MenuList>
                       </Menu>
                     </HStack>
@@ -317,6 +367,14 @@ export default function VersionsHistoryPanel({
               })}
             </Box>
           )
+        )}
+
+        {versions.length === 0 && (
+          <Box p={4} textAlign="center">
+            <Text fontSize="sm" color="gray.500">
+              No versions available
+            </Text>
+          </Box>
         )}
       </VStack>
     </Box>

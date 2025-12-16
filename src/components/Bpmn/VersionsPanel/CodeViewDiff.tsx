@@ -22,7 +22,13 @@ export default function CodeViewDiff({
     return (
       <Box h="100%" w="100%" bg="white">
         {/* Single Label */}
-        <Box px={4} py={2} bg="gray.50" borderBottom="1px solid" borderColor="gray.200">
+        <Box
+          px={4}
+          py={2}
+          bg="gray.50"
+          borderBottom="1px solid"
+          borderColor="gray.200"
+        >
           <Text fontSize="sm" fontWeight="medium" color="gray.700">
             {originalLabel}
           </Text>
@@ -61,12 +67,19 @@ export default function CodeViewDiff({
     <Box h="100%" w="100%" bg="white">
       {/* Labels */}
       <Flex borderBottom="1px solid" borderColor="gray.200">
-        <Box flex={1} px={4} py={2} bg="red.50" borderRight="1px solid" borderColor="gray.200">
+        <Box
+          flex={1}
+          px={4}
+          py={1}
+          bg="red.50"
+          borderRight="1px solid"
+          borderColor="gray.200"
+        >
           <Text fontSize="sm" fontWeight="medium" color="red.700">
             {originalLabel}
           </Text>
         </Box>
-        <Box flex={1} px={4} py={2} bg="green.50">
+        <Box flex={1} px={4} py={1} bg="green.50">
           <Text fontSize="sm" fontWeight="medium" color="green.700">
             {modifiedLabel}
           </Text>
@@ -102,4 +115,3 @@ export default function CodeViewDiff({
     </Box>
   );
 }
-

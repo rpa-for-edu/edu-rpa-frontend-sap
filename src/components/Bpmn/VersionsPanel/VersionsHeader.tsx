@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   Flex,
@@ -12,18 +12,20 @@ import {
   Tabs,
   TabList,
   Tab,
-} from '@chakra-ui/react';
-import { ChevronRightIcon } from '@chakra-ui/icons';
-import { FiBell, FiHelpCircle, FiUser } from 'react-icons/fi';
-import Link from 'next/link';
+  Button,
+} from "@chakra-ui/react";
+import { ChevronRightIcon, AddIcon } from "@chakra-ui/icons";
+import { FiBell, FiHelpCircle, FiUser } from "react-icons/fi";
+import Link from "next/link";
 
 interface VersionsHeaderProps {
   processId: string;
   processName: string;
-  activeView: 'visual' | 'code';
-  onViewChange: (view: 'visual' | 'code') => void;
+  activeView: "visual" | "code";
+  onViewChange: (view: "visual" | "code") => void;
   showChanges: boolean;
   onShowChangesChange: (show: boolean) => void;
+  onCreateVersion?: () => void;
 }
 
 export default function VersionsHeader({
@@ -33,6 +35,7 @@ export default function VersionsHeader({
   onViewChange,
   showChanges,
   onShowChangesChange,
+  onCreateVersion,
 }: VersionsHeaderProps) {
   return (
     <Box bg="white" borderBottom="1px solid" borderColor="gray.200">
@@ -45,12 +48,22 @@ export default function VersionsHeader({
           fontSize="sm"
         >
           <BreadcrumbItem>
-            <BreadcrumbLink as={Link} href="/home" color="gray.600" _hover={{ color: 'gray.800' }}>
+            <BreadcrumbLink
+              as={Link}
+              href="/home"
+              color="gray.600"
+              _hover={{ color: "gray.800" }}
+            >
               Homepage
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <BreadcrumbLink as={Link} href="/studio" color="gray.600" _hover={{ color: 'gray.800' }}>
+            <BreadcrumbLink
+              as={Link}
+              href="/studio"
+              color="gray.600"
+              _hover={{ color: "gray.800" }}
+            >
               Project
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -59,9 +72,9 @@ export default function VersionsHeader({
               as={Link}
               href={`/studio/modeler/${processId}`}
               color="gray.600"
-              _hover={{ color: 'gray.800' }}
+              _hover={{ color: "gray.800" }}
             >
-              {processName || 'Name project'}
+              {processName ? processName : processId}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
@@ -73,6 +86,17 @@ export default function VersionsHeader({
 
         {/* Right Icons */}
         <HStack spacing={2}>
+          {/* Create Version Button */}
+          <Button
+            leftIcon={<AddIcon boxSize={3} />}
+            size="sm"
+            colorScheme="teal"
+            variant="solid"
+            onClick={onCreateVersion}
+            fontWeight="medium"
+          >
+            Create version
+          </Button>
           <IconButton
             aria-label="Notifications"
             icon={<FiBell />}
@@ -159,4 +183,3 @@ export default function VersionsHeader({
     </Box>
   );
 }
-

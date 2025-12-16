@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { Box, VStack, HStack, Text, Badge } from "@chakra-ui/react";
-import { VersionChange } from "@/interfaces/version";
+import { DetectedChange } from "./VisualViewDiff";
 
 interface ChangesPanelProps {
-  changes: VersionChange[];
-  onChangeClick?: (change: VersionChange) => void;
+  changes: DetectedChange[];
+  onChangeClick?: (change: DetectedChange) => void;
   selectedChangeId?: string;
 }
 
@@ -13,13 +13,13 @@ const MIN_WIDTH = 180;
 const MAX_WIDTH = 400;
 const DEFAULT_WIDTH = 220;
 
-const getChangeTypeColor = (changeType: VersionChange["changeType"]) => {
+const getChangeTypeColor = (changeType: DetectedChange["changeType"]) => {
   switch (changeType) {
     case "added":
       return "green";
     case "changed":
       return "orange";
-    case "moved":
+    case "layoutChanged":
       return "purple";
     case "removed":
       return "red";
@@ -28,13 +28,13 @@ const getChangeTypeColor = (changeType: VersionChange["changeType"]) => {
   }
 };
 
-const getChangeTypeLabel = (changeType: VersionChange["changeType"]) => {
+const getChangeTypeLabel = (changeType: DetectedChange["changeType"]) => {
   switch (changeType) {
     case "added":
       return "Added";
     case "changed":
       return "Changed";
-    case "moved":
+    case "layoutChanged":
       return "Moved";
     case "removed":
       return "Removed";
@@ -55,7 +55,7 @@ export default function ChangesPanel({
   const changesByType = {
     added: changes.filter((c) => c.changeType === "added"),
     changed: changes.filter((c) => c.changeType === "changed"),
-    moved: changes.filter((c) => c.changeType === "moved"),
+    layoutChanged: changes.filter((c) => c.changeType === "layoutChanged"),
     removed: changes.filter((c) => c.changeType === "removed"),
   };
 
