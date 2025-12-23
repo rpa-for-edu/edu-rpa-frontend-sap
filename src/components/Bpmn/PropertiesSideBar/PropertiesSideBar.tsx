@@ -1,12 +1,12 @@
-import { ActivityPackages } from '@/constants/activityPackage';
-import { Activity } from '@/types/activity';
-import { setLocalStorageObject } from '@/utils/localStorageService';
+import { ActivityPackages } from "@/constants/activityPackage";
+import { Activity } from "@/types/activity";
+import { setLocalStorageObject } from "@/utils/localStorageService";
 import {
   getActivityInProcess,
   getProcessFromLocalStorage,
   updateActivityInProcess,
   updateLocalStorage,
-} from '@/utils/processService';
+} from "@/utils/processService";
 import {
   Drawer,
   DrawerBody,
@@ -23,29 +23,29 @@ import {
   DrawerOverlay,
   Box,
   Text,
-} from '@chakra-ui/react';
-import { useParams } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
-import CustomDatePicker from '@/components/CustomDatePicker/ CustomDatePicker';
-import { LocalStorage } from '@/constants/localStorage';
-import { ArgumentProps, PropertiesProps } from '@/types/property';
-import { getVariableItemFromLocalStorage } from '@/utils/variableService';
-import TextAutoComplete from '@/components/Input/AutoComplete/TextAutoComplete';
+} from "@chakra-ui/react";
+import { useParams } from "next/navigation";
+import React, { useEffect, useRef, useState } from "react";
+import CustomDatePicker from "@/components/CustomDatePicker/ CustomDatePicker";
+import { LocalStorage } from "@/constants/localStorage";
+import { ArgumentProps, PropertiesProps } from "@/types/property";
+import { getVariableItemFromLocalStorage } from "@/utils/variableService";
+import TextAutoComplete from "@/components/Input/AutoComplete/TextAutoComplete";
 import {
   getArgumentsByActivity,
   getLibrary,
   getPackageIcon,
   getServiceIcon,
-} from '@/utils/propertyService';
-import { usePropertiesSidebar } from '@/hooks/usePropertiesSidebar';
-import IconImage from '@/components/IconImage/IconImage';
-import Image from 'next/image';
-import { useDispatch } from 'react-redux';
-import { isSavedChange } from '@/redux/slice/bpmnSlice';
-import { Variable } from '@/types/variable';
-import { AuthorizationProvider } from '@/interfaces/enums/provider.enum';
-import ConnectionOptions from './ConnectionSelect';
-import ConditionList from './Condition/ConditionList';
+} from "@/utils/propertyService";
+import { usePropertiesSidebar } from "@/hooks/usePropertiesSidebar";
+import IconImage from "@/components/IconImage/IconImage";
+import Image from "next/image";
+import { useDispatch } from "react-redux";
+import { isSavedChange } from "@/redux/slice/bpmnSlice";
+import { Variable } from "@/types/variable";
+import { AuthorizationProvider } from "@/interfaces/enums/provider.enum";
+import ConnectionOptions from "./ConnectionSelect";
+import ConditionList from "./Condition/ConditionList";
 
 interface PropertiesSideBarProps {
   isOpen: boolean;
@@ -87,7 +87,7 @@ export default function PropertiesSideBar({
     (variable: Variable) => [variable.name, variable.type]
   );
 
-  const [activityKeyword, setActivityKeyword] = useState<string>('');
+  const [activityKeyword, setActivityKeyword] = useState<string>("");
 
   const dispatch = useDispatch();
 
@@ -96,13 +96,17 @@ export default function PropertiesSideBar({
     setFormValues({});
     setSaveResult(null);
     setIsExist(false);
-    setActivityKeyword('');
+    setActivityKeyword("");
   };
 
   const handleActivities = (activity: any) => {
     setProperty(activity.properties);
-    setFormValues(activity.properties.arguments);
-    setSaveResult(activity.properties.return);
+    setFormValues(activity.properties.arguments || {});
+    setSaveResult(activity.properties.return || null);
+    // Also restore the keyword from saved activity
+    if (activity.keyword) {
+      setActivityKeyword(activity.keyword);
+    }
     setIsExist(true);
   };
 
@@ -119,9 +123,57 @@ export default function PropertiesSideBar({
   }, [isOpen, activityItem]);
 
   const handleGoBack = () => {
+    // Clear properties in storage when going back
+    if (activityItem) {
+      const existingActivity = getActivityInProcess(
+        processID,
+        activityItem.activityID
+      );
+
+      const currentStep = sideBarState.currentStep;
+      let clearedProperties = {};
+
+      if (currentStep === 3) {
+        clearedProperties = {
+          activityPackage: sideBarState.packageName,
+          activityName: "",
+          library: "",
+          arguments: {},
+          return: null,
+        };
+      } else if (currentStep === 2) {
+        clearedProperties = {
+          activityPackage: "",
+          activityName: "",
+          library: "",
+          arguments: {},
+          return: null,
+        };
+      }
+
+      const updatePayload = {
+        ...existingActivity,
+        activityID: activityItem.activityID,
+        keyword: "",
+        properties: clearedProperties,
+      };
+
+      const updateProperties = updateActivityInProcess(
+        processID,
+        updatePayload
+      );
+      const updateProcess = updateLocalStorage({
+        ...getProcessFromLocalStorage(processID),
+        activities: updateProperties,
+      });
+
+      setLocalStorageObject(LocalStorage.PROCESS_LIST, updateProcess);
+    }
+
     setBack();
     setFormValues({});
     setSaveResult(null);
+    setActivityKeyword("");
   };
 
   const handleInputChange = (key: string, value: any) => {
@@ -162,13 +214,13 @@ export default function PropertiesSideBar({
     getPackageIcon(sideBarState.packageName);
 
   const handleKeywordRobotFramework = (varName: string, varType: string) => {
-    let prefix = '${';
-    let suffix = '}';
-    if (varType === 'list') {
-      prefix = '@{';
+    let prefix = "${";
+    let suffix = "}";
+    if (varType === "list") {
+      prefix = "@{";
     }
-    if (varType === 'dictionary') {
-      prefix = '&{';
+    if (varType === "dictionary") {
+      prefix = "&{";
     }
     return `${prefix}${varName}${suffix}`;
   };
@@ -190,7 +242,7 @@ export default function PropertiesSideBar({
                 {headerIcon && (
                   <Image src={headerIcon} alt="logo" width={50} height={50} />
                 )}
-                <Text className={headerIcon ? 'ml-[10px]' : ''}>
+                <Text className={headerIcon ? "ml-[10px]" : ""}>
                   {getTitleStep(sideBarState.currentStep)}
                 </Text>
               </Box>
@@ -268,20 +320,20 @@ export default function PropertiesSideBar({
 
               const initDefaultValue = (type: string) => {
                 const defaultValues: Record<string, any> = {
-                  string: '',
-                  email: '',
-                  list: '',
+                  string: "",
+                  email: "",
+                  list: "",
                   boolean: false,
                   date: new Date(),
-                  number: '',
-                  'connection.Google Drive': '',
-                  'connection.Gmail': '',
-                  'connection.Google Sheets': '',
-                  'connection.SAP Mock': '',
-                  'enum.shareType': 'user',
-                  'enum.permission': 'reader',
-                  label_ids: 'inbox',
-                  'expression.logic': '=',
+                  number: "",
+                  "connection.Google Drive": "",
+                  "connection.Gmail": "",
+                  "connection.Google Sheets": "",
+                  "connection.SAP Mock": "",
+                  "enum.shareType": "user",
+                  "enum.permission": "reader",
+                  label_ids: "inbox",
+                  "expression.logic": "=",
                 };
 
                 return defaultValues[type] ?? null;
@@ -296,7 +348,7 @@ export default function PropertiesSideBar({
               ) => (
                 <Input
                   type={type}
-                  value={formValues[paramKey]?.value ?? ''}
+                  value={formValues[paramKey]?.value ?? ""}
                   onChange={(e) => handleInputChange(paramKey, e.target.value)}
                   {...additionalProps}
                 />
@@ -323,7 +375,7 @@ export default function PropertiesSideBar({
                 provider: AuthorizationProvider
               ) => (
                 <ConnectionOptions
-                  value={formValues[paramKey]?.value ?? ''}
+                  value={formValues[paramKey]?.value ?? ""}
                   onChange={(e) => handleInputChange(paramKey, e.target.value)}
                   provider={provider}
                 />
@@ -331,7 +383,7 @@ export default function PropertiesSideBar({
 
               const renderConditionList = (paramKey: string) => (
                 <ConditionList
-                  expression={formValues[paramKey]?.value ?? ''}
+                  expression={formValues[paramKey]?.value ?? ""}
                   onExpressionChange={(value) => {
                     handleInputChange(paramKey, value);
                   }}
@@ -347,34 +399,34 @@ export default function PropertiesSideBar({
                   formValues[paramKey] = setDefaultValue(
                     paramKey,
                     paramValue,
-                    paramValue['value'] ?? initDefaultValue(paramValue.type) // Setup default arguments
+                    paramValue["value"] ?? initDefaultValue(paramValue.type) // Setup default arguments
                   );
                 }
 
-                if (paramValue['hidden']) {
+                if (paramValue["hidden"]) {
                   // Hidden property
                   return null;
                 }
 
                 switch (paramValue.type) {
-                  case 'string':
-                  case 'email':
-                  case 'any':
-                  case 'list':
-                  case 'variable':
-                  case 'dictionary':
-                  case 'DocumentTemplate':
+                  case "string":
+                  case "email":
+                  case "any":
+                  case "list":
+                  case "variable":
+                  case "dictionary":
+                  case "DocumentTemplate":
                     return (
                       <TextAutoComplete
                         type="text"
-                        value={formValues[paramKey]?.value ?? ''}
+                        value={formValues[paramKey]?.value ?? ""}
                         onChange={(newValue: string) =>
                           handleInputChange(paramKey, newValue)
                         }
                         recommendedWords={variableStorage}
                       />
                     );
-                  case 'boolean':
+                  case "boolean":
                     return (
                       <Switch
                         defaultChecked={formValues[paramKey]?.value}
@@ -386,7 +438,7 @@ export default function PropertiesSideBar({
                       />
                     );
 
-                  case 'date':
+                  case "date":
                     return (
                       <CustomDatePicker
                         ref={datePickerRef}
@@ -395,88 +447,88 @@ export default function PropertiesSideBar({
                         handleInputChange={handleInputChange}
                       />
                     );
-                  case 'number':
-                    return renderInput(paramKey, 'number');
-                  case 'connection.Google Drive':
+                  case "number":
+                    return renderInput(paramKey, "number");
+                  case "connection.Google Drive":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.G_DRIVE
                     );
-                  case 'connection.Gmail':
+                  case "connection.Gmail":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.G_GMAIL
                     );
-                  case 'connection.Google Sheets':
+                  case "connection.Google Sheets":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.G_SHEETS
                     );
-                  case 'connection.Google Classroom':
+                  case "connection.Google Classroom":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.G_CLASSROOM
                     );
-                  case 'connection.Google Form':
+                  case "connection.Google Form":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.G_FORMS
                     );
-                  case 'connection.SAP Mock':
+                  case "connection.SAP Mock":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.SAP_MOCK
                     );
-                  case 'connection.ERP Next':
+                  case "connection.ERP Next":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.ERP_NEXT
                     );
-                  case 'enum.shareType':
+                  case "enum.shareType":
                     return renderSelect(paramKey, [
-                      { value: 'user', label: 'User' },
-                      { value: 'all', label: 'All' },
+                      { value: "user", label: "User" },
+                      { value: "all", label: "All" },
                     ]);
-                  case 'enum.permission':
+                  case "enum.permission":
                     return renderSelect(paramKey, [
                       {
-                        value: 'reader',
-                        label: 'Reader',
+                        value: "reader",
+                        label: "Reader",
                       },
                       {
-                        value: 'commenter',
-                        label: 'Commenter',
+                        value: "commenter",
+                        label: "Commenter",
                       },
                       {
-                        value: 'editor',
-                        label: 'Editor',
+                        value: "editor",
+                        label: "Editor",
                       },
-                      { value: 'all', label: 'All' },
+                      { value: "all", label: "All" },
                     ]);
-                  case 'label_ids':
+                  case "label_ids":
                     return renderSelect(paramKey, [
-                      { value: 'inbox', label: 'Inbox' },
+                      { value: "inbox", label: "Inbox" },
                       {
-                        value: 'starred',
-                        label: 'Starred',
+                        value: "starred",
+                        label: "Starred",
                       },
-                      { value: 'sent', label: 'Sent' },
-                      { value: 'spam', label: 'Spam' },
-                      { value: 'trash', label: 'Trash' },
+                      { value: "sent", label: "Sent" },
+                      { value: "spam", label: "Spam" },
+                      { value: "trash", label: "Trash" },
                       {
-                        value: 'scheduled',
-                        label: 'Scheduled',
+                        value: "scheduled",
+                        label: "Scheduled",
                       },
                     ]);
-                  case 'enum.operator.logic':
+                  case "enum.operator.logic":
                     return renderSelect(paramKey, [
-                      { value: '>', label: '>' },
-                      { value: '<', label: '<' },
-                      { value: '=', label: '=' },
-                      { value: '>=', label: '>=' },
-                      { value: '<=', label: '<=' },
+                      { value: ">", label: ">" },
+                      { value: "<", label: "<" },
+                      { value: "=", label: "=" },
+                      { value: ">=", label: ">=" },
+                      { value: "<=", label: "<=" },
                     ]);
-                  case 'list.condition':
+                  case "list.condition":
                     return renderConditionList(paramKey);
                   default:
                     return null;
@@ -501,8 +553,8 @@ export default function PropertiesSideBar({
                         ([paramKey, paramValue]) => {
                           if (
                             paramValue &&
-                            typeof paramValue === 'object' &&
-                            'description' in paramValue
+                            typeof paramValue === "object" &&
+                            "description" in paramValue
                           ) {
                             return (
                               <Tooltip
@@ -510,7 +562,7 @@ export default function PropertiesSideBar({
                                 key={paramKey}
                               >
                                 <FormControl>
-                                  {!paramValue['hidden'] && (
+                                  {!paramValue["hidden"] && (
                                     <FormLabel>{paramKey}</FormLabel>
                                   )}
                                   {renderProperty(
@@ -532,7 +584,7 @@ export default function PropertiesSideBar({
                         <FormControl>
                           <FormLabel>Result Variable</FormLabel>
                           <Select
-                            defaultValue={saveResult || ''}
+                            defaultValue={saveResult || ""}
                             placeholder="Choose Variable"
                             onChange={(e) => {
                               setSaveResult(e.target.value);
