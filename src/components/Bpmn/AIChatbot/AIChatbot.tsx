@@ -28,6 +28,16 @@ import chatbotApi, {
 import { useMutation } from "@tanstack/react-query";
 import { convertJsonToProcess } from "@/utils/bpmn-parser/json-to-bpmn-xml.util";
 import { layoutProcess } from "bpmn-auto-layout";
+import { ActivityPackages } from "@/constants/activityPackage";
+import {
+  getActivityInProcess,
+  getProcessFromLocalStorage,
+  updateActivityInProcess,
+  updateLocalStorage,
+} from "@/utils/processService";
+import { setLocalStorageObject } from "@/utils/localStorageService";
+import { LocalStorage } from "@/constants/localStorage";
+import { getLibrary, getArgumentsByActivity } from "@/utils/propertyService";
 
 interface AIChatbotProps {
   isOpen: boolean;
@@ -77,6 +87,84 @@ const getLoadingMessage = (nodeName?: string): string => {
   return `⚙️ Processing: ${nodeName}...`;
 };
 
+// Parse activity_id to find package and activity
+const parseActivityId = (
+  activityId: string
+): {
+  packageName: string;
+  activityDisplayName: string;
+  activityTemplate: any;
+} | null => {
+  if (!activityId) return null;
+
+  // Activity ID format: "package_prefix.activity_name"
+  // Examples: "gmail.send_email", "drive.upload_file", "sheet.create_spreadsheet"
+
+  // Map activity prefix to package display name
+  const prefixToPackageMap: Record<string, string> = {
+    gmail: "Gmail",
+    drive: "Google Drive",
+    google_drive: "Google Drive",
+    sheet: "Google Sheet",
+    google_sheets: "Google Sheet",
+    google_classroom: "Google Classroom",
+    google_form: "Google Form",
+    control: "Control",
+    browser_automation: "Browser automation",
+    browser: "Browser automation",
+    document_automation: "Document automation",
+    document: "Document automation",
+    data_manipulation: "Data manipulation",
+    data: "Data manipulation",
+    file_storage: "File storage",
+    file: "File storage",
+    sap_mock: "SAP MOCK",
+    sap: "SAP MOCK",
+    erpnext: "ERPNext",
+    erp: "ERPNext",
+  };
+
+  // Try to split the activity ID
+  const parts = activityId.split(".");
+  if (parts.length < 2) return null;
+
+  const prefix = parts[0];
+  const activityName = parts.slice(1).join(".");
+
+  // Find the package
+  const packageDisplayName = prefixToPackageMap[prefix];
+  if (!packageDisplayName) {
+    console.warn(`[AIChatbot] Unknown package prefix: ${prefix}`);
+    return null;
+  }
+
+  // Find the package in ActivityPackages
+  const activityPackage = ActivityPackages.find(
+    (pkg) => pkg.displayName === packageDisplayName
+  );
+
+  if (!activityPackage) {
+    console.warn(`[AIChatbot] Package not found: ${packageDisplayName}`);
+    return null;
+  }
+
+  // Find the activity template by templateId
+  const activityTemplate = activityPackage.activityTemplates.find(
+    (template: any) => template.templateId === activityId
+  );
+
+  if (!activityTemplate) {
+    console.warn(`[AIChatbot] Activity template not found: ${activityId}`);
+    return null;
+  }
+
+  return {
+    packageName: packageDisplayName,
+    activityDisplayName: activityTemplate.displayName,
+    activityTemplate,
+  };
+};
+
 export default function AIChatbot({
   isOpen,
   onClose,
@@ -120,6 +208,14 @@ for assistance creating a new BPMN process and assign existing activity package 
   const [simulatedLoadingStage, setSimulatedLoadingStage] = useState<
     "user_input" | "bpmn_generating" | "retrieving" | "select_assign" | null
   >(null);
+  const [pendingMapping, setPendingMapping] = useState<any>(null);
+  const [storedMappingData, setStoredMappingData] = useState<any>(null);
+  const [selectedAutomaticNode, setSelectedAutomaticNode] = useState<{
+    nodeId: string;
+    nodeName: string;
+    mappingEntry: any;
+  } | null>(null);
+  const [showCandidates, setShowCandidates] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
 
@@ -156,7 +252,7 @@ for assistance creating a new BPMN process and assign existing activity package 
     }
   }, [isOpen]);
 
-  // Listen to BPMN modeler selection changes
+  // Listen to BPMN modeler selection changes (for reject mode)
   useEffect(() => {
     if (!modelerRef?.bpmnModeler || !isRejectMode) return;
 
@@ -240,6 +336,86 @@ for assistance creating a new BPMN process and assign existing activity package 
       eventBus.off("selection.changed", handleSelectionChanged);
     };
   }, [modelerRef, isRejectMode]);
+
+  // Listen to BPMN modeler selection changes (for automatic node candidates)
+  useEffect(() => {
+    if (!modelerRef?.bpmnModeler || !storedMappingData) return;
+
+    const eventBus = modelerRef.bpmnModeler.get("eventBus");
+    const selection = modelerRef.bpmnModeler.get("selection");
+    const elementRegistry = modelerRef.bpmnModeler.get("elementRegistry");
+
+    const handleSelectionChanged = () => {
+      try {
+        const selectedElements = selection.get();
+
+        // Only handle single selection
+        if (selectedElements.length !== 1) {
+          setSelectedAutomaticNode(null);
+          return;
+        }
+
+        const el = selectedElements[0];
+        if (!el?.id) {
+          setSelectedAutomaticNode(null);
+          return;
+        }
+
+        // Get element info
+        const element = elementRegistry.get(el.id);
+        if (!element || !element.businessObject) {
+          setSelectedAutomaticNode(null);
+          return;
+        }
+
+        const bo = element.businessObject;
+        const nodeName = bo.name || el.id;
+
+        // Check if this node has mapping data
+        const mappingEntries: any[] = Array.isArray(storedMappingData)
+          ? storedMappingData.flatMap((item: any) => Object.values(item))
+          : Object.values(storedMappingData);
+
+        const mappingEntry = mappingEntries.find(
+          (entry: any) => entry?.node_id === el.id
+        );
+
+        // Show candidates for nodes that have candidates (both automatic and manual)
+        if (
+          mappingEntry &&
+          mappingEntry.candidates &&
+          mappingEntry.candidates.length > 0
+        ) {
+          console.log(
+            `🎯 [Chatbot] Selected node with candidates: ${el.id}`,
+            mappingEntry
+          );
+          setSelectedAutomaticNode({
+            nodeId: el.id,
+            nodeName: nodeName,
+            mappingEntry: mappingEntry,
+          });
+          // setShowCandidates(true); // Always show candidates when selecting a new node
+        } else {
+          setSelectedAutomaticNode(null);
+        }
+      } catch (error) {
+        console.error(
+          "❌ [Chatbot] Error handling automatic node selection:",
+          error
+        );
+      }
+    };
+
+    // Initial check
+    handleSelectionChanged();
+
+    eventBus.on("selection.changed", handleSelectionChanged);
+
+    return () => {
+      eventBus.off("selection.changed", handleSelectionChanged);
+    };
+  }, [modelerRef, storedMappingData]);
 
   // Extract available nodes from BPMN structure
   const extractAvailableNodes = (
@@ -383,6 +559,293 @@ for assistance creating a new BPMN process and assign existing activity package 
     }
   };
 
+  // Handle candidate selection change for an automatic node
+  const handleCandidateChange = (nodeId: string, newActivityId: string) => {
+    console.log(
+      `🔄 [Chatbot] Changing candidate for ${nodeId} to ${newActivityId}`
+    );
+
+    // Parse the new activity ID
+    const parsedActivity = parseActivityId(newActivityId);
+    if (!parsedActivity) {
+      console.warn(
+        `❌ [Chatbot] Failed to parse activity ID: ${newActivityId}`
+      );
+      toast({
+        title: "Failed to change activity",
+        description: "Could not parse the selected activity",
+        status: "error",
+        position: "top-right",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const { packageName, activityDisplayName, activityTemplate } =
+      parsedActivity;
+
+    // Get existing activity from storage
+    const existingActivity = getActivityInProcess(processId, nodeId);
+    if (!existingActivity) {
+      console.warn(`❌ [Chatbot] Activity ${nodeId} not found in storage`);
+      return;
+    }
+
+    // Prepare arguments with empty/default values
+    const emptyArguments: Record<string, any> = {};
+    if (activityTemplate.arguments) {
+      Object.keys(activityTemplate.arguments).forEach((argKey) => {
+        const argDef = activityTemplate.arguments[argKey];
+        emptyArguments[argKey] = {
+          keywordArg: argDef.keywordArg || null,
+          overrideType: argDef.overrideType || null,
+          value: argDef.value !== undefined ? argDef.value : "",
+        };
+      });
+    }
+
+    // Create update payload
+    const updatePayload = {
+      ...existingActivity,
+      activityID: nodeId,
+      keyword: activityTemplate.keyword || "",
+      properties: {
+        activityPackage: packageName,
+        activityName: activityDisplayName,
+        library: getLibrary(packageName),
+        arguments: emptyArguments,
+        return: null,
+      },
+    };
+
+    console.log(`✅ [Chatbot] Updating activity for ${nodeId}:`, updatePayload);
+
+    // Update in localStorage
+    const updatedActivities = updateActivityInProcess(processId, updatePayload);
+    const updatedProcess = updateLocalStorage({
+      ...getProcessFromLocalStorage(processId),
+      activities: updatedActivities,
+    });
+
+    setLocalStorageObject(LocalStorage.PROCESS_LIST, updatedProcess);
+
+    // Update the stored mapping to reflect the new selection
+    if (storedMappingData) {
+      const mappingEntries: any[] = Array.isArray(storedMappingData)
+        ? storedMappingData
+        : [storedMappingData];
+
+      const updatedMapping = mappingEntries.map((entry: any) => {
+        const entryKeys = Object.keys(entry);
+        if (entryKeys.length > 0 && entry[entryKeys[0]]?.node_id === nodeId) {
+          return {
+            [entryKeys[0]]: {
+              ...entry[entryKeys[0]],
+              activity_id: newActivityId,
+            },
+          };
+        }
+        return entry;
+      });
+
+      setStoredMappingData(updatedMapping);
+    }
+
+    // Update selected automatic node to reflect the change
+    if (selectedAutomaticNode && selectedAutomaticNode.nodeId === nodeId) {
+      setSelectedAutomaticNode({
+        ...selectedAutomaticNode,
+        mappingEntry: {
+          ...selectedAutomaticNode.mappingEntry,
+          activity_id: newActivityId,
+        },
+      });
+    }
+
+    toast({
+      title: "Activity changed",
+      description: `Changed to ${activityDisplayName}`,
+      status: "success",
+      position: "top-right",
+      duration: 2000,
+      isClosable: true,
+    });
+  };
+
+  // Auto-assign activities for nodes with is_automatic = true
+  const autoAssignActivities = (mapping: any) => {
+    if (!mapping || !processId) {
+      console.warn(
+        "❌ [AIChatbot] Cannot auto-assign: missing mapping or processId"
+      );
+      return;
+    }
+
+    console.log(
+      "🤖 [AIChatbot] Starting auto-assign for processId:",
+      processId
+    );
+    console.log("🤖 [AIChatbot] Mapping data:", mapping);
+
+    // Parse mapping array
+    const mappingEntries: any[] = Array.isArray(mapping)
+      ? mapping.flatMap((item) => Object.values(item))
+      : Object.values(mapping);
+
+    console.log("🤖 [AIChatbot] Parsed mapping entries:", mappingEntries);
+
+    let assignedCount = 0;
+
+    mappingEntries.forEach((entry: any, index: number) => {
+      console.log(`\n🔍 [AIChatbot] Processing entry ${index}:`, entry);
+
+      if (!entry || !entry.is_automatic || !entry.activity_id) {
+        console.log(
+          `⏭️ [AIChatbot] Skipping entry ${index}: not automatic or no activity ID`
+        );
+        return;
+      }
+
+      const { node_id, activity_id } = entry;
+
+      console.log(
+        `🤖 [AIChatbot] Auto-assigning ${activity_id} to node ${node_id}`
+      );
+
+      // Parse the activity ID to get package and activity info
+      const parsedActivity = parseActivityId(activity_id);
+      if (!parsedActivity) {
+        console.warn(
+          `❌ [AIChatbot] Failed to parse activity ID: ${activity_id}`
+        );
+        return;
+      }
+
+      console.log(`✅ [AIChatbot] Parsed activity:`, parsedActivity);
+
+      const { packageName, activityDisplayName, activityTemplate } =
+        parsedActivity;
+
+      // Get existing activity from storage
+      const existingActivity = getActivityInProcess(processId, node_id);
+      console.log(
+        `📦 [AIChatbot] Existing activity for ${node_id}:`,
+        existingActivity
+      );
+
+      if (!existingActivity) {
+        console.warn(
+          `❌ [AIChatbot] Activity ${node_id} not found in storage. Skipping auto-assign.`
+        );
+        console.log(
+          `💡 [AIChatbot] This might mean the activity hasn't been created yet. It will be created when XML is applied.`
+        );
+        return;
+      }
+
+      // Prepare arguments with empty values
+      const emptyArguments: Record<string, any> = {};
+      if (activityTemplate.arguments) {
+        Object.keys(activityTemplate.arguments).forEach((argKey) => {
+          const argDef = activityTemplate.arguments[argKey];
+          emptyArguments[argKey] = {
+            keywordArg: argDef.keywordArg || null,
+            overrideType: argDef.overrideType || null,
+            value: argDef.value !== undefined ? argDef.value : "",
+          };
+        });
+      }
+      console.log(
+        `📝 [AIChatbot] Prepared arguments for ${node_id}:`,
+        emptyArguments
+      );
+
+      // Create update payload
+      const updatePayload = {
+        ...existingActivity,
+        activityID: node_id,
+        keyword: activityTemplate.keyword || "",
+        properties: {
+          activityPackage: packageName,
+          activityName: activityDisplayName,
+          library: getLibrary(packageName),
+          arguments: emptyArguments,
+          return: null,
+        },
+      };
+
+      console.log(
+        `💾 [AIChatbot] Update payload for ${node_id}:`,
+        JSON.stringify(updatePayload, null, 2)
+      );
+
+      // Update in localStorage
+      const updatedActivities = updateActivityInProcess(
+        processId,
+        updatePayload
+      );
+      console.log(
+        `📚 [AIChatbot] Updated activities array:`,
+        updatedActivities
+      );
+
+      const updatedProcess = updateLocalStorage({
+        ...getProcessFromLocalStorage(processId),
+        activities: updatedActivities,
+      });
+      console.log(`🗂️ [AIChatbot] Updated process:`, updatedProcess);
+
+      setLocalStorageObject(LocalStorage.PROCESS_LIST, updatedProcess);
+
+      // Verify the data was saved
+      const verifyActivity = getActivityInProcess(processId, node_id);
+      console.log(
+        `✔️ [AIChatbot] Verification - Activity in storage after save:`,
+        verifyActivity
+      );
+
+      // Check properties structure
+      if (verifyActivity?.properties) {
+        console.log(
+          `📋 [AIChatbot] Properties keys:`,
+          Object.keys(verifyActivity.properties)
+        );
+        console.log(
+          `📋 [AIChatbot] Has activityPackage:`,
+          !!verifyActivity.properties.activityPackage
+        );
+        console.log(
+          `📋 [AIChatbot] Has activityName:`,
+          !!verifyActivity.properties.activityName
+        );
+        console.log(
+          `📋 [AIChatbot] Arguments count:`,
+          Object.keys(verifyActivity.properties.arguments || {}).length
+        );
+      }
+
+      assignedCount++;
+    });
+
+    console.log(
+      `\n🎉 [AIChatbot] Auto-assign complete. Assigned ${assignedCount} activities.`
+    );
+
+    if (assignedCount > 0) {
+      toast({
+        title: "Activities auto-assigned",
+        description: `${assignedCount} automatic node${
+          assignedCount > 1 ? "s have" : " has"
+        } been assigned ${assignedCount > 1 ? "activities" : "an activity"}`,
+        status: "success",
+        position: "top-right",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  };
+
   const handlePipelineResponse = (data: PipelineResponse) => {
     if (data.status === "waiting_feedback" && data.interrupt) {
       setCurrentInterrupt(data.interrupt);
@@ -486,6 +949,18 @@ for assistance creating a new BPMN process and assign existing activity package 
                 result.activities || null,
                 automaticIds
               );
+
+              // Store mapping for auto-assign after XML is applied
+              if (
+                data.interrupt.type === "mapping_feedback" &&
+                data.interrupt.mapping
+              ) {
+                setPendingMapping(data.interrupt.mapping);
+                setStoredMappingData(data.interrupt.mapping);
+                console.log(
+                  "📝 [AIChatbot] Stored mapping for auto-assign and candidate selection"
+                );
+              }
             }
           } catch (e) {
             console.error(
@@ -515,6 +990,15 @@ for assistance creating a new BPMN process and assign existing activity package 
               result.activities || null,
               automaticIds
             );
+
+            // Store mapping for auto-assign after XML is applied
+            if (completedMapping) {
+              setPendingMapping(completedMapping);
+              setStoredMappingData(completedMapping);
+              console.log(
+                "📝 [AIChatbot] Stored mapping for auto-assign and candidate selection (completed)"
+              );
+            }
           } else {
             setFinalXml(null);
             setPendingActivities(null);
@@ -922,6 +1406,20 @@ for assistance creating a new BPMN process and assign existing activity package 
           pendingActivities || undefined,
           automaticNodeIds
         );
+
+        console.log("✅ [AI Chatbot] XML applied successfully");
+
+        // Auto-assign activities after XML is fully applied
+        if (pendingMapping) {
+          console.log(
+            "🤖 [AI Chatbot] Auto-assigning activities after XML apply..."
+          );
+          // Small delay to ensure localStorage is fully updated
+          setTimeout(() => {
+            autoAssignActivities(pendingMapping);
+            setPendingMapping(null); // Clear after processing
+          }, 500);
+        }
       } catch (error: any) {
         console.error("❌ [AI Chatbot] Auto apply XML failed:", error);
         toast({
@@ -964,6 +1462,10 @@ for assistance creating a new BPMN process and assign existing activity package 
     setSelectedNodeIds([]);
     setSelectedNodesInfo([]);
     setSimulatedLoadingStage(null);
+    setPendingMapping(null);
+    setStoredMappingData(null);
+    setSelectedAutomaticNode(null);
+    setShowCandidates(true);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1182,6 +1684,134 @@ for assistance creating a new BPMN process and assign existing activity package 
 
         <div ref={messagesEndRef} />
       </VStack>
+
+      {/* Automatic Node Candidate Selection */}
+      {selectedAutomaticNode && (
+        <Box
+          px={4}
+          py={3}
+          borderTop="2px solid"
+          borderColor="teal.300"
+          bg="teal.50"
+        >
+          <VStack spacing={3} align="stretch">
+            <HStack justify="space-between" align="start">
+              <Box flex={1}>
+                <HStack spacing={2} mb={1}>
+                  <Badge colorScheme="teal" fontSize="xs">
+                    AI Suggestion Activities
+                  </Badge>
+                  <Text fontWeight="bold" fontSize="sm" color="teal.800">
+                    {selectedAutomaticNode.nodeName}
+                  </Text>
+                </HStack>
+                <Text fontSize="xs" color="gray.600">
+                  {/* The system has recommended activities for this node. You can
+                  change the selection below: */}
+                </Text>
+              </Box>
+              <Button
+                size="xs"
+                variant="ghost"
+                colorScheme="teal"
+                onClick={() => setShowCandidates(!showCandidates)}
+              >
+                {showCandidates ? "Hide" : "Show"}
+              </Button>
+            </HStack>
+
+            {/* Candidates List */}
+            {showCandidates &&
+              selectedAutomaticNode.mappingEntry.candidates &&
+              selectedAutomaticNode.mappingEntry.candidates.length > 0 && (
+                <VStack
+                  spacing={2}
+                  align="stretch"
+                  maxH="300px"
+                  overflowY="auto"
+                >
+                  {selectedAutomaticNode.mappingEntry.candidates
+                    .filter((candidate: any) => {
+                      // Only show candidates with score > 0.7
+                      const score = candidate.score || 0;
+                      return score > 0.7;
+                    })
+                    .map((candidate: any, index: number) => {
+                      const isSelected =
+                        candidate.activity_id ===
+                        selectedAutomaticNode.mappingEntry.activity_id;
+
+                      const score = candidate.score || 0;
+
+                      return (
+                        <Box
+                          key={index}
+                          p={3}
+                          bg={isSelected ? "teal.100" : "white"}
+                          border="2px solid"
+                          borderColor={isSelected ? "teal.500" : "gray.200"}
+                          borderRadius="md"
+                          cursor="pointer"
+                          onClick={() =>
+                            handleCandidateChange(
+                              selectedAutomaticNode.nodeId,
+                              candidate.activity_id
+                            )
+                          }
+                          _hover={{
+                            borderColor: isSelected ? "teal.600" : "teal.300",
+                            bg: isSelected ? "teal.200" : "gray.50",
+                          }}
+                          transition="all 0.2s"
+                        >
+                          <HStack justify="space-between" align="start">
+                            <VStack align="start" spacing={1} flex={1}>
+                              <HStack>
+                                {isSelected && (
+                                  <CheckIcon color="teal.600" boxSize={3} />
+                                )}
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight={isSelected ? "bold" : "medium"}
+                                  color={isSelected ? "teal.800" : "gray.700"}
+                                >
+                                  {candidate.keyword || candidate.activity_id}
+                                </Text>
+                              </HStack>
+                              <Text fontSize="xs" color="gray.500">
+                                ID: {candidate.activity_id}
+                              </Text>
+                              {candidate.pkg && (
+                                <Badge
+                                  size="sm"
+                                  colorScheme="blue"
+                                  fontSize="xs"
+                                >
+                                  {candidate.pkg}
+                                </Badge>
+                              )}
+                            </VStack>
+                            <Badge
+                              colorScheme={
+                                score >= 0.8
+                                  ? "green"
+                                  : score >= 0.7
+                                  ? "yellow"
+                                  : "red"
+                              }
+                              fontSize="xs"
+                            >
+                              {Math.round(score * 100)}%
+                            </Badge>
+                          </HStack>
+                        </Box>
+                      );
+                    })}
+                </VStack>
+              )}
+          </VStack>
+        </Box>
+      )}
 
       {/* Input Area - Unified for all stages */}
       <Box
