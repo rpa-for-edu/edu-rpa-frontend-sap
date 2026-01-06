@@ -325,15 +325,16 @@ export default function PropertiesSideBar({
                   list: "",
                   boolean: false,
                   date: new Date(),
-                  number: "",
-                  "connection.Google Drive": "",
-                  "connection.Gmail": "",
-                  "connection.Google Sheets": "",
-                  "connection.SAP Mock": "",
-                  "enum.shareType": "user",
-                  "enum.permission": "reader",
-                  label_ids: "inbox",
-                  "expression.logic": "=",
+                  number: '',
+                  'connection.Google Drive': '',
+                  'connection.Gmail': '',
+                  'connection.Google Sheets': '',
+                  'connection.SAP Mock': '',
+                  'connection.Moodle': '',
+                  'enum.shareType': 'user',
+                  'enum.permission': 'reader',
+                  label_ids: 'inbox',
+                  'expression.logic': '=',
                 };
 
                 return defaultValues[type] ?? null;
@@ -448,7 +449,16 @@ export default function PropertiesSideBar({
                       />
                     );
                   case "number":
-                    return renderInput(paramKey, "number");
+                    return (
+                      <TextAutoComplete
+                        type="text"
+                        value={formValues[paramKey]?.value ?? ""}
+                        onChange={(newValue: string) =>
+                          handleInputChange(paramKey, newValue)
+                        }
+                        recommendedWords={variableStorage}
+                      />
+                    );
                   case "connection.Google Drive":
                     return renderConnectionSelect(
                       paramKey,
@@ -484,7 +494,12 @@ export default function PropertiesSideBar({
                       paramKey,
                       AuthorizationProvider.ERP_NEXT
                     );
-                  case "enum.shareType":
+                  case 'connection.Moodle':
+                    return renderConnectionSelect(
+                      paramKey,
+                      AuthorizationProvider.MOODLE
+                    );
+                  case 'enum.shareType':
                     return renderSelect(paramKey, [
                       { value: "user", label: "User" },
                       { value: "all", label: "All" },
