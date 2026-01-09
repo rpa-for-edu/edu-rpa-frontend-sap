@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -21,8 +21,7 @@ import {
   AlertDescription,
   Box,
   Code,
-} from '@chakra-ui/react';
-import { InfoIcon } from '@chakra-ui/icons';
+} from "@chakra-ui/react";
 
 interface CreateProcessFromSubProcessModalProps {
   isOpen: boolean;
@@ -34,7 +33,9 @@ interface CreateProcessFromSubProcessModalProps {
   isLoading?: boolean;
 }
 
-const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModalProps> = ({
+const CreateProcessFromSubProcessModal: React.FC<
+  CreateProcessFromSubProcessModalProps
+> = ({
   isOpen,
   onClose,
   onConfirm,
@@ -43,7 +44,14 @@ const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModa
   hasNestedSubProcesses,
   isLoading = false,
 }) => {
-  const [processName, setProcessName] = useState(subProcessName || '');
+  const [processName, setProcessName] = useState(subProcessName || "");
+
+  // Reset processName when modal opens with new subProcessName
+  React.useEffect(() => {
+    if (isOpen) {
+      setProcessName(subProcessName || "");
+    }
+  }, [isOpen, subProcessName]);
 
   const handleConfirm = async () => {
     if (!processName.trim()) return;
@@ -57,12 +65,17 @@ const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModa
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg" closeOnOverlayClick={!isLoading}>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size="lg"
+      closeOnOverlayClick={!isLoading}
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Create Process from SubProcess</ModalHeader>
         {!isLoading && <ModalCloseButton />}
-        
+
         <ModalBody>
           <VStack spacing={4} align="stretch">
             {hasNestedSubProcesses && (
@@ -71,7 +84,8 @@ const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModa
                 <Box>
                   <AlertTitle>Nested SubProcess Detected</AlertTitle>
                   <AlertDescription>
-                    This subprocess contains nested subprocesses. Creating a separate process will make it easier to manage.
+                    This subprocess contains nested subprocesses. Creating a
+                    separate process will make it easier to manage.
                   </AlertDescription>
                 </Box>
               </Alert>
@@ -105,7 +119,7 @@ const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModa
                 </HStack>
                 <HStack>
                   <Text color="gray.600">Nested SubProcesses:</Text>
-                  <Text>{hasNestedSubProcesses ? 'Yes' : 'No'}</Text>
+                  <Text>{hasNestedSubProcesses ? "Yes" : "No"}</Text>
                 </HStack>
               </VStack>
             </Box>
@@ -114,8 +128,8 @@ const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModa
               <AlertIcon />
               <Box fontSize="sm">
                 <AlertDescription>
-                  A new process will be created with the content of this subprocess. 
-                  You will be redirected to the new process after creation.
+                  A new process will be created with the content of this
+                  subprocess. You can find it in the process list.
                 </AlertDescription>
               </Box>
             </Alert>
@@ -123,9 +137,9 @@ const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModa
         </ModalBody>
 
         <ModalFooter>
-          <Button 
-            variant="ghost" 
-            mr={3} 
+          <Button
+            variant="ghost"
+            mr={3}
             onClick={handleClose}
             isDisabled={isLoading}
           >
@@ -147,4 +161,3 @@ const CreateProcessFromSubProcessModal: React.FC<CreateProcessFromSubProcessModa
 };
 
 export default CreateProcessFromSubProcessModal;
-

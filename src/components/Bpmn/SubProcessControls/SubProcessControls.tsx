@@ -1,17 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Box, Icon, Tooltip } from "@chakra-ui/react";
-import { ArrowBackIcon } from "@chakra-ui/icons";
+import { Button, Box, Tooltip, HStack, Badge, Icon } from "@chakra-ui/react";
+import { ArrowBackIcon, AddIcon } from "@chakra-ui/icons";
 import { useBpmn } from "@/hooks/useBpmn";
+import {
+  hasNestedSubProcesses,
+  countSubProcessElements,
+} from "@/utils/subprocessExtractor";
 
 interface SubProcessControlsProps {
   bpmnReact?: ReturnType<typeof useBpmn>;
+  onCreateProcessFromSubProcess?: (info: {
+    name: string;
+    elementCount: number;
+    hasNested: boolean;
+  }) => void;
 }
 
 const SubProcessControls: React.FC<SubProcessControlsProps> = ({
   bpmnReact,
+  onCreateProcessFromSubProcess,
 }) => {
   const [currentRoot, setCurrentRoot] = useState<any>(null);
   const [isInSubProcess, setIsInSubProcess] = useState(false);
+  const [hasNested, setHasNested] = useState(false);
   const lastRootIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -34,8 +45,14 @@ const SubProcessControls: React.FC<SubProcessControlsProps> = ({
             root?.businessObject?.$type === "bpmn:SubProcess";
           setIsInSubProcess(isSubProcess);
 
-          // Log subprocess details when entering
+          // Check for nested subprocesses
           if (isSubProcess) {
+            const nested = hasNestedSubProcesses(
+              bpmnReact.bpmnModeler,
+              root.id
+            );
+            setHasNested(nested);
+
             console.log("═══════════════════════════════════════════");
             console.log("🎯 EXPANDED SUBPROCESS - DRILL DOWN");
             console.log("═══════════════════════════════════════════");
@@ -94,6 +111,7 @@ const SubProcessControls: React.FC<SubProcessControlsProps> = ({
               console.error("Failed to get XML:", err);
             }
           } else {
+            setHasNested(false);
             console.log("═══════════════════════════════════════════");
             console.log("🏠 RETURNED TO MAIN PROCESS");
             console.log("═══════════════════════════════════════════");
@@ -176,6 +194,27 @@ const SubProcessControls: React.FC<SubProcessControlsProps> = ({
     }
   };
 
+  const handleCreateProcess = () => {
+    if (
+      !bpmnReact?.bpmnModeler ||
+      !currentRoot ||
+      !onCreateProcessFromSubProcess
+    )
+      return;
+
+    const subProcessName = currentRoot?.businessObject?.name || "SubProcess";
+    const elementCount = countSubProcessElements(
+      bpmnReact.bpmnModeler,
+      currentRoot.id
+    );
+
+    onCreateProcessFromSubProcess({
+      name: subProcessName,
+      elementCount,
+      hasNested,
+    });
+  };
+
   // Don't show if not in subprocess
   if (!isInSubProcess) {
     return null;
@@ -185,20 +224,45 @@ const SubProcessControls: React.FC<SubProcessControlsProps> = ({
 
   return (
     <Box position="absolute" top="10px" left="10px" zIndex={1000}>
-      <Tooltip
-        label={`Back to parent (Exit ${subProcessName})`}
-        placement="right"
-      >
-        <Button
-          size="sm"
-          colorScheme="blue"
-          leftIcon={<ArrowBackIcon />}
-          onClick={goBack}
-          shadow="md"
+      <HStack spacing={2}>
+        <Tooltip
+          label={`Back to parent (Exit ${subProcessName})`}
+          placement="right"
         >
-          Back to Process
-        </Button>
-      </Tooltip>
+          <Button
+            size="sm"
+            colorScheme="blue"
+            leftIcon={<ArrowBackIcon />}
+            onClick={goBack}
+            shadow="md"
+          >
+            Back to Process
+          </Button>
+        </Tooltip>
+
+        {/* Button to create process from subprocess */}
+        {onCreateProcessFromSubProcess && (
+          <Tooltip
+            label="Extract this subprocess as a new standalone process"
+            placement="right"
+          >
+            <Button
+              size="sm"
+              colorScheme="green"
+              leftIcon={<AddIcon />}
+              onClick={handleCreateProcess}
+              shadow="md"
+            >
+              Create Process from SubProcess
+              {hasNested && (
+                <Badge ml={2} colorScheme="orange" fontSize="xs">
+                  Nested
+                </Badge>
+              )}
+            </Button>
+          </Tooltip>
+        )}
+      </HStack>
     </Box>
   );
 };
