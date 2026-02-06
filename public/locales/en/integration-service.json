@@ -66,6 +66,40 @@
         "tokenRequired": "Web Service Token is required",
         "nameMax": "Name must be less than 100 characters"
       }
+    },
+    "erpnext": {
+      "title": "Create ERPNext Connection",
+      "description": "Connect to your ERPNext site. Provides Base URL and API Token (format: api_key:api_secret).",
+      "baseUrl": "ERPNext URL",
+      "baseUrlPlaceholder": "https://your-erpnext-site.com",
+      "apiKey": "API Key",
+      "apiKeyPlaceholder": "Enter API Key",
+      "apiSecret": "API Secret",
+      "apiSecretPlaceholder": "Enter API Secret",
+      "token": "API Token",
+      "tokenPlaceholder": "api_key:api_secret",
+      "tokenHelp": "Format: api_key:api_secret. This token will be securely stored and encrypted",
+      "name": "Connection Name",
+      "nameOptional": "(Optional)",
+      "namePlaceholder": "My ERPNext Site",
+      "nameHelp": "Leave empty to use default name",
+      "required": "*",
+      "creating": "Creating...",
+      "createConnection": "Create Connection",
+      "success": "Success!",
+      "successDescription": "ERPNext connection \"{{name}}\" created successfully",
+      "error": "Error",
+      "errorDefault": "Failed to create ERPNext connection",
+      "validation": {
+        "urlInvalid": "Must be a valid URL (e.g., https://your-erpnext-site.com)",
+        "urlProtocol": "URL must start with http:// or https://",
+        "urlRequired": "ERPNext URL is required",
+        "tokenMin": "Token must be at least 10 characters",
+        "tokenRequired": "API Token is required",
+        "apiKeyRequired": "API Key is required",
+        "apiSecretRequired": "API Secret is required",
+        "nameMax": "Name must be less than 100 characters"
+      }
     }
   }
 }

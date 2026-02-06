@@ -495,6 +495,7 @@ export default function PropertiesPanel({
                 'connection.Google Sheets': '',
                 'connection.SAP Mock': '',
                 'connection.Moodle': '',
+                'connection.ERP Next': '',
                 'enum.shareType': 'user',
                 'enum.permission': 'reader',
                 label_ids: 'inbox',

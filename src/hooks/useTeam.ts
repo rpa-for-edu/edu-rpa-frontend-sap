@@ -20,28 +20,18 @@ export const useTeamProcesses = (
     queryKey: ['team-processes', teamId, page, limit],
     queryFn: () => teamApi.getTeamProcesses(teamId, page, limit),
     enabled: !!teamId,
+    retry: false, // Don't retry on error
+    staleTime: 30 * 1000, // Cache for 30 seconds
   });
 };
 
 export const useTeamProcess = (teamId: string, processId: string) => {
-  console.log('🔍 [useTeamProcess] Called with:', {
-    teamId,
-    processId,
-    teamIdType: typeof teamId,
-    processIdType: typeof processId,
-    enabled: !!teamId && !!processId,
-  });
-
   return useQuery({
     queryKey: ['team-process', teamId, processId],
-    queryFn: () => {
-      console.log('📡 [useTeamProcess] Fetching team process:', {
-        teamId,
-        processId,
-      });
-      return teamApi.getTeamProcessById(teamId, processId);
-    },
+    queryFn: () => teamApi.getTeamProcessById(teamId, processId),
     enabled: !!teamId && !!processId,
+    retry: false,
+    staleTime: 30 * 1000,
   });
 };
 
@@ -153,6 +143,8 @@ export const useTeamRobots = (
     queryKey: ['team-robots', teamId, page, limit],
     queryFn: () => teamApi.getTeamRobots(teamId, page, limit),
     enabled: !!teamId,
+    retry: false, // Don't retry on error
+    staleTime: 30 * 1000,
   });
 };
 
@@ -161,6 +153,8 @@ export const useTeamRobot = (teamId: string, robotKey: string) => {
     queryKey: ['team-robot', teamId, robotKey],
     queryFn: () => teamApi.getTeamRobotByKey(teamId, robotKey),
     enabled: !!teamId && !!robotKey,
+    retry: false,
+    staleTime: 30 * 1000,
   });
 };
 
@@ -243,6 +237,8 @@ export const useTeamRobotConnections = (teamId: string, robotKey: string) => {
     queryKey: ['team-robot-connections', teamId, robotKey],
     queryFn: () => teamApi.getTeamRobotConnections(teamId, robotKey),
     enabled: !!teamId && !!robotKey,
+    retry: false,
+    staleTime: 30 * 1000,
   });
 };
 
@@ -253,6 +249,8 @@ export const useTeamConnections = (teamId: string, provider?: string) => {
     queryKey: ['team-connections', teamId, provider],
     queryFn: () => teamApi.getTeamConnections(teamId, provider),
     enabled: !!teamId,
+    retry: false,
+    staleTime: 30 * 1000,
   });
 };
 
@@ -265,6 +263,8 @@ export const useTeamConnection = (
     queryKey: ['team-connection', teamId, provider, name],
     queryFn: () => teamApi.getTeamConnection(teamId, provider, name),
     enabled: !!teamId && !!provider && !!name,
+    retry: false,
+    staleTime: 30 * 1000,
   });
 };
 
@@ -276,6 +276,6 @@ export const useCurrentTeamMember = (teamId: string) => {
     queryFn: () => teamApi.getCurrentTeamMember(teamId),
     enabled: !!teamId,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 1,
+    retry: false, // Don't retry - if it fails once, stop
   });
 };

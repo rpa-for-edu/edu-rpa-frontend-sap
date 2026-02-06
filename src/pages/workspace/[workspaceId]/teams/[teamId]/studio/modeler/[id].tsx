@@ -5,6 +5,8 @@ import { Box, Spinner, Flex, Text } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import { useTeamProcess, useCurrentTeamMember } from '@/hooks/useTeam';
 import { hasTeamPermission } from '@/utils/teamPermissions';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 const DynamicCustomModeler = dynamic(
   () => import('@/components/Bpmn/CustomModeler'),
@@ -110,3 +112,19 @@ export default function TeamStudioModelerPage() {
     </Box>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+        'studio',
+        'activities',
+      ])),
+    },
+  };
+};
+

@@ -219,7 +219,8 @@ function CustomModeler() {
       LocalStorage.VARIABLE_LIST
     );
 
-    if (indexLocalStorage === undefined) {
+    // getIndexVariableStorage returns -1 when not found (not undefined)
+    if (indexLocalStorage === -1 || indexLocalStorage === undefined) {
       setLocalStorageObject(LocalStorage.VARIABLE_LIST, [
         ...currentLocalStorageList,
         payloadStorage,

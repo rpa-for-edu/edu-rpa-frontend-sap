@@ -1,5 +1,6 @@
 import connectionApi from '@/apis/connectionApi';
 import moodleConnectionApi from '@/apis/moodleConnectionApi';
+import erpNextConnectionApi from '@/apis/erpNextConnectionApi';
 import { providerData } from '@/constants/providerData';
 import { Connection } from '@/interfaces/connection';
 import { userSelector } from '@/redux/selector';
@@ -54,12 +55,19 @@ const ConnectionRow = (props: ConnectionRowProps) => {
       if (data.provider === AuthorizationProvider.MOODLE) {
         await moodleConnectionApi.testMoodleConnection(data.name);
         setStatus('Connected');
+      } else if (data.provider === AuthorizationProvider.ERP_NEXT) {
+         const res = await erpNextConnectionApi.testERPNextConnection(data.name);
+         if (res && res.isValid === false) {
+            throw new Error(res.message || 'Connection invalid');
+         }
+         setStatus('Connected');
       } else {
         // For OAuth connections, use the existing refresh endpoint
         await connectionApi.refreshConnection(data.provider, data.name);
         setStatus('Connected');
       }
     } catch (error) {
+      console.error(`Failed to refresh connection for ${data.provider}:`, error);
       setStatus('Disconnected');
     }
     setIsLoadingRefresh(false);

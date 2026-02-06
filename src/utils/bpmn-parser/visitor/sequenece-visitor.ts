@@ -25,6 +25,7 @@ import {
 import { AuthorizationProvider } from "@/interfaces/enums/provider.enum";
 import _ from "lodash";
 import { LibrabryConfigurations } from "@/constants/activityPackage";
+import { getLibrary } from "../../propertyService";
 export class SequenceVisitor {
   properties: Map<string, Properties>;
   imports: Set<string>;
@@ -146,7 +147,11 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
     }
     const args = property.arguments;
     const assignVariable = property.return;
-    const Lib = property.library;
+    let Lib = property.library;
+
+    if (!Lib && property.activityPackage) {
+      Lib = getLibrary(property.activityPackage);
+    }
 
     let keywordAssigns = [] as ProcessVariable[];
     let keywordArg = [] as Argument[];

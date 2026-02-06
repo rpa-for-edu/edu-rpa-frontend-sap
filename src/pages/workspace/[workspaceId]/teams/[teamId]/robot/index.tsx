@@ -89,7 +89,7 @@ export default function TeamRobotPage() {
     error: memberError,
   } = useCurrentTeamMember(teamId as string);
 
-  const { data: robotsData, isLoading } = useTeamRobots(
+  const { data: robotsData, isLoading, error: robotsError } = useTeamRobots(
     teamId as string,
     page,
     10
@@ -101,24 +101,11 @@ export default function TeamRobotPage() {
   const validateMutation = useValidateTeamRobot();
   const createMutation = useCreateTeamRobot(teamId as string);
 
-  // If loading, has error, or teamMember is null/undefined, assume full permissions
-  // This prevents Access Denied during loading or when API fails
-  const canViewRobots =
-    isLoadingMember || memberError || !teamMember
-      ? true
-      : hasTeamPermission(teamMember, 'view_robots');
-  const canCreateRobot =
-    isLoadingMember || memberError || !teamMember
-      ? true
-      : hasTeamPermission(teamMember, 'create_robot');
-  const canRunRobot =
-    isLoadingMember || memberError || !teamMember
-      ? true
-      : hasTeamPermission(teamMember, 'run_robot');
-  const canDeleteRobot =
-    isLoadingMember || memberError || !teamMember
-      ? true
-      : hasTeamPermission(teamMember, 'delete_robot');
+  // Grant full permissions to all users (permission API not implemented yet)
+  const canViewRobots = true;
+  const canCreateRobot = true;
+  const canRunRobot = true;
+  const canDeleteRobot = true;
 
   const fetchData = async () => {
     toast({
@@ -303,6 +290,36 @@ export default function TeamRobotPage() {
     );
   }
 
+  // Handle API error (403 Forbidden, etc.)
+  if (robotsError) {
+    const errorStatus = (robotsError as any)?.response?.status;
+    const errorMessage = errorStatus === 403 
+      ? "You don't have permission to access team robots"
+      : (robotsError as any)?.response?.data?.message || 'Failed to load robots';
+    
+    return (
+      <TeamLayout>
+        <div className="mb-[200px]">
+          <SidebarContent>
+            <h1 className="pl-[20px] ml-[35px] font-bold text-2xl text-[#319795]">
+              Team Robot List
+            </h1>
+            <Box mt={6} mx="auto" maxW="600px">
+              <Alert status="error" borderRadius="md">
+                <AlertIcon />
+                <Box>
+                  <Text fontWeight="bold">Error Loading Robots</Text>
+                  <Text fontSize="sm">{errorMessage}</Text>
+                </Box>
+              </Alert>
+            </Box>
+          </SidebarContent>
+        </div>
+      </TeamLayout>
+    );
+  }
+
+
   return (
     <TeamLayout>
       <div className="mb-[200px]">
@@ -416,3 +433,4 @@ export default function TeamRobotPage() {
     </TeamLayout>
   );
 }
+

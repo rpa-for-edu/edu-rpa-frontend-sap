@@ -16,6 +16,7 @@ import { providerData } from '@/constants/providerData';
 import { userSelector } from '@/redux/selector';
 import { useSelector } from 'react-redux';
 import CreateMoodleConnectionModal from './CreateMoodleConnectionModal';
+import CreateERPNextConnectionModal from './CreateERPNextConnectionModal';
 import { useTranslation } from 'next-i18next';
 
 interface Props {
@@ -39,10 +40,19 @@ const CreateNewConnectionModal: React.FC<Props> = ({
     onClose: onMoodleModalClose,
   } = useDisclosure();
 
+  const {
+    isOpen: isERPNextModalOpen,
+    onOpen: onERPNextModalOpen,
+    onClose: onERPNextModalClose,
+  } = useDisclosure();
+
   const handleCreateNewConnection = (provider: (typeof providerData)[0]) => {
     if (provider.name === AuthorizationProvider.MOODLE) {
       onClose();
       onMoodleModalOpen();
+    } else if (provider.name === AuthorizationProvider.ERP_NEXT) {
+      onClose();
+      onERPNextModalOpen();
     } else {
       if (workspaceId) {
         // Workspace OAuth flow - use workspace-specific endpoints
@@ -62,6 +72,13 @@ const CreateNewConnectionModal: React.FC<Props> = ({
 
   const handleMoodleSuccess = () => {
     onMoodleModalClose();
+    if (onSuccess) {
+      onSuccess();
+    }
+  };
+
+  const handleERPNextSuccess = () => {
+    onERPNextModalClose();
     if (onSuccess) {
       onSuccess();
     }
@@ -101,6 +118,14 @@ const CreateNewConnectionModal: React.FC<Props> = ({
         isOpen={isMoodleModalOpen}
         onClose={onMoodleModalClose}
         onSuccess={handleMoodleSuccess}
+        workspaceId={workspaceId}
+      />
+
+      {/* ERPNext Connection Modal */}
+      <CreateERPNextConnectionModal
+        isOpen={isERPNextModalOpen}
+        onClose={onERPNextModalClose}
+        onSuccess={handleERPNextSuccess}
         workspaceId={workspaceId}
       />
     </>

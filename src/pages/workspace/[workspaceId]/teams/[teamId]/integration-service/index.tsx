@@ -20,6 +20,8 @@ import SidebarContent from '@/components/Sidebar/SidebarContent/SidebarContent';
 import ConnectionTable from '@/components/Connection/ConnectionTable';
 import { useTeamConnections } from '@/hooks/useTeam';
 import { ToolTipExplain } from '@/constants/description';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 const PROVIDERS = [
   { value: '', label: 'All' },
@@ -37,7 +39,7 @@ export default function TeamConnectionsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [providerFilter, setProviderFilter] = useState('');
 
-  const { data: connections, isLoading } = useTeamConnections(
+  const { data: connections, isLoading, error: connectionsError } = useTeamConnections(
     teamId as string,
     providerFilter || undefined
   );
@@ -49,6 +51,36 @@ export default function TeamConnectionsPage() {
     data: connectionData,
   };
 
+  // Handle API error (403 Forbidden, etc.)
+  if (connectionsError) {
+    const errorStatus = (connectionsError as any)?.response?.status;
+    const errorMessage = errorStatus === 403 
+      ? "You don't have permission to access team connections"
+      : (connectionsError as any)?.response?.data?.message || 'Failed to load connections';
+    
+    return (
+      <TeamLayout>
+        <div className="mb-[200px]">
+          <SidebarContent>
+            <h1 className="pl-[20px] ml-[35px] font-bold text-2xl text-[#319795]">
+              Team Integration Service
+            </h1>
+            <Box mt={6} mx="auto" maxW="600px">
+              <Alert status="error" borderRadius="md">
+                <AlertIcon />
+                <Box>
+                  <AlertTitle>Error Loading Connections</AlertTitle>
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Box>
+              </Alert>
+            </Box>
+          </SidebarContent>
+        </div>
+      </TeamLayout>
+    );
+  }
+
+
   return (
     <TeamLayout>
       <div className="mb-[200px]">
@@ -59,7 +91,7 @@ export default function TeamConnectionsPage() {
             </h1>
             <Tooltip
               hasArrow
-              label={ToolTipExplain.CONNECTION_SERVICE}
+              label={ToolTipExplain.INTERGRATION_SERVICE}
               bg="gray.300"
               color="black"
             >
@@ -115,7 +147,6 @@ export default function TeamConnectionsPage() {
               header={tableProps.header}
               data={tableProps.data}
               isLoading={isLoading}
-              readOnly={true}
             />
           </div>
 
@@ -134,3 +165,18 @@ export default function TeamConnectionsPage() {
     </TeamLayout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+        'integration-service',
+      ])),
+    },
+  };
+};
+

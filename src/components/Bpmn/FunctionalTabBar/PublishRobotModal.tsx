@@ -142,41 +142,42 @@ export const PublishRobotModal = (props: Props) => {
         case 0:
           break;
 
-        case 1:
-          let connections = await connectionApi.getConnectionsByConnectionKey(
-            result.credentials.map((k: any) => k.connectionKey)
-          );
+        // case 1:
+        //   let connections = await connectionApi.getConnectionsByConnectionKey(
+        //     result.credentials.map((k: any) => k.connectionKey)
+        //   );
 
-          let nonMoodleConnections = connections.filter(
-            (conn) => conn.provider !== 'Moodle'
-          );
+        //   let nonMoodleConnections = connections.filter(
+        //     (conn) =>
+        //       conn.provider !== 'Moodle' && conn.provider !== 'ERP_Next'
+        //   );
 
-          let refreshConnectionPromises = nonMoodleConnections.map(
-            async (conn) => {
-              try {
-                await connectionApi.refreshConnection(conn.provider, conn.name);
-                return true;
-              } catch (error) {
-                return false;
-              }
-            }
-          );
+        //   let refreshConnectionPromises = nonMoodleConnections.map(
+        //     async (conn) => {
+        //       try {
+        //         await connectionApi.refreshConnection(conn.provider, conn.name);
+        //         return true;
+        //       } catch (error) {
+        //         return false;
+        //       }
+        //     }
+        //   );
 
-          let connectionExpiredMask = await Promise.all(
-            refreshConnectionPromises
-          );
+        //   let connectionExpiredMask = await Promise.all(
+        //     refreshConnectionPromises
+        //   );
 
-          let expiredConnections = nonMoodleConnections.filter(
-            (conn, index) => !connectionExpiredMask[index]
-          );
+        //   let expiredConnections = nonMoodleConnections.filter(
+        //     (conn, index) => !connectionExpiredMask[index]
+        //   );
 
-          if (expiredConnections.length) {
-            throw new UserCredentialError(
-              'Connection expired',
-              expiredConnections
-            );
-          }
-          break;
+        //   if (expiredConnections.length) {
+        //     throw new UserCredentialError(
+        //       'Connection expired',
+        //       expiredConnections
+        //     );
+        //   }
+        //   break;
 
         case 2:
           try {

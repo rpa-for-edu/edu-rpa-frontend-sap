@@ -126,7 +126,7 @@ export default function Service() {
             />
             <Box className="w-[15vw] ml-[20px]">
               <Select
-                defaultValue=""
+                value={providerFilter}
                 onChange={(e) => {
                   setProviderFilter(e.target.value);
                   router.push({

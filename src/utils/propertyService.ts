@@ -59,6 +59,9 @@ const getLibrary = (packageName: string) => {
       return 'Collections';
     case 'Moodle':
       return 'RPA.Moodle';
+    case 'ERPNext':
+    case 'rpa-erpnext':
+      return 'RPA.ERPNext';
     default:
       return null;
   }

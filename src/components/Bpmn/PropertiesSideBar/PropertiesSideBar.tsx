@@ -334,6 +334,7 @@ export default function PropertiesSideBar({
                   'connection.Gmail': '',
                   'connection.Google Sheets': '',
                   'connection.SAP Mock': '',
+                  'connection.ERP Next': '',
                   'connection.Moodle': '',
                   'enum.shareType': 'user',
                   'enum.permission': 'reader',

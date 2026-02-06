@@ -66,6 +66,40 @@
         "tokenRequired": "Token dịch vụ Web là bắt buộc",
         "nameMax": "Tên phải ít hơn 100 ký tự"
       }
+    },
+    "erpnext": {
+      "title": "Tạo kết nối ERPNext",
+      "description": "Kết nối với trang ERPNext của bạn. Cung cấp URL cơ sở và Token API (định dạng: api_key:api_secret).",
+      "baseUrl": "URL ERPNext",
+      "baseUrlPlaceholder": "https://your-erpnext-site.com",
+      "apiKey": "API Key",
+      "apiKeyPlaceholder": "Nhập API Key",
+      "apiSecret": "API Secret",
+      "apiSecretPlaceholder": "Nhập API Secret",
+      "token": "Token API",
+      "tokenPlaceholder": "api_key:api_secret",
+      "tokenHelp": "Định dạng: api_key:api_secret. Token này sẽ được lưu trữ và mã hóa an toàn",
+      "name": "Tên kết nối",
+      "nameOptional": "(Tùy chọn)",
+      "namePlaceholder": "Trang ERPNext của tôi",
+      "nameHelp": "Để trống để sử dụng tên mặc định",
+      "required": "*",
+      "creating": "Đang tạo...",
+      "createConnection": "Tạo kết nối",
+      "success": "Thành công!",
+      "successDescription": "Kết nối ERPNext \"{{name}}\" đã được tạo thành công",
+      "error": "Lỗi",
+      "errorDefault": "Không thể tạo kết nối ERPNext",
+      "validation": {
+        "urlInvalid": "Phải là URL hợp lệ (ví dụ: https://your-erpnext-site.com)",
+        "urlProtocol": "URL phải bắt đầu bằng http:// hoặc https://",
+        "urlRequired": "URL ERPNext là bắt buộc",
+        "tokenMin": "Token phải có ít nhất 10 ký tự",
+        "tokenRequired": "Token API là bắt buộc",
+        "apiKeyRequired": "API Key là bắt buộc",
+        "apiSecretRequired": "API Secret là bắt buộc",
+        "nameMax": "Tên phải ít hơn 100 ký tự"
+      }
     }
   }
 }

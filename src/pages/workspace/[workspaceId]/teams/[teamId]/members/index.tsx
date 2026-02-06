@@ -20,11 +20,15 @@ import {
 import { SearchIcon } from '@chakra-ui/icons';
 import TeamLayout from '@/components/Layouts/TeamLayout';
 import SidebarContent from '@/components/Sidebar/SidebarContent/SidebarContent';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
+import { useTranslation } from 'next-i18next';
 
 export default function TeamMembersPage() {
   const router = useRouter();
   const { workspaceId, teamId } = router.query;
   const [searchQuery, setSearchQuery] = useState('');
+  const { t } = useTranslation(['workspace']);
 
   // TODO: Fetch team members from API
   const members: any[] = [];
@@ -39,7 +43,7 @@ export default function TeamMembersPage() {
       <div className="mb-[200px]">
         <SidebarContent>
           <h1 className="pl-[20px] ml-[35px] font-bold text-2xl text-[#319795]">
-            Team Members
+            {t('workspace:team.members')}
           </h1>
 
           <div className="w-90 mx-auto my-[30px]">
@@ -48,7 +52,7 @@ export default function TeamMembersPage() {
                 <SearchIcon color="gray.500" />
               </InputLeftElement>
               <Input
-                placeholder="Search members..."
+                placeholder={t('workspace:team.searchMembers')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 bg="white"
@@ -112,3 +116,17 @@ export default function TeamMembersPage() {
     </TeamLayout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};
+

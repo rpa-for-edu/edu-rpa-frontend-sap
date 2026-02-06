@@ -27,6 +27,45 @@ export default function BpmnTopHeader({
 }: BpmnTopHeaderProps) {
   const router = useRouter();
   const { t } = useTranslation('studio');
+  
+  // Extract context from URL
+  const { workspaceId, teamId } = router.query;
+  
+  // Determine context type and links
+  const getContextInfo = () => {
+    const path = router.asPath;
+    
+    if (teamId && workspaceId) {
+      // Team context
+      return {
+        type: 'team',
+        homeLink: `/workspace/${workspaceId}/teams/${teamId}`,
+        studioLink: `/workspace/${workspaceId}/teams/${teamId}/studio`,
+        homeLabel: 'Team Dashboard',
+        studioLabel: 'Team Studio',
+      };
+    } else if (workspaceId) {
+      // Workspace context
+      return {
+        type: 'workspace',
+        homeLink: `/workspace/${workspaceId}`,
+        studioLink: `/workspace/${workspaceId}/studio`,
+        homeLabel: 'Workspace',
+        studioLabel: 'Workspace Studio',
+      };
+    } else {
+      // User context (default)
+      return {
+        type: 'user',
+        homeLink: '/home',
+        studioLink: '/studio',
+        homeLabel: t('navigation.homepage'),
+        studioLabel: t('navigation.project'),
+      };
+    }
+  };
+  
+  const contextInfo = getContextInfo();
 
   return (
     <Box
@@ -44,23 +83,25 @@ export default function BpmnTopHeader({
         >
           <BreadcrumbItem>
             <BreadcrumbLink
-              onClick={() => router.push('/studio')}
+              onClick={() => router.push(contextInfo.homeLink)}
               fontSize="sm"
               color="gray.600"
               _hover={{ color: 'teal.500' }}
+              cursor="pointer"
             >
-              {t('navigation.homepage')}
+              {contextInfo.homeLabel}
             </BreadcrumbLink>
           </BreadcrumbItem>
 
           <BreadcrumbItem>
             <BreadcrumbLink
-              onClick={() => router.push('/studio')}
+              onClick={() => router.push(contextInfo.studioLink)}
               fontSize="sm"
               color="gray.600"
               _hover={{ color: 'teal.500' }}
+              cursor="pointer"
             >
-              {t('navigation.project')}
+              {contextInfo.studioLabel}
             </BreadcrumbLink>
           </BreadcrumbItem>
 
@@ -104,3 +145,4 @@ export default function BpmnTopHeader({
     </Box>
   );
 }
+

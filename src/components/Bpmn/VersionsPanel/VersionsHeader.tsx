@@ -17,6 +17,7 @@ import {
 import { ChevronRightIcon, AddIcon } from "@chakra-ui/icons";
 import { FiBell, FiHelpCircle, FiUser } from "react-icons/fi";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 interface VersionsHeaderProps {
   processId: string;
@@ -37,6 +38,48 @@ export default function VersionsHeader({
   onShowChangesChange,
   onCreateVersion,
 }: VersionsHeaderProps) {
+  const router = useRouter();
+  
+  // Extract context from URL
+  const { workspaceId, teamId } = router.query;
+  
+  // Determine context type and links
+  const getContextInfo = () => {
+    if (teamId && workspaceId) {
+      // Team context
+      return {
+        type: 'team',
+        homeLink: `/workspace/${workspaceId}/teams/${teamId}`,
+        studioLink: `/workspace/${workspaceId}/teams/${teamId}/studio`,
+        modelerLink: `/workspace/${workspaceId}/teams/${teamId}/studio/modeler/${processId}`,
+        homeLabel: 'Team Dashboard',
+        studioLabel: 'Team Studio',
+      };
+    } else if (workspaceId) {
+      // Workspace context
+      return {
+        type: 'workspace',
+        homeLink: `/workspace/${workspaceId}`,
+        studioLink: `/workspace/${workspaceId}/studio`,
+        modelerLink: `/workspace/${workspaceId}/studio/modeler/${processId}`,
+        homeLabel: 'Workspace',
+        studioLabel: 'Workspace Studio',
+      };
+    } else {
+      // User context (default)
+      return {
+        type: 'user',
+        homeLink: '/home',
+        studioLink: '/studio',
+        modelerLink: `/studio/modeler/${processId}`,
+        homeLabel: 'Homepage',
+        studioLabel: 'Project',
+      };
+    }
+  };
+  
+  const contextInfo = getContextInfo();
+
   return (
     <Box bg="white" borderBottom="1px solid" borderColor="gray.200">
       {/* Top Bar with Breadcrumb */}
@@ -50,27 +93,27 @@ export default function VersionsHeader({
           <BreadcrumbItem>
             <BreadcrumbLink
               as={Link}
-              href="/home"
+              href={contextInfo.homeLink}
               color="gray.600"
               _hover={{ color: "gray.800" }}
             >
-              Homepage
+              {contextInfo.homeLabel}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
             <BreadcrumbLink
               as={Link}
-              href="/studio"
+              href={contextInfo.studioLink}
               color="gray.600"
               _hover={{ color: "gray.800" }}
             >
-              Project
+              {contextInfo.studioLabel}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
             <BreadcrumbLink
               as={Link}
-              href={`/studio/modeler/${processId}`}
+              href={contextInfo.modelerLink}
               color="gray.600"
               _hover={{ color: "gray.800" }}
             >
@@ -183,3 +226,4 @@ export default function VersionsHeader({
     </Box>
   );
 }
+

@@ -2,6 +2,8 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { Box } from '@chakra-ui/react';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 // import { useCollaboration } from '@/hooks/useCollaboration';
 // import { ActiveUsers } from '@/components/Collaboration/ActiveUsers';
 // import { CursorOverlay } from '@/components/Collaboration/CursorOverlay';
@@ -64,3 +66,19 @@ export default function WorkspaceModeler() {
     </Box>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+        'studio',
+        'activities',
+      ])),
+    },
+  };
+};
+
