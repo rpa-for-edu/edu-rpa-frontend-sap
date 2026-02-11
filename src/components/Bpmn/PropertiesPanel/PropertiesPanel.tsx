@@ -655,7 +655,7 @@ export default function PropertiesPanel({
                     paramKey,
                     AuthorizationProvider.SAP_MOCK
                   );
-                case 'connection.ERP Next':
+                case 'connection.ERPNext':
                   return renderConnectionSelect(
                     paramKey,
                     AuthorizationProvider.ERP_NEXT

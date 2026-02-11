@@ -1685,12 +1685,14 @@ export const ActivityPackages = [
       'Tự động hóa toàn bộ quy trình ERPNext (Tài liệu, Kho, Mua bán, Kế toán)',
     library: 'RPA.ERPNext',
     activityTemplates: [
+      // ===== Kết nối =====
       {
         templateId: 'erpnext.setup_connection',
         displayName: 'Thiết lập kết nối ERPNext',
         description: 'Kết nối đến ERPNext sử dụng file thông tin xác thực',
         iconCode: 'FaLink',
         type: 'activity',
+        keyword: 'Setup ERPNext Connection',
         keyword: 'Setup ERPNext Connection',
         arguments: {
           'Connection': {
@@ -1773,6 +1775,7 @@ export const ActivityPackages = [
           description: 'Danh sách các tài liệu',
         },
       },
+      // ===== Utility Methods =====
       {
         templateId: 'erpnext.update_document',
         displayName: 'Cập nhật Document',
@@ -1787,6 +1790,7 @@ export const ActivityPackages = [
             keywordArg: 'doctype',
             value: '',
           },
+          Name: {
           Name: {
             type: 'string',
             description: 'Tên/ID tài liệu',
@@ -1962,6 +1966,7 @@ export const ActivityPackages = [
           description: 'Chi tiết khách hàng',
         },
       },
+      // ===== Sales APIs =====
       {
         templateId: 'erpnext.create_sales_order',
         displayName: 'Tạo Sales Order (Đơn bán hàng)',
@@ -2021,6 +2026,7 @@ export const ActivityPackages = [
             keywordArg: 'items',
             value: [],
           },
+          Company: {
           Company: {
             type: 'string',
             description: 'Tên Công ty',
@@ -2118,6 +2124,7 @@ export const ActivityPackages = [
           description: 'Chi tiết phiếu nhập mua',
         },
       },
+      // ===== Accounting APIs =====
       {
         templateId: 'erpnext.create_purchase_invoice',
         displayName: 'Tạo Purchase Invoice (Hóa đơn mua)',
@@ -2125,7 +2132,9 @@ export const ActivityPackages = [
         iconCode: 'FaFileInvoiceDollar',
         type: 'activity',
         keyword: 'Create Purchase Invoice',
+        keyword: 'Create Purchase Invoice',
         arguments: {
+          Supplier: {
           Supplier: {
             type: 'string',
             description: 'Tên Nhà cung cấp',
@@ -2144,6 +2153,7 @@ export const ActivityPackages = [
             keywordArg: 'company',
             value: '',
           },
+          'Posting Date': {
           'Posting Date': {
             type: 'string',
             description: 'YYYY-MM-DD (Tùy chọn)',
@@ -2183,6 +2193,7 @@ export const ActivityPackages = [
             keywordArg: 'party',
             value: '',
           },
+          'Paid Amount': {
           'Paid Amount': {
             type: 'number',
             description: 'Số tiền',

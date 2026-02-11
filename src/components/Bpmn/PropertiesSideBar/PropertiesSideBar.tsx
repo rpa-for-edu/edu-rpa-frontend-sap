@@ -336,6 +336,7 @@ export default function PropertiesSideBar({
                   'connection.SAP Mock': '',
                   'connection.ERP Next': '',
                   'connection.Moodle': '',
+                  'connection.ERPNext': '',
                   'enum.shareType': 'user',
                   'enum.permission': 'reader',
                   label_ids: 'inbox',
@@ -494,7 +495,7 @@ export default function PropertiesSideBar({
                       paramKey,
                       AuthorizationProvider.SAP_MOCK
                     );
-                  case "connection.ERP Next":
+                  case "connection.ERPNext":
                     return renderConnectionSelect(
                       paramKey,
                       AuthorizationProvider.ERP_NEXT

@@ -1676,15 +1676,17 @@
       _id: "rpa-erpnext",
       displayName: "ERPNext",
       description:
-        "Automate procurement workflows in ERPNext (Item, MR, RFQ, PO)",
+        "Automate procurement workflows in ERPNext (Item, MR, RFQ, PO, Sales, Stock)",
       library: "RPA.ERPNext",
       activityTemplates: [
+        // ===== Connection =====
         {
           templateId: "erpnext.setup_connection",
           displayName: "Setup ERPNext Connection",
           description: "Connect to ERPNext using a credential file",
           iconCode: "FaLink",
           type: "activity",
+          keyword: "Setup ERPNext Connection",
           keyword: "Setup ERPNext Connection",
           arguments: {
             "Connection": {
@@ -1767,6 +1769,7 @@
             description: "List of documents",
           },
         },
+        // ===== Utility Methods =====
         {
           templateId: "erpnext.update_document",
           displayName: "Update Document",
@@ -1781,6 +1784,7 @@
               keywordArg: "doctype",
               value: "",
             },
+            Name: {
             Name: {
               type: "string",
               description: "Document Name/ID",
@@ -1956,6 +1960,7 @@
             description: "Customer details",
           },
         },
+        // ===== Sales APIs =====
         {
           templateId: "erpnext.create_sales_order",
           displayName: "Create Sales Order",
@@ -2015,6 +2020,7 @@
               keywordArg: "items",
               value: [],
             },
+            Company: {
             Company: {
               type: "string",
               description: "Company Name",
@@ -2112,6 +2118,7 @@
             description: "Purchase Receipt details",
           },
         },
+        // ===== Accounting APIs =====
         {
           templateId: "erpnext.create_purchase_invoice",
           displayName: "Create Purchase Invoice",
@@ -2119,7 +2126,9 @@
           iconCode: "FaFileInvoiceDollar",
           type: "activity",
           keyword: "Create Purchase Invoice",
+          keyword: "Create Purchase Invoice",
           arguments: {
+            Supplier: {
             Supplier: {
               type: "string",
               description: "Supplier Name",
@@ -2138,6 +2147,7 @@
               keywordArg: "company",
               value: "",
             },
+            "Posting Date": {
             "Posting Date": {
               type: "string",
               description: "YYYY-MM-DD (Optional)",
@@ -2177,6 +2187,7 @@
               keywordArg: "party",
               value: "",
             },
+            "Paid Amount": {
             "Paid Amount": {
               type: "number",
               description: "Amount",

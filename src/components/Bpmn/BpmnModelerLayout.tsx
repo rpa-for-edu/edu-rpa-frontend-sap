@@ -4,12 +4,14 @@ import BpmnTopHeader from "./BpmnTopHeader";
 import BpmnSubHeader from "./BpmnSubHeader";
 import BpmnZoomControls from "./BpmnZoomControls";
 import { AIChatbot, AIChatbotButton } from "./AIChatbot";
+import { RobotTrackingState } from "@/hooks/useRobotTrackingSocket";
+import { SimulationMode, RobotLogEntry } from "@/contexts/RobotTrackingContext";
 
 interface BpmnModelerLayoutProps {
   processID: string;
   processName: string;
   isSaved: boolean;
-  version?: string;
+  version?: number;
   onSaveAll: () => void;
   onPublish: () => void;
   onRobotCode: () => void;
@@ -34,6 +36,18 @@ interface BpmnModelerLayoutProps {
   // Token Simulation props
   tokenSimulation?: boolean;
   onTokenSimulationChange?: (enabled: boolean) => void;
+  // Robot Tracking props
+  trackingState?: RobotTrackingState;
+  simulationMode?: SimulationMode;
+  onSimulationModeChange?: (mode: SimulationMode) => void;
+  onConnectRobot?: () => void;
+  onDisconnectRobot?: () => void;
+  onContinueStep?: () => void;
+  onResetTracking?: () => void;
+  onStartRobot?: () => void;
+  onStopRobot?: () => void;
+  // Get robot code for simulation
+  getRobotCode?: () => Promise<{ code: string; credentials: any } | null>;
 }
 
 export default function BpmnModelerLayout({
@@ -55,6 +69,15 @@ export default function BpmnModelerLayout({
   onApplyXml,
   tokenSimulation = false,
   onTokenSimulationChange,
+  // Robot Tracking props
+  trackingState,
+  simulationMode,
+  onSimulationModeChange,
+  onConnectRobot,
+  onDisconnectRobot,
+  onContinueStep,
+  onResetTracking,
+  getRobotCode,
 }: BpmnModelerLayoutProps) {
   return (
     <Flex direction="column" height="100vh" overflow="hidden">
@@ -65,6 +88,7 @@ export default function BpmnModelerLayout({
       <BpmnSubHeader
         isSaved={isSaved}
         version={version}
+        processId={processID}
         onSaveAll={onSaveAll}
         onPublish={onPublish}
         onRobotCode={onRobotCode}
@@ -72,6 +96,15 @@ export default function BpmnModelerLayout({
         onShowVersions={onShowVersions}
         tokenSimulation={tokenSimulation}
         onTokenSimulationChange={onTokenSimulationChange}
+        // Robot Tracking props
+        trackingState={trackingState}
+        simulationMode={simulationMode}
+        onSimulationModeChange={onSimulationModeChange}
+        onConnectRobot={onConnectRobot}
+        onDisconnectRobot={onDisconnectRobot}
+        onContinueStep={onContinueStep}
+        onResetTracking={onResetTracking}
+        getRobotCode={getRobotCode}
       />
 
       {/* Main Content Area */}
