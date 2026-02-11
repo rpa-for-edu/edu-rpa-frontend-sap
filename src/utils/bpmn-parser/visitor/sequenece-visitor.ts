@@ -26,15 +26,19 @@ import { AuthorizationProvider } from "@/interfaces/enums/provider.enum";
 import _ from "lodash";
 import { LibrabryConfigurations } from "@/constants/activityPackage";
 import { getLibrary } from "../../propertyService";
+import { ActivityPackage } from "@/hooks/useActivityPackages";
+
 export class SequenceVisitor {
   properties: Map<string, Properties>;
   imports: Set<string>;
   variables: Variable[];
+  activityPackages: ActivityPackage[];
 
   constructor(
     public sequence: Sequence,
     properties: Properties[],
-    variables: Variable[]
+    variables: Variable[],
+    activityPackages: ActivityPackage[] = []
   ) {
     this.properties = properties.reduce((map, obj) => {
       map.set(obj.activityID, obj);
@@ -42,6 +46,7 @@ export class SequenceVisitor {
     }, new Map<string, Properties>());
     this.imports = new Set<string>();
     this.variables = variables;
+    this.activityPackages = activityPackages;
   }
 
   visit(node: SequenceItem, param: any) {
@@ -68,8 +73,23 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
     let librabries = Array.from(this.imports).map(
       (libName) => new Lib(libName, LibrabryConfigurations[libName])
     );
+    
+    // Generate s3Libraries based on imports and available packages
+    let s3Libraries: any[] = [];
+    if (this.activityPackages) {
+      this.imports.forEach(libName => {
+        const pkg = this.activityPackages.find(p => p.library === libName);
+        if (pkg && pkg.libraryS3Url) {
+          s3Libraries.push({
+            name: pkg.library, // using library name
+            s3Path: pkg.libraryS3Url
+          });
+        }
+      });
+    }
+
     let resource = new Resource(librabries, variables);
-    let robot = new Robot(name, tests, resource);
+    let robot = new Robot(name, tests, resource, s3Libraries);
     return robot;
   }
 
@@ -150,7 +170,22 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
     let Lib = property.library;
 
     if (!Lib && property.activityPackage) {
-      Lib = getLibrary(property.activityPackage);
+      // Try to find in dynamic packages first
+      if (this.activityPackages) {
+        const pkg = this.activityPackages.find(
+          (p) =>
+            p.displayName === property.activityPackage ||
+            p._id === property.activityPackage
+        );
+        if (pkg && pkg.library) {
+          Lib = pkg.library;
+        }
+      }
+
+      // Fallback to static mapping if not found
+      if (!Lib) {
+        Lib = getLibrary(property.activityPackage);
+      }
     }
 
     let keywordAssigns = [] as ProcessVariable[];
@@ -205,18 +240,87 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
         this.imports.add(library);
       }
     }
-
     if (args.Connection) {
       // Add connectionKey for robot
       const connectionArgs = args.Connection;
+      const connectionKey = connectionArgs?.value
+        .split("/")
+        .pop()
+        .split(".")
+        .slice(0, -1)
+        .join(".") ?? "";
+
+      // Determine provider from argument type
+      let provider: AuthorizationProvider | undefined;
+      
+      // 1. Try to find type from dynamic package definition
+      if (this.activityPackages) {
+        const pkg = this.activityPackages.find(
+          (p) =>
+            p.displayName === property.activityPackage ||
+            p._id === property.activityPackage
+        );
+        
+        if (pkg) {
+          const template = pkg.activityTemplates.find(
+             t => t.displayName === property.activityName
+          );
+          
+          if (template && template.arguments && template.arguments["Connection"]) {
+             const connectionType = template.arguments["Connection"].type;
+             
+             // Map connection type to provider
+             switch (connectionType) {
+                case 'connection.Google Drive':
+                   provider = AuthorizationProvider.G_DRIVE;
+                   break;
+                case 'connection.Google Sheets':
+                   provider = AuthorizationProvider.G_SHEETS;
+                   break;
+                case 'connection.Google Classroom':
+                   provider = AuthorizationProvider.G_CLASSROOM;
+                   break;
+                case 'connection.Google Form':
+                   provider = AuthorizationProvider.G_FORMS;
+                   break;
+                case 'connection.Gmail':
+                   provider = AuthorizationProvider.G_GMAIL;
+                   break;
+                case 'connection.SAP Mock':
+                   provider = AuthorizationProvider.SAP_MOCK;
+                   break;
+                case 'connection.ERPNext':
+                case 'connection.ERP Next':
+                   provider = AuthorizationProvider.ERP_NEXT;
+                   break;
+                case 'connection.Moodle':
+                   provider = AuthorizationProvider.MOODLE;
+                   break;
+             }
+          }
+        }
+      }
+
+      // 2. Fallback: Try mapping from activity package name (for legacy packages)
+      if (!provider) {
+         // Existing hardcoded mapping logic if any, or manual map based on package name
+         const packageToProvider: Record<string, AuthorizationProvider> = {
+            'Google Drive': AuthorizationProvider.G_DRIVE,
+            'Google Sheet': AuthorizationProvider.G_SHEETS,
+            'Google Classroom': AuthorizationProvider.G_CLASSROOM,
+            'Google Form': AuthorizationProvider.G_FORMS,
+            'Gmail': AuthorizationProvider.G_GMAIL,
+            'SAP Mock': AuthorizationProvider.SAP_MOCK,
+            'ERPNext': AuthorizationProvider.ERP_NEXT,
+            'ERP Next': AuthorizationProvider.ERP_NEXT,
+            'Moodle': AuthorizationProvider.MOODLE
+         };
+         provider = packageToProvider[property.activityPackage];
+      }
+
       this.credentials.push({
-        connectionKey:
-          connectionArgs?.value
-            .split("/")
-            .pop()
-            .split(".")
-            .slice(0, -1)
-            .join(".") ?? "",
+        connectionKey: connectionKey,
+        provider: provider,
       });
     }
 

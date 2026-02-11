@@ -5,6 +5,7 @@
   "integrationService": "Integration Service",
   "storage": "Storage",
   "documentTemplate": "Document Template",
-  "workspace": "Workspace"
+  "workspace": "Workspace",
+  "packageManagement": "Packages"
 }
 

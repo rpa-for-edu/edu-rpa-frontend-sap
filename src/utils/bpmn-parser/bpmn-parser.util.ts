@@ -16,6 +16,7 @@ import { ConcreteGraphVisitor, ConcreteSequenceVisitor } from "./visitor";
 import { ProcessVariables, Properties } from "./model/properties.model";
 import { Variable } from "@/types/variable";
 import { Robot } from "./visitor/robot";
+import { ActivityPackage } from "@/hooks/useActivityPackages";
 
 var convert = require("xml-js");
 var options = { ignoreComment: true, alwaysChildren: true };
@@ -23,7 +24,12 @@ var options = { ignoreComment: true, alwaysChildren: true };
 export class BpmnParser {
   constructor() {}
 
-  public parse(xml: string, properties: Properties[], variables: Variable[]) {
+  public parse(
+    xml: string,
+    properties: Properties[],
+    variables: Variable[],
+    activityPackages: ActivityPackage[] = []
+  ) {
     // Convert XML to JSON Format
     let result = convert.xml2js(xml, options);
     let bpmn: Bpmn = Convert.toBpmn(JSON.stringify(result));
@@ -67,7 +73,12 @@ export class BpmnParser {
     let sequence = g.buildGraph().buildBasicBlock();
     console.log("Bpmn Process", sequence);
 
-    let parser = new ConcreteSequenceVisitor(sequence, properties, variables);
+    let parser = new ConcreteSequenceVisitor(
+      sequence,
+      properties,
+      variables,
+      activityPackages
+    );
     let robot = parser.parse();
     let credentials = parser.getCredentials();
 

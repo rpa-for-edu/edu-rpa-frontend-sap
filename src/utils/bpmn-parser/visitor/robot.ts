@@ -3,6 +3,11 @@ import { VariableError, VariableErrorCode } from "../error";
 import _, { values } from "lodash";
 import { VariableType } from "@/types/variable";
 
+export interface S3Library {
+  name: string;
+  s3Path: string;
+}
+
 /**
  * Keyword
  */
@@ -247,14 +252,21 @@ export class Robot {
   constructor(
     public name: string,
     public tests: Test[],
-    public resource: Resource
+    public resource: Resource,
+    public s3Libraries: S3Library[] = []
   ) {}
 
   toJSON() {
-    return {
+    const result: any = {
       name: this.name,
       tests: this.tests.map(t => t.toJSON()),
       resource: this.resource.toJSON(),
     };
+    
+    if (this.s3Libraries && this.s3Libraries.length > 0) {
+      result.s3Libraries = this.s3Libraries;
+    }
+    
+    return result;
   }
 }

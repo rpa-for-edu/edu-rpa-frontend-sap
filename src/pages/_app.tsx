@@ -47,6 +47,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
       '/storage',
       '/document-template',
       '/invitation',
+      '/admin/packages',
     ];
 
     // Auth routes use HeaderLayout
@@ -63,7 +64,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
       return DefaultLayout;
     }
     // Personal routes and workspace list page use SidebarLayout
-    else if (personalSidebarRoutes.includes(path) || path === '/workspace') {
+    else if (personalSidebarRoutes.includes(path) || path === '/workspace' || path.startsWith('/admin/packages')) {
       return SidebarLayout;
     }
     // Default for other routes

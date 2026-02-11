@@ -1,11 +1,8 @@
-/**
- * Hook to get activity packages with i18n support
- * This hook merges the base activity package data with translations
- */
-
 import { useTranslation } from 'next-i18next';
-import { ActivityPackages as BaseActivityPackages } from '@/constants/activityPackage';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import activityPackageApi from '@/apis/activityPackageApi';
+import { ActivityPackage as ApiPackage } from '@/interfaces/activity-package';
 
 export interface ArgumentProps {
   type: string;
@@ -14,6 +11,8 @@ export interface ArgumentProps {
   description?: string;
   value?: any;
   options?: Array<{ value: string; label: string }>;
+  overrideType?: any;
+  hidden?: boolean;
 }
 
 export interface ActivityTemplate {
@@ -36,27 +35,92 @@ export interface ActivityPackage {
   displayName: string;
   description: string;
   library?: string;
+  libraryS3Url?: string;
   activityTemplates: ActivityTemplate[];
 }
 
-/**
- * Custom hook that provides activity packages with translations applied
- * @returns {ActivityPackage[]} Array of activity packages with translated content
- */
 export const useActivityPackages = (): ActivityPackage[] => {
   const { t, i18n } = useTranslation('activities');
   const currentLocale = i18n.language;
+  const router = useRouter();
+  const { teamId } = router.query;
+  const [packages, setPackages] = useState<ActivityPackage[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPackages = async () => {
+      try {
+        let apiPackages: ApiPackage[] = [];
+        
+        if (teamId && typeof teamId === 'string') {
+          apiPackages = await activityPackageApi.getPackagesByTeam(teamId);
+        } else {
+          apiPackages = await activityPackageApi.getActivePackages();
+        }
+
+        if (!isMounted) return;
+
+        const convertedPackages: ActivityPackage[] = apiPackages.map(pkg => ({
+          _id: pkg.id,
+          displayName: pkg.displayName,
+          description: pkg.description || '',
+          library: pkg.library,
+          libraryS3Url: pkg.libraryS3Url || undefined,
+          activityTemplates: (pkg.activityTemplates || []).map(tpl => {
+            const argsRecord: Record<string, ArgumentProps> = {};
+            if (tpl.arguments) {
+              tpl.arguments.forEach(arg => {
+                argsRecord[arg.name] = {
+                  type: arg.type,
+                  keywordArg: arg.keywordArgument,
+                  description: arg.description,
+                  value: arg.defaultValue
+                };
+              });
+            }
+
+            return {
+              templateId: tpl.id,
+              displayName: tpl.name,
+              description: tpl.description || '',
+              iconCode: tpl.iconCode || 'FaCube',
+              type: tpl.type || 'activity',
+              keyword: tpl.keyword,
+              arguments: argsRecord,
+              return: tpl.returnValue ? {
+                displayName: tpl.returnValue.displayName || 'Result',
+                type: tpl.returnValue.type,
+                description: tpl.returnValue.description || ''
+              } : undefined
+            };
+          })
+        }));
+        
+        setPackages(convertedPackages);
+      } catch (error) {
+        console.error("Failed to fetch activity packages:", error);
+        if (isMounted) setPackages([]);
+      }
+    };
+
+    if (router.isReady) {
+      fetchPackages();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [teamId, router.isReady, i18n.language]);
 
   return useMemo(() => {
-    return BaseActivityPackages.map((pkg) => ({
+    return packages.map((pkg) => ({
       ...pkg,
-      // Translate package displayName and description
       displayName: t(`packages.${pkg._id}.displayName`, pkg.displayName),
       description: t(`packages.${pkg._id}.description`, pkg.description),
       activityTemplates: pkg.activityTemplates.map((template) => {
         const translatedTemplate: ActivityTemplate = {
           ...template,
-          // Translate template displayName and description
           displayName: t(
             `templates.${template.templateId}.displayName`,
             template.displayName
@@ -67,7 +131,6 @@ export const useActivityPackages = (): ActivityPackage[] => {
           ),
         };
 
-        // Translate arguments if they exist
         if (template.arguments) {
           translatedTemplate.arguments = Object.entries(
             template.arguments
@@ -76,7 +139,6 @@ export const useActivityPackages = (): ActivityPackage[] => {
               const typedArgValue = argValue as ArgumentProps;
               acc[key] = {
                 ...typedArgValue,
-                // Try to translate argument name (for display purposes)
                 description: t(
                   `argumentDescriptions.${key}`,
                   typedArgValue.description || key
@@ -88,7 +150,6 @@ export const useActivityPackages = (): ActivityPackage[] => {
           );
         }
 
-        // Translate return value if it exists
         if (template.return) {
           translatedTemplate.return = {
             ...template.return,
@@ -106,14 +167,9 @@ export const useActivityPackages = (): ActivityPackage[] => {
         return translatedTemplate;
       }),
     }));
-  }, [t, currentLocale]); // Re-compute when translation function or locale changes
+  }, [packages, t, currentLocale]);
 };
 
-/**
- * Get a specific activity package by ID with translations
- * @param packageId - The ID of the package to retrieve
- * @returns {ActivityPackage | undefined} The translated activity package or undefined
- */
 export const useActivityPackage = (
   packageId: string
 ): ActivityPackage | undefined => {
@@ -124,12 +180,6 @@ export const useActivityPackage = (
   );
 };
 
-/**
- * Get a specific activity template by package ID and template ID with translations
- * @param packageId - The ID of the package
- * @param templateId - The ID of the template
- * @returns {ActivityTemplate | undefined} The translated activity template or undefined
- */
 export const useActivityTemplate = (
   packageId: string,
   templateId: string
@@ -141,10 +191,6 @@ export const useActivityTemplate = (
   );
 };
 
-/**
- * Helper hook to get translated variable type names
- * @returns Function to translate variable types
- */
 export const useVarTypeTranslation = () => {
   const { t } = useTranslation('activities');
 

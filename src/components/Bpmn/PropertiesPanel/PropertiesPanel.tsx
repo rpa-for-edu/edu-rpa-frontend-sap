@@ -229,7 +229,9 @@ export default function PropertiesPanel({
       properties: {
         activityPackage: sideBarState.packageName,
         activityName: sideBarState.activityName,
-        library: getLibrary(sideBarState.packageName),
+        library: ActivityPackages.find(
+          (p) => p.displayName === sideBarState.packageName
+        )?.library || getLibrary(sideBarState.packageName),
         arguments: formValues,
         return: saveResult,
       },

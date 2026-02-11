@@ -111,7 +111,7 @@ const getPackageIcon = (packageIdOrName: string) => {
     case 'Moodle':
       return MoodleIcon;
     default:
-      return null;
+      return ControlIcon;
   }
 };
 
@@ -134,7 +134,7 @@ const getServiceIcon = (serviceName: string) => {
     case 'OCR':
       return TextExtractionIcon;
     default:
-      return null;
+      return ControlIcon;
   }
 };
 

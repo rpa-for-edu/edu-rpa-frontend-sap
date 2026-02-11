@@ -5,6 +5,7 @@
   "integrationService": "Dịch vụ tích hợp",
   "storage": "Lưu trữ",
   "documentTemplate": "Mẫu tài liệu",
-  "workspace": "Không gian làm việc"
+  "workspace": "Không gian làm việc",
+  "packageManagement": "Gói hoạt động"
 }
 

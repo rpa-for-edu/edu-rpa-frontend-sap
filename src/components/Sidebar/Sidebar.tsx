@@ -11,7 +11,7 @@ import { FaHome, FaRobot, FaFileInvoice } from 'react-icons/fa';
 import { RiFlowChart } from 'react-icons/ri';
 import { IoIosRocket } from 'react-icons/io';
 import { FaFile } from 'react-icons/fa6';
-import { MdWorkspaces, MdGroups, MdPeople } from 'react-icons/md';
+import { MdWorkspaces, MdGroups, MdPeople, MdSettings } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
 import Navbar from '../Header/Navbar';
 import SidebarList from './SidebarList';
@@ -52,6 +52,8 @@ const Sidebar = ({ children }: Props) => {
       icon: FaFileInvoice,
     },
     { path: '/workspace', name: t('workspace'), icon: MdWorkspaces },
+    // Admin menu - Package Management
+    { path: '/admin/packages', name: t('packageManagement') || 'Package Management', icon: MdSettings },
   ];
 
   // Clear workspace ID when navigating to personal routes

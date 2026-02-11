@@ -58,6 +58,7 @@ import workspaceApi from '@/apis/workspaceApi';
 import { CreateVersionModal } from './VersionsPanel';
 import versionApi from '@/apis/versionApi';
 import { convertJsonToProcess } from '@/utils/bpmn-parser/json-to-bpmn-xml.util';
+import { useActivityPackages } from '@/hooks/useActivityPackages';
 import { PublishRobotModal } from './FunctionalTabBar/PublishRobotModal';
 import { Modal, ModalOverlay } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
@@ -77,6 +78,7 @@ function CustomModeler() {
   const params = useParams();
   const bpmnReactJs = useBpmn();
   const { isInSubProcess, subProcessName } = useSubProcessContext(bpmnReactJs);
+  const activityPackages = useActivityPackages();
   const toast = useToast();
   const dispatch = useDispatch();
   const processID = params.id;
@@ -438,7 +440,8 @@ function CustomModeler() {
       const robotCode = bpmnParser.parse(
         processProperties.xml,
         processProperties.activities || [],
-        variableList ? variableList.variables : []
+        variableList ? variableList.variables : [],
+        activityPackages
       );
 
       setShowRobotCode(true);
@@ -485,7 +488,8 @@ function CustomModeler() {
     const robotCode = bpmnParser.parse(
       processProperties.xml,
       processProperties.activities || [],
-      variableList ? variableList.variables : []
+      variableList ? variableList.variables : [],
+      activityPackages
     );
 
     return robotCode;
