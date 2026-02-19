@@ -1686,8 +1686,6 @@
           description: "Connect to ERPNext using a credential file",
           iconCode: "FaLink",
           type: "activity",
-          keyword: "Setup ERPNext Connection",
-          keyword: "Setup ERPNext Connection",
           arguments: {
             "Connection": {
               type: "connection.ERP Next",
@@ -1784,7 +1782,6 @@
               keywordArg: "doctype",
               value: "",
             },
-            Name: {
             Name: {
               type: "string",
               description: "Document Name/ID",
@@ -2021,7 +2018,6 @@
               value: [],
             },
             Company: {
-            Company: {
               type: "string",
               description: "Company Name",
               keywordArg: "company",
@@ -2126,9 +2122,7 @@
           iconCode: "FaFileInvoiceDollar",
           type: "activity",
           keyword: "Create Purchase Invoice",
-          keyword: "Create Purchase Invoice",
           arguments: {
-            Supplier: {
             Supplier: {
               type: "string",
               description: "Supplier Name",
@@ -2147,7 +2141,6 @@
               keywordArg: "company",
               value: "",
             },
-            "Posting Date": {
             "Posting Date": {
               type: "string",
               description: "YYYY-MM-DD (Optional)",
@@ -2187,7 +2180,6 @@
               keywordArg: "party",
               value: "",
             },
-            "Paid Amount": {
             "Paid Amount": {
               type: "number",
               description: "Amount",

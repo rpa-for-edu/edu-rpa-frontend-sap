@@ -1693,7 +1693,6 @@ export const ActivityPackages = [
         iconCode: 'FaLink',
         type: 'activity',
         keyword: 'Setup ERPNext Connection',
-        keyword: 'Setup ERPNext Connection',
         arguments: {
           'Connection': {
             type: 'connection.ERP Next',
@@ -1790,7 +1789,6 @@ export const ActivityPackages = [
             keywordArg: 'doctype',
             value: '',
           },
-          Name: {
           Name: {
             type: 'string',
             description: 'Tên/ID tài liệu',
@@ -2027,7 +2025,6 @@ export const ActivityPackages = [
             value: [],
           },
           Company: {
-          Company: {
             type: 'string',
             description: 'Tên Công ty',
             keywordArg: 'company',
@@ -2132,9 +2129,7 @@ export const ActivityPackages = [
         iconCode: 'FaFileInvoiceDollar',
         type: 'activity',
         keyword: 'Create Purchase Invoice',
-        keyword: 'Create Purchase Invoice',
         arguments: {
-          Supplier: {
           Supplier: {
             type: 'string',
             description: 'Tên Nhà cung cấp',
@@ -2153,7 +2148,6 @@ export const ActivityPackages = [
             keywordArg: 'company',
             value: '',
           },
-          'Posting Date': {
           'Posting Date': {
             type: 'string',
             description: 'YYYY-MM-DD (Tùy chọn)',
@@ -2193,7 +2187,6 @@ export const ActivityPackages = [
             keywordArg: 'party',
             value: '',
           },
-          'Paid Amount': {
           'Paid Amount': {
             type: 'number',
             description: 'Số tiền',

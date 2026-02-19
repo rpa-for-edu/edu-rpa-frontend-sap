@@ -36,7 +36,7 @@ export interface ActivityTemplate {
 export interface ParsedKeyword {
   name: string;
   methodName: string;
-  args: { name: string; required: boolean }[];
+  args: { name: string; required: boolean; type?: string }[];
   docstring?: string;
   lineNumber?: number;
 }
@@ -91,4 +91,15 @@ export interface ActivityPackage {
   
   // Backward compatibility alias (if needed)
   name?: string; 
+}
+
+export interface CreatePackageRequest {
+  id?: string;
+  name?: string;
+  displayName: string;
+  description?: string;
+  library?: string;
+  version?: string;
+  libraryVersion?: string;
+  file?: File;
 }

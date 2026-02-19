@@ -1,249 +1,175 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Modal, 
-  ModalOverlay, 
-  ModalContent, 
-  ModalHeader, 
-  ModalFooter, 
-  ModalBody, 
+import React from 'react';
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
   ModalCloseButton,
   Button,
-  Tabs, 
-  TabList, 
-  TabPanels, 
-  Tab, 
-  TabPanel, 
-  Tag, 
-  Text, 
-  VStack, 
-  HStack, 
-  SimpleGrid,
-  Box,
-  Code,
+  VStack,
+  HStack,
+  Text,
   Badge,
-  Flex,
-  Spinner,
-  Center,
-  IconButton,
-  Tooltip,
-  useToast
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Code,
+  Box,
+  Tag,
 } from '@chakra-ui/react';
-import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import activityPackageApi from '@/apis/activityPackageApi';
-import type { ActivityPackage, ActivityTemplate } from '@/interfaces/activity-package';
+import { ActivityPackage } from '@/interfaces/activity-package';
 
 interface PackageDetailsModalProps {
   isOpen: boolean;
-  packageData: ActivityPackage;
   onClose: () => void;
+  pkg: ActivityPackage | null;
 }
 
 const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
   isOpen,
-  packageData: initialPackage,
   onClose,
+  pkg,
 }) => {
-  const [pkg, setPkg] = useState<ActivityPackage>(initialPackage);
-  const [templates, setTemplates] = useState<ActivityTemplate[]>([]);
-  const [loading, setLoading] = useState(false);
-  const toast = useToast();
-
-  useEffect(() => {
-    if (isOpen && initialPackage) {
-      setPkg(initialPackage);
-      loadTemplates();
-    }
-  }, [isOpen, initialPackage]);
-
-  const loadTemplates = async () => {
-    if (!initialPackage?.id) return;
-    
-    setLoading(true);
-    try {
-      const data = await activityPackageApi.getTemplates(initialPackage.id);
-      setTemplates(data);
-    } catch (error: any) {
-      console.error('Failed to load templates:', error);
-      if (initialPackage.activityTemplates) {
-        setTemplates(initialPackage.activityTemplates);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteTemplate = async (templateId: string, templateName: string) => {
-    if (!window.confirm(`Delete template "${templateName}"? This action cannot be undone.`)) {
-      return;
-    }
-
-    try {
-      await activityPackageApi.deleteTemplate(pkg.id, templateId);
-      toast({
-        title: 'Template deleted',
-        status: 'success',
-        duration: 3000,
-      });
-      loadTemplates();
-    } catch (error: any) {
-      toast({
-        title: 'Failed to delete template',
-        description: error.response?.data?.message,
-        status: 'error',
-        duration: 3000,
-      });
-    }
-  };
+  if (!pkg) return null;
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose} 
-      size="4xl"
-      scrollBehavior="inside"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader color="teal.600">
-          <HStack alignItems="center">
-            <Text>{pkg.displayName}</Text>
-            <Badge colorScheme={pkg.isActive ? 'green' : 'gray'}>
-              {pkg.isActive ? 'Active' : 'Inactive'}
-            </Badge>
-          </HStack>
-        </ModalHeader>
+      <ModalContent maxW="800px">
+        <ModalHeader>{pkg.displayName} ({pkg.version})</ModalHeader>
         <ModalCloseButton />
-        
-        <ModalBody pb={6}>
-          {/* Package Info */}
-          <SimpleGrid columns={2} spacing={4} mb={6}>
-            <Box>
-              <Text fontWeight="bold" color="gray.500" fontSize="sm">Display Name</Text>
-              <Text>{pkg.displayName}</Text>
-            </Box>
-            <Box>
-              <Text fontWeight="bold" color="gray.500" fontSize="sm">Library</Text>
-              <Text>{pkg.library || 'N/A'}</Text>
-            </Box>
-            <Box>
-              <Text fontWeight="bold" color="gray.500" fontSize="sm">Version</Text>
-              <Text>{pkg.libraryVersion || pkg.version || 'N/A'}</Text>
-            </Box>
-            
-            {pkg.libraryFileName && (
-              <>
-                <Box>
-                  <Text fontWeight="bold" color="gray.500" fontSize="sm">Library File</Text>
-                  <HStack>
-                    <Text>{pkg.libraryFileName}</Text>
-                    <Badge colorScheme="purple">{pkg.libraryFileType?.toUpperCase()}</Badge>
-                  </HStack>
-                </Box>
-                <Box>
-                  <Text fontWeight="bold" color="gray.500" fontSize="sm">Package ID</Text>
-                  <Text fontFamily="mono" fontSize="sm">{pkg.id}</Text>
-                </Box>
-                <Box>
-                  <Text fontWeight="bold" color="gray.500" fontSize="sm">Templates</Text>
-                  <Badge colorScheme="teal">{templates.length} templates</Badge>
-                </Box>
-              </>
-            )}
-            
-            <Box gridColumn="span 2">
-              <Text fontWeight="bold" color="gray.500" fontSize="sm">Description</Text>
-              <Text>{pkg.description || 'No description'}</Text>
-            </Box>
-          </SimpleGrid>
-
-          {/* Templates Tab */}
-          <Tabs colorScheme="teal" variant="enclosed">
+        <ModalBody>
+          <Tabs colorScheme="teal">
             <TabList>
-              <Tab>Activity Templates ({templates.length})</Tab>
+              <Tab>Overview</Tab>
+              <Tab>Keywords ({pkg.parsedKeywords?.length || 0})</Tab>
+              <Tab>Classes ({pkg.parsedClasses?.length || 0})</Tab>
+              <Tab>Imports</Tab>
             </TabList>
 
             <TabPanels>
-              <TabPanel px={0}>
-                {loading ? (
-                  <Center py={8}>
-                    <Spinner color="teal.500" />
-                  </Center>
-                ) : templates.length > 0 ? (
-                  <VStack align="stretch" spacing={3}>
-                    {templates.map((template) => (
-                      <Box 
-                        key={template.id} 
-                        p={3} 
-                        borderWidth="1px" 
-                        borderRadius="md"
-                        _hover={{ bg: 'gray.50' }}
-                      >
-                        <Flex justifyContent="space-between" alignItems="start">
-                          <Box flex="1">
-                            <HStack mb={1} wrap="wrap">
-                              <Badge colorScheme="teal">{template.name}</Badge>
-                              {template.isAutoGenerated && (
-                                <Badge colorScheme="orange" variant="outline" fontSize="xs">
-                                  Auto-generated
-                                </Badge>
-                              )}
-                            </HStack>
-                            {template.description && (
-                              <Text fontSize="sm" color="gray.600" mb={1}>
-                                {template.description}
-                              </Text>
-                            )}
-                            <Text fontSize="xs" color="gray.500">
-                              Keyword: <Code fontSize="xs">{template.keyword}</Code>
-                            </Text>
-                            {template.arguments && template.arguments.length > 0 && (
-                              <Text fontSize="xs" color="gray.500">
-                                Arguments: {template.arguments.map(arg => arg.name).join(', ')}
-                              </Text>
-                            )}
-                          </Box>
-                          <HStack>
-                            <Tooltip label="Edit Template">
-                              <IconButton
-                                aria-label="Edit"
-                                icon={<EditIcon />}
-                                size="sm"
-                                variant="ghost"
-                                colorScheme="teal"
-                              />
-                            </Tooltip>
-                            <Tooltip label="Delete Template">
-                              <IconButton
-                                aria-label="Delete"
-                                icon={<DeleteIcon />}
-                                size="sm"
-                                variant="ghost"
-                                colorScheme="red"
-                                onClick={() => handleDeleteTemplate(template.id, template.name)}
-                              />
-                            </Tooltip>
-                          </HStack>
-                        </Flex>
-                      </Box>
-                    ))}
-                  </VStack>
-                ) : (
-                  <Box textAlign="center" py={8}>
-                    <Text color="gray.500" mb={4}>No templates found</Text>
-                    <Text fontSize="sm" color="gray.400">
-                      Upload a Python library to auto-generate templates
-                    </Text>
+              <TabPanel>
+                <VStack align="start" spacing={4}>
+                  <HStack>
+                    <Text fontWeight="bold">Internal Name:</Text>
+                    <Code>{pkg.name}</Code>
+                  </HStack>
+                  <HStack>
+                    <Text fontWeight="bold">Status:</Text>
+                    <Badge colorScheme={pkg.isActive ? 'green' : 'gray'}>
+                      {pkg.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </HStack>
+                  <HStack>
+                    <Text fontWeight="bold">Parse Status:</Text>
+                    <Badge 
+                      colorScheme={
+                        pkg.parseStatus === 'success' ? 'green' : 
+                        pkg.parseStatus === 'failed' ? 'red' : 'yellow'
+                      }
+                    >
+                      {pkg.parseStatus}
+                    </Badge>
+                  </HStack>
+                  {pkg.parseError && (
+                    <Box p={3} bg="red.50" color="red.500" borderRadius="md" w="full">
+                      <Text fontWeight="bold">Parse Error:</Text>
+                      <Code display="block" colorScheme="red" bg="transparent">{pkg.parseError}</Code>
+                    </Box>
+                  )}
+                  <Box>
+                    <Text fontWeight="bold">Description:</Text>
+                    <Text>{pkg.description || 'No description provided.'}</Text>
                   </Box>
-                )}
+                  <HStack>
+                    <Text fontWeight="bold">File:</Text>
+                    <Text>{pkg.libraryFileName || 'N/A'}</Text>
+                  </HStack>
+                  <HStack>
+                    <Text fontWeight="bold">Checksum:</Text>
+                    <Code fontSize="xs">{pkg.libraryChecksum || 'N/A'}</Code>
+                  </HStack>
+                </VStack>
+              </TabPanel>
+
+              <TabPanel>
+                <Table size="sm" variant="simple">
+                  <Thead>
+                    <Tr>
+                      <Th>Keyword Name</Th>
+                      <Th>Method</Th>
+                      <Th>Arguments</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {pkg.parsedKeywords?.map((kw, idx) => (
+                      <Tr key={idx}>
+                        <Td fontWeight="medium">{kw.name}</Td>
+                        <Td><Code>{kw.methodName}</Code></Td>
+                        <Td>
+                          <VStack align="start" spacing={1}>
+                            {kw.args.map((arg, i) => (
+                              <Text key={i} fontSize="xs">
+                                <Code fontSize="xs">{arg.name}</Code>
+                                {arg.type && <span style={{ color: 'gray' }}>: {arg.type}</span>}
+                              </Text>
+                            ))}
+                          </VStack>
+                        </Td>
+                      </Tr>
+                    ))}
+                    {(!pkg.parsedKeywords || pkg.parsedKeywords.length === 0) && (
+                      <Tr><Td colSpan={3} textAlign="center">No keywords found</Td></Tr>
+                    )}
+                  </Tbody>
+                </Table>
+              </TabPanel>
+
+              <TabPanel>
+                <VStack align="stretch" spacing={4}>
+                  {pkg.parsedClasses?.map((cls, idx) => (
+                    <Box key={idx} p={3} borderWidth={1} borderRadius="md">
+                      <Text fontWeight="bold" fontSize="lg">{cls.name}</Text>
+                      <Text color="gray.500" fontSize="sm" mb={2}>{cls.docstring}</Text>
+                      <Text fontWeight="semibold" size="sm">Methods:</Text>
+                      <HStack wrap="wrap" spacing={2}>
+                        {cls.methods.map((m, i) => (
+                          <Tag key={i} size="sm" variant="outline">{m}</Tag>
+                        ))}
+                      </HStack>
+                    </Box>
+                  ))}
+                   {(!pkg.parsedClasses || pkg.parsedClasses.length === 0) && (
+                    <Text textAlign="center" color="gray.500">No classes found</Text>
+                  )}
+                </VStack>
+              </TabPanel>
+              
+              <TabPanel>
+                <VStack align="start">
+                  {pkg.imports?.map((imp, idx) => (
+                    <Code key={idx} width="full">{imp}</Code>
+                  ))}
+                  {(!pkg.imports || pkg.imports.length === 0) && (
+                    <Text textAlign="center" color="gray.500">No imports found</Text>
+                  )}
+                </VStack>
               </TabPanel>
             </TabPanels>
           </Tabs>
         </ModalBody>
-
         <ModalFooter>
-          <Button colorScheme="teal" onClick={onClose}>
-            Close
-          </Button>
+          <Button onClick={onClose}>Close</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

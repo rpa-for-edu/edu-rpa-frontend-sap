@@ -75,10 +75,27 @@ const UploadPackageModal: React.FC<UploadPackageModalProps> = ({
     }
 
     try {
-      await activityPackageApi.createPackage(data);
+      // 1. Create the package
+      const newPackage = await activityPackageApi.createPackage({
+        id: data.name!, // distinct from generated, users input this manually
+        displayName: data.displayName,
+        description: data.description,
+        version: data.version,
+        // Assuming library name is the same as package internal name if not specified
+        library: data.library || data.name, 
+        libraryVersion: data.version, // Use content version for library version as defaults
+      });
+
+      // 2. Upload the library file
+      await activityPackageApi.uploadLibrary(
+        newPackage.id,
+        selectedFile,
+        data.version! // Use package version as library version
+      );
+
       toast({
         title: 'Success',
-        description: 'Package uploaded successfully',
+        description: 'Package uploaded and created successfully',
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -88,6 +105,7 @@ const UploadPackageModal: React.FC<UploadPackageModalProps> = ({
       onSuccess();
       onClose();
     } catch (error: any) {
+      console.error('Upload Error:', error);
       toast({
         title: 'Error',
         description: error.response?.data?.message || 'Failed to upload package',
