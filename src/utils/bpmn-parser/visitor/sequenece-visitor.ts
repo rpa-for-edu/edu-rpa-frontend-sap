@@ -28,7 +28,7 @@ import {
 } from "./robot";
 import { AuthorizationProvider } from "@/interfaces/enums/provider.enum";
 import _ from "lodash";
-import { LibrabryConfigurations } from "@/constants/activityPackage";
+import { LibrabryConfigurations, ActivityPackages } from "@/constants/activityPackage";
 export class SequenceVisitor {
   properties: Map<string, Properties>;
   imports: Set<string>;
@@ -64,7 +64,35 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
     connectionKey: string;
   }[] = [];
 
+  // Maps a non-init keyword (e.g. "Send Message") → its package's init keyword (e.g. "Init Gmail")
+  private keywordToInitKeyword: Map<string, string> = new Map();
+  // Set of all init keyword names (e.g. "Init Drive", "Init Gmail", "Init Sheets")
+  private initKeywordSet: Set<string> = new Set();
+  // Maps init keyword name → credential file path (populated as init tasks are visited)
+  private initCredentialPaths: Map<string, string> = new Map();
+
+  private _buildInitMappings() {
+    for (const pkg of ActivityPackages) {
+      if (!pkg.activityTemplates) continue;
+      // Find the connection/init template for this package
+      const initTemplate = pkg.activityTemplates.find(
+        (t: any) => t.arguments?.Connection && t.keyword
+      );
+      if (!initTemplate) continue;
+      const initKeyword = (initTemplate as any).keyword as string;
+      this.initKeywordSet.add(initKeyword);
+      // Map all other keywords in this package → this init keyword
+      for (const template of pkg.activityTemplates) {
+        const tmpl = template as any;
+        if (tmpl.keyword && tmpl.keyword !== initKeyword) {
+          this.keywordToInitKeyword.set(tmpl.keyword, initKeyword);
+        }
+      }
+    }
+  }
+
   parse() {
+    this._buildInitMappings();
     let name = "";
     let body: BodyItem[] = this.visit(this.sequence, []);
     let tests = [new Test("Main", body)];
@@ -218,6 +246,11 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
             .slice(0, -1)
             .join(".") ?? "",
       });
+
+      // Track credential path for init keywords (used for parallel branch auto-injection)
+      if (this.initKeywordSet.has(keyword)) {
+        this.initCredentialPaths.set(keyword, connectionArgs.value);
+      }
     }
 
     let keywords = [new Keyword(keyword, keywordArg, keywordAssigns)];
@@ -325,6 +358,7 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
   }
 
   // Parallel Block - all branches execute without conditions
+  // Auto-injects Init keywords for packages used in each branch
   visitParallelBlock(node: ParallelBlock, params: any[]) {
     let parallelBranches: ParallelBranch[] = [];
     for (let branch of node.branches) {
@@ -335,9 +369,68 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
   }
 
   // Parallel Branch Block - simple body without condition
+  // Traces packages used in the branch and auto-injects missing Init keywords
   visitParallelBranchBlock(node: ParallelBranchBlock, params: any[]) {
     let body: BodyItem[] = this.visit(node.sequence, params);
-    return body;
+
+    // Collect all keywords in this branch body
+    const branchKeywords = this._collectKeywordsFromBody(body);
+
+    // Find init keywords already present in the branch
+    const existingInits = new Set(
+      branchKeywords.filter((kw) => this.initKeywordSet.has(kw))
+    );
+
+    // Find required init keywords for non-init keywords in this branch
+    const requiredInits = new Map<string, boolean>(); // initKeyword → needed
+    for (const kw of branchKeywords) {
+      const initKw = this.keywordToInitKeyword.get(kw);
+      if (initKw && !existingInits.has(initKw) && !requiredInits.has(initKw)) {
+        requiredInits.set(initKw, true);
+      }
+    }
+
+    // Auto-inject missing Init keywords at the beginning of the branch
+    const injectedInits: BodyItem[] = [];
+    Array.from(requiredInits.keys()).forEach((initKeyword) => {
+      const credentialPath = this.initCredentialPaths.get(initKeyword);
+      if (!credentialPath) {
+        throw new BpmnParseError(
+          `Missing Init for parallel branch: "${initKeyword}" is required but no Init task with credential was found in the main body. Please add "${initKeyword}" before the Parallel Gateway.`,
+          node.flowId
+        );
+      }
+      // Create the init keyword with the same credential path
+      const initKwItem = new Keyword(
+        initKeyword,
+        [new Argument("token_file", credentialPath)],
+        []
+      );
+      injectedInits.push(initKwItem);
+    });
+
+    return [...injectedInits, ...body];
+  }
+
+  // Recursively collects keyword names from a list of BodyItems
+  private _collectKeywordsFromBody(body: BodyItem[]): string[] {
+    const keywords: string[] = [];
+    for (const item of body) {
+      if (item instanceof Keyword) {
+        keywords.push(item.name);
+      } else if (item instanceof If) {
+        for (const branch of item.body) {
+          keywords.push(...this._collectKeywordsFromBody(branch.body));
+        }
+      } else if (item instanceof For) {
+        keywords.push(...this._collectKeywordsFromBody(item.body));
+      } else if (item instanceof Parallel) {
+        for (const branch of item.branches) {
+          keywords.push(...this._collectKeywordsFromBody(branch.body));
+        }
+      }
+    }
+    return keywords;
   }
 
   visitBlankBlock(node: BlankBlock, params: any[]) {
