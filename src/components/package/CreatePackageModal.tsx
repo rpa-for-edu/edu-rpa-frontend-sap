@@ -203,13 +203,13 @@ const CreatePackageModal: React.FC<CreatePackageModalProps> = ({
     >
       <ModalOverlay />
       <ModalContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader color="teal.600">
-            {isEditing ? 'Edit Package' : 'Create New Package'}
-          </ModalHeader>
-          <ModalCloseButton />
-          
-          <ModalBody pb={6}>
+        <ModalHeader color="teal.600">
+          {isEditing ? 'Edit Package' : 'Create New Package'}
+        </ModalHeader>
+        <ModalCloseButton />
+        
+        <ModalBody pb={6}>
+          <form id="create-package-form" onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4} align="stretch">
               <FormControl isInvalid={!!errors.displayName} isRequired>
                 <FormLabel>Package Name</FormLabel>
@@ -330,19 +330,20 @@ const CreatePackageModal: React.FC<CreatePackageModalProps> = ({
                 )}
               </FormControl>
             </VStack>
-          </ModalBody>
+          </form>
+        </ModalBody>
 
-          <ModalFooter>
-            <Button onClick={handleClose} mr={3}>Cancel</Button>
-            <Button 
-              colorScheme="teal" 
-              type="submit" 
-              isLoading={isSubmitting}
-            >
-              {isEditing ? 'Update' : 'Create'}
-            </Button>
-          </ModalFooter>
-        </form>
+        <ModalFooter>
+          <Button onClick={handleClose} mr={3}>Cancel</Button>
+          <Button 
+            colorScheme="teal" 
+            type="submit" 
+            form="create-package-form"
+            isLoading={isSubmitting}
+          >
+            {isEditing ? 'Update' : 'Create'}
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );

@@ -172,7 +172,7 @@ const EditTemplateModal: React.FC<EditTemplateModalProps> = ({
     'connection.Google Classroom',
     'connection.Google Form',
     'connection.SAP Mock',
-    'connection.ERP Next',
+    'connection.ERPNext',
     'connection.Moodle',
     'enum.shareType',
     'enum.permission',
@@ -184,10 +184,10 @@ const EditTemplateModal: React.FC<EditTemplateModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>Edit Template: {template.keyword}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <ModalHeader>Edit Template: {template.keyword}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <form id="edit-template-form" onSubmit={handleSubmit(onSubmit)}>
             <Tabs colorScheme="teal">
               <TabList>
                 <Tab>General</Tab>
@@ -337,14 +337,14 @@ const EditTemplateModal: React.FC<EditTemplateModalProps> = ({
                 </TabPanel>
               </TabPanels>
             </Tabs>
-          </ModalBody>
-          <ModalFooter>
-             <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
-            <Button colorScheme="teal" type="submit" isLoading={isSubmitting}>
-              Save Changes
-            </Button>
-          </ModalFooter>
-        </form>
+          </form>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="ghost" mr={3} onClick={onClose}>Cancel</Button>
+          <Button colorScheme="teal" type="submit" form="edit-template-form" isLoading={isSubmitting}>
+            Save Changes
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );

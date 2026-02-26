@@ -23,6 +23,7 @@ import { SearchIcon } from '@chakra-ui/icons';
 import SidebarContent from '@/components/Sidebar/SidebarContent/SidebarContent';
 import activityPackageApi from '@/apis/activityPackageApi';
 import type { ActivityPackage } from '@/interfaces/activity-package';
+import { getDisplayText } from '@/utils/languageHelper';
 import CreatePackageModal from '@/components/package/CreatePackageModal';
 import { GetServerSideProps } from 'next';
 import { getServerSideTranslations } from '@/utils/i18n';
@@ -31,7 +32,7 @@ import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
 
 const PackagesPage: React.FC = () => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const router = useRouter();
   const toast = useToast();
   const [packages, setPackages] = useState<ActivityPackage[]>([]);
@@ -63,13 +64,20 @@ const PackagesPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = packages.filter((pkg) =>
-      pkg.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pkg.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pkg.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const defaultLang = i18n.language || 'en';
+    const filtered = packages.filter((pkg) => {
+      const displayName = getDisplayText(pkg, 'displayName', defaultLang).toLowerCase();
+      const description = getDisplayText(pkg, 'description', defaultLang).toLowerCase();
+      const name = pkg.name?.toLowerCase() || '';
+
+      return (
+        displayName.includes(searchQuery.toLowerCase()) ||
+        name.includes(searchQuery.toLowerCase()) ||
+        description.includes(searchQuery.toLowerCase())
+      );
+    });
     setFilteredPackages(filtered);
-  }, [searchQuery, packages]);
+  }, [searchQuery, packages, i18n.language]);
 
   const loadPackages = async () => {
     setIsLoading(true);
@@ -250,7 +258,7 @@ const PackagesPage: React.FC = () => {
                         fontWeight="medium"
                         color="teal.600"
                       >
-                        {pkg.displayName}
+                        {getDisplayText(pkg, 'displayName', i18n.language || 'en')}
                       </Text>
                       {pkg.libraryFileName && (
                         <Badge colorScheme="purple" fontSize="xs">
@@ -263,9 +271,9 @@ const PackagesPage: React.FC = () => {
                       {pkg.library && ` • ${pkg.library}`}
                       {pkg.libraryVersion && ` (v${pkg.libraryVersion})`}
                     </Text>
-                    {pkg.description && (
+                    {getDisplayText(pkg, 'description', i18n.language || 'en') && (
                       <Text fontSize="xs" color="gray.400" noOfLines={1}>
-                        {pkg.description}
+                        {getDisplayText(pkg, 'description', i18n.language || 'en')}
                       </Text>
                     )}
                   </Stack>

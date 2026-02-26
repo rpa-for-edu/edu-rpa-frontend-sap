@@ -180,19 +180,26 @@ const CustomTable = (props: TableProps) => {
                   ? props.headerKeys[headerIndex]
                   : Object.keys(currentData[0] || {})[headerIndex];
 
-                // Define column widths
-                const getColumnWidth = (header: string) => {
-                  switch (header) {
+                // Define column widths using headerKey
+                const getColumnWidth = (key: string | undefined) => {
+                  switch (key) {
+                    case 'name':
                     case 'Process name':
                       return '20%';
+                    case 'description':
                     case 'Process description':
                       return '25%';
+                    case 'owner':
+                    case 'sharedBy':
                     case 'Owner':
                       return '12%';
+                    case 'last_modified':
                     case 'Last Modified':
                       return '18%';
+                    case 'version':
                     case 'Version':
                       return '8%';
+                    case 'status':
                     case 'Status':
                       return '10%';
                     default:
@@ -208,11 +215,11 @@ const CustomTable = (props: TableProps) => {
                     textTransform="none"
                     fontSize="14px"
                     px={3}
-                    width={getColumnWidth(headerItem)}
+                    width={getColumnWidth(headerKey as string)}
                   >
                     <HStack spacing={1} justify="flex-start">
                       <Text>{headerItem}</Text>
-                      {headerItem === 'Last Modified' && props.onSortChange && (
+                      {(headerKey === 'last_modified' || headerItem === 'Last Modified') && props.onSortChange && (
                         <IconButton
                           size="xs"
                           aria-label="Sort"
@@ -240,7 +247,7 @@ const CustomTable = (props: TableProps) => {
                 px={3}
                 width="100px"
               >
-                Actions
+                {t('table.actions')}
               </Th>
             </Tr>
           </Thead>
@@ -322,7 +329,7 @@ const CustomTable = (props: TableProps) => {
                                 props.onProcessSettings!(item.id);
                               }}
                             >
-                              Process settings
+                              {t('table.processSettings')}
                             </MenuItem>
                           )}
                           {props.onDuplicate && (
@@ -333,7 +340,7 @@ const CustomTable = (props: TableProps) => {
                                 props.onDuplicate!(item.id);
                               }}
                             >
-                              Duplicate
+                              {t('table.duplicate')}
                             </MenuItem>
                           )}
                           {props.onShare && (
@@ -344,7 +351,7 @@ const CustomTable = (props: TableProps) => {
                                 props.onShare!(item.id);
                               }}
                             >
-                              Share
+                              {t('table.share')}
                             </MenuItem>
                           )}
                           {props.onDownload && (
@@ -355,7 +362,7 @@ const CustomTable = (props: TableProps) => {
                                 props.onDownload!(item.id);
                               }}
                             >
-                              Download
+                              {t('table.download')}
                             </MenuItem>
                           )}
                           {props.onPin && (
@@ -372,7 +379,7 @@ const CustomTable = (props: TableProps) => {
                                 props.onPin!(item.id);
                               }}
                             >
-                              {item.pinned ? 'Unpin' : 'Pin'}
+                              {item.pinned ? t('table.unpin') : t('table.pin')}
                             </MenuItem>
                           )}
                           {props.onDelete && props.onProcessSettings && (
@@ -387,7 +394,7 @@ const CustomTable = (props: TableProps) => {
                                 handleDeleteClick(item.id);
                               }}
                             >
-                              Delete
+                              {t('buttons.delete')}
                             </MenuItem>
                           )}
                         </MenuList>
@@ -397,21 +404,20 @@ const CustomTable = (props: TableProps) => {
                   <Modal isOpen={isOpen} onClose={onClose}>
                     <ModalOverlay bg="blackAlpha.300" />
                     <ModalContent>
-                      <ModalHeader>Confirmation Delete</ModalHeader>
+                      <ModalHeader>{t('table.deleteConfirmTitle')}</ModalHeader>
                       <ModalCloseButton />
                       <ModalBody>
-                        <Text>Are you sure you want to delete this item?</Text>
+                        <Text>{t('table.deleteConfirmMessage')}</Text>
                         <Text>
-                          This action is irreversible and you will not be able
-                          to restore the item afterward.
+                          {t('table.deleteConfirmWarning')}
                         </Text>
                       </ModalBody>
                       <ModalFooter>
                         <Button variant="outline" mr={3} onClick={onClose}>
-                          Cancel
+                          {t('buttons.cancel')}
                         </Button>
                         <Button colorScheme="red" onClick={confirmDelete}>
-                          Delete
+                          {t('buttons.delete')}
                         </Button>
                       </ModalFooter>
                     </ModalContent>

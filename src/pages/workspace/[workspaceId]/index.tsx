@@ -20,12 +20,16 @@ import WorkspaceLayout from '@/components/Layouts/WorkspaceLayout';
 import { Workspace } from '@/interfaces/workspace';
 import workspaceApi from '@/apis/workspaceApi';
 import { COLORS } from '@/constants/colors';
+import { useTranslation } from 'next-i18next';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 const WorkspaceDashboard = () => {
   const router = useRouter();
   const { workspaceId } = router.query;
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation('workspace');
 
   useEffect(() => {
     if (workspaceId && typeof workspaceId === 'string') {
@@ -59,7 +63,7 @@ const WorkspaceDashboard = () => {
     return (
       <WorkspaceLayout>
         <Container maxW="container.xl" py={8}>
-          <Text>Workspace not found</Text>
+          <Text>{t('dashboard.workspaceNotFound')}</Text>
         </Container>
       </WorkspaceLayout>
     );
@@ -82,9 +86,9 @@ const WorkspaceDashboard = () => {
             <Card>
               <CardBody>
                 <Stat>
-                  <StatLabel>Total Members</StatLabel>
+                  <StatLabel>{t('dashboard.totalMembers')}</StatLabel>
                   <StatNumber>{workspace.members?.length || 0}</StatNumber>
-                  <StatHelpText>Active members</StatHelpText>
+                  <StatHelpText>{t('dashboard.activeMembers')}</StatHelpText>
                 </Stat>
               </CardBody>
             </Card>
@@ -94,9 +98,9 @@ const WorkspaceDashboard = () => {
             <Card>
               <CardBody>
                 <Stat>
-                  <StatLabel>Teams</StatLabel>
+                  <StatLabel>{t('teams')}</StatLabel>
                   <StatNumber>{workspace.teams?.length || 0}</StatNumber>
-                  <StatHelpText>Total teams</StatHelpText>
+                  <StatHelpText>{t('dashboard.totalTeams')}</StatHelpText>
                 </Stat>
               </CardBody>
             </Card>
@@ -106,7 +110,7 @@ const WorkspaceDashboard = () => {
             <Card>
               <CardBody>
                 <Stat>
-                  <StatLabel>Owner</StatLabel>
+                  <StatLabel>{t('owner')}</StatLabel>
                   <StatNumber fontSize="md">{workspace.owner?.name}</StatNumber>
                   <StatHelpText>{workspace.owner?.email}</StatHelpText>
                 </Stat>
@@ -117,11 +121,11 @@ const WorkspaceDashboard = () => {
 
         <Box>
           <Heading size="md" mb={4}>
-            Recent Activity
+            {t('dashboard.recentActivity')}
           </Heading>
           <Card>
             <CardBody>
-              <Text color="gray.500">No recent activity</Text>
+              <Text color="gray.500">{t('dashboard.noRecentActivity')}</Text>
             </CardBody>
           </Card>
         </Box>
@@ -131,3 +135,16 @@ const WorkspaceDashboard = () => {
 };
 
 export default WorkspaceDashboard;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

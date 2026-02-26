@@ -6,6 +6,10 @@
   "storage": "Storage",
   "documentTemplate": "Document Template",
   "workspace": "Workspace",
-  "packageManagement": "Packages"
+  "packageManagement": "Packages",
+  "dashboard": "Dashboard",
+  "member": "Member",
+  "members": "Members",
+  "teams": "Teams",
+  "settings": "Settings"
 }
-

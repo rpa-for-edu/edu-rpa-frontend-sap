@@ -120,7 +120,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
               onChange={handleChange}
             />
             <Text fontSize="sm" color="gray.500" mt={1}>
-              You'll use this name to mention this team in conversations.
+              {t('createTeamModal.nameHelper')}
             </Text>
           </FormControl>
 
@@ -136,7 +136,7 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
           </FormControl>
 
           <FormControl>
-            <FormLabel>Team visibility</FormLabel>
+            <FormLabel>{t('createTeamModal.visibility')}</FormLabel>
             <RadioGroup
               onChange={handleVisibilityChange}
               value={formData.visibility}
@@ -144,18 +144,17 @@ const CreateTeamModal: React.FC<CreateTeamModalProps> = ({
               <Stack>
                 <Radio value={TeamVisibility.VISIBLE}>
                   <Stack spacing={0}>
-                    <Text fontWeight="medium">Visible (Recommended)</Text>
+                    <Text fontWeight="medium">{t('createTeamModal.visible')}</Text>
                     <Text fontSize="sm" color="gray.500">
-                      A visible team can be seen by every member of this
-                      organization.
+                      {t('createTeamModal.visibleDesc')}
                     </Text>
                   </Stack>
                 </Radio>
                 <Radio value={TeamVisibility.SECRET}>
                   <Stack spacing={0}>
-                    <Text fontWeight="medium">Secret</Text>
+                    <Text fontWeight="medium">{t('createTeamModal.secret')}</Text>
                     <Text fontSize="sm" color="gray.500">
-                      A secret team can only be seen by its members.
+                      {t('createTeamModal.secretDesc')}
                     </Text>
                   </Stack>
                 </Radio>

@@ -16,10 +16,14 @@ import { useRouter } from 'next/router';
 import SidebarContent from '@/components/Sidebar/SidebarContent/SidebarContent';
 import { CreateWorkspaceDto } from '@/dtos/workspaceDto';
 import workspaceApi from '@/apis/workspaceApi';
+import { useTranslation } from 'next-i18next';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 const CreateWorkspacePage: React.FC = () => {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation('workspace');
   const [formData, setFormData] = useState<CreateWorkspaceDto>({
     name: '',
     contactEmail: '',
@@ -38,8 +42,8 @@ const CreateWorkspacePage: React.FC = () => {
 
     if (!formData.name || !formData.contactEmail) {
       toast({
-        title: 'Error',
-        description: 'Please fill in all required fields',
+        title: t('messages.error'),
+        description: t('messages.pleaseFillRequired'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -51,8 +55,8 @@ const CreateWorkspacePage: React.FC = () => {
     try {
       await workspaceApi.createWorkspace(formData);
       toast({
-        title: 'Success',
-        description: 'Workspace created successfully',
+        title: t('messages.success'),
+        description: t('messages.workspaceCreated'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -60,9 +64,9 @@ const CreateWorkspacePage: React.FC = () => {
       router.push('/workspace');
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: t('messages.error'),
         description:
-          error?.response?.data?.message || 'Failed to create workspace',
+          error?.response?.data?.message || t('messages.failedToCreateWorkspace'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -86,7 +90,7 @@ const CreateWorkspacePage: React.FC = () => {
           <VStack spacing={6} align="stretch">
             <Box textAlign="center" mb={4}>
               <Heading size="lg" mb={2}>
-                Create your workspace
+                {t('createYourWorkspace')}
               </Heading>
               <Text color="gray.500" fontSize="sm">
                 Workspace - Place for team work
@@ -96,10 +100,10 @@ const CreateWorkspacePage: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <VStack spacing={6}>
                 <FormControl isRequired>
-                  <FormLabel>Workspace name</FormLabel>
+                  <FormLabel>{t('workspaceName')}</FormLabel>
                   <Input
                     name="name"
-                    placeholder="Enter workspace name"
+                    placeholder={t('enterWorkspaceName')}
                     value={formData.name}
                     onChange={handleChange}
                     size="md"
@@ -108,11 +112,11 @@ const CreateWorkspacePage: React.FC = () => {
                 </FormControl>
 
                 <FormControl isRequired>
-                  <FormLabel>Contact email</FormLabel>
+                  <FormLabel>{t('contactEmail')}</FormLabel>
                   <Input
                     name="contactEmail"
                     type="email"
-                    placeholder="Enter contact email"
+                    placeholder={t('enterContactEmail')}
                     value={formData.contactEmail}
                     onChange={handleChange}
                     size="md"
@@ -149,3 +153,16 @@ const CreateWorkspacePage: React.FC = () => {
 };
 
 export default CreateWorkspacePage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

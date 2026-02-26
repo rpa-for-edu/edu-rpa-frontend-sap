@@ -7,6 +7,7 @@ import { useTeamProcess, useCurrentTeamMember } from '@/hooks/useTeam';
 import { hasTeamPermission } from '@/utils/teamPermissions';
 import { GetServerSideProps } from 'next';
 import { getServerSideTranslations } from '@/utils/i18n';
+import { useTranslation } from 'next-i18next';
 
 const DynamicCustomModeler = dynamic(
   () => import('@/components/Bpmn/CustomModeler'),
@@ -17,6 +18,7 @@ export default function TeamStudioModelerPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const { workspaceId, teamId, id: processId } = router.query;
+  const { t } = useTranslation('workspace');
 
   console.log('🔍 [TeamModelerPage] Router params:', {
     workspaceId,
@@ -68,10 +70,10 @@ export default function TeamStudioModelerPage() {
         <Flex justify="center" align="center" h="100vh">
           <Box textAlign="center">
             <Text fontSize="xl" fontWeight="bold" color="red.500">
-              Access Denied
+              {t('team.studio.modeler.accessDenied')}
             </Text>
             <Text color="gray.600" mt={2}>
-              You don't have permission to view team processes
+              {t('team.studio.modeler.noPermission')}
             </Text>
           </Box>
         </Flex>
@@ -95,10 +97,10 @@ export default function TeamStudioModelerPage() {
         <Flex justify="center" align="center" h="100vh">
           <Box textAlign="center">
             <Text fontSize="xl" fontWeight="bold" color="red.500">
-              Process Not Found
+              {t('team.studio.modeler.processNotFound')}
             </Text>
             <Text color="gray.600" mt={2}>
-              The requested process could not be loaded
+              {t('team.studio.modeler.processNotLoaded')}
             </Text>
           </Box>
         </Flex>

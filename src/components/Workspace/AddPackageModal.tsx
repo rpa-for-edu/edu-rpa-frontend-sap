@@ -21,6 +21,7 @@ import activityPackageApi from '@/apis/activityPackageApi';
 import workspaceApi from '@/apis/workspaceApi';
 import { ActivityPackage } from '@/interfaces/activity-package';
 import { useTranslation } from 'next-i18next';
+import { getDisplayText } from '@/utils/languageHelper';
 
 interface Props {
   isOpen: boolean;
@@ -37,7 +38,7 @@ const AddPackageModal: React.FC<Props> = ({
   existingPackageIds,
   onSuccess,
 }) => {
-  const { t } = useTranslation('workspace');
+  const { t, i18n } = useTranslation('workspace');
   const toast = useToast();
   const [allPackages, setAllPackages] = useState<ActivityPackage[]>([]);
   const [selectedPackageIds, setSelectedPackageIds] = useState<string[]>([]);
@@ -171,11 +172,11 @@ const AddPackageModal: React.FC<Props> = ({
                       onChange={() => handleToggle(pkg.id)}
                       onClick={(e) => e.stopPropagation()}
                     />
-                    <Avatar size="sm" name={pkg.displayName} />
+                    <Avatar size="sm" name={getDisplayText(pkg, 'displayName', i18n.language)} />
                     <Stack spacing={0} flex={1}>
-                      <Text fontWeight="medium">{pkg.displayName}</Text>
+                      <Text fontWeight="medium">{getDisplayText(pkg, 'displayName', i18n.language)}</Text>
                       <Text fontSize="sm" color="gray.500">
-                        {pkg.description || 'No description'}
+                        {getDisplayText(pkg, 'description', i18n.language) || 'No description'}
                       </Text>
                     </Stack>
                   </Flex>

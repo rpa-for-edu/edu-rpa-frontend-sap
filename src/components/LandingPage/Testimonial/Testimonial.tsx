@@ -107,18 +107,21 @@ const TestimonialAvatar = ({
   );
 };
 
+import { useTranslation } from 'next-i18next';
+
 export default function TestimonialHome() {
+  const { t } = useTranslation('landing');
+
   return (
     <Box bg="white">
       <Container maxW={'7xl'} p={10} as={Stack} spacing={12}>
         <Stack spacing={0} align={'center'}>
-          <Heading color="teal.500">Our Clients Speak</Heading>
+          <Heading color="teal.500">{t('testimonial.title')}</Heading>
           <Text
             className="w-60 m-auto text-center my-[15px]"
             fontSize={18}
             color={'gray.600'}>
-            Client expectations are always the foremost priority guiding our
-            platform to continuous improvement and enhancement.
+            {t('testimonial.subtitle')}
           </Text>
         </Stack>
         <Stack

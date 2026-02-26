@@ -6,6 +6,10 @@
   "storage": "Lưu trữ",
   "documentTemplate": "Mẫu tài liệu",
   "workspace": "Không gian làm việc",
-  "packageManagement": "Gói hoạt động"
+  "packageManagement": "Gói hoạt động",
+  "dashboard": "Bảng điều khiển",
+  "member": "Thành viên",
+  "members": "Thành viên",
+  "teams": "Nhóm",
+  "settings": "Cài đặt"
 }
-

@@ -22,13 +22,13 @@ export default function TeamDashboard() {
           <div className="w-90 mx-auto my-[30px]">
             <Box p={6} borderWidth="1px" borderRadius="lg" bg="white">
               <Text fontSize="lg" mb={4}>
-                Welcome to Team Dashboard
+                {t('teamDashboard.welcomeTitle')}
               </Text>
               <Text color="gray.600">
-                Team ID: {teamId}
+                {t('teamDashboard.teamId')}: {teamId}
               </Text>
               <Text color="gray.600">
-                Workspace ID: {workspaceId}
+                {t('teamDashboard.workspaceId')}: {workspaceId}
               </Text>
             </Box>
           </div>

@@ -20,11 +20,15 @@ import TeamLayout from '@/components/Layouts/TeamLayout';
 import SidebarContent from '@/components/Sidebar/SidebarContent/SidebarContent';
 import { useCreateTeamProcess, useCurrentTeamMember } from '@/hooks/useTeam';
 import { hasTeamPermission } from '@/utils/teamPermissions';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
+import { useTranslation } from 'next-i18next';
 
 export default function CreateTeamProcessPage() {
   const router = useRouter();
   const toast = useToast();
   const { workspaceId, teamId } = router.query;
+  const { t } = useTranslation('workspace');
 
   // Fetch current team member
   const {
@@ -47,7 +51,7 @@ export default function CreateTeamProcessPage() {
   const handleSubmit = async () => {
     if (!processName.trim()) {
       toast({
-        title: 'Process name is required',
+        title: t('team.studio.nameRequired'),
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -79,10 +83,10 @@ export default function CreateTeamProcessPage() {
         <SidebarContent>
           <Box textAlign="center" py={10}>
             <Text fontSize="xl" fontWeight="bold" color="red.500">
-              Access Denied
+              {t('team.studio.createProcess.accessDenied')}
             </Text>
             <Text color="gray.600" mt={2}>
-              You don't have permission to create processes in this team
+              {t('team.studio.createProcess.noPermission')}
             </Text>
           </Box>
         </SidebarContent>
@@ -95,7 +99,7 @@ export default function CreateTeamProcessPage() {
       <SidebarContent>
         <Box px={8} py={6}>
           <Heading size="lg" mb={6} color="teal.600">
-            Create New Team Process
+            {t('team.studio.createProcess.title')}
           </Heading>
 
           <Card maxW="800px">
@@ -103,30 +107,30 @@ export default function CreateTeamProcessPage() {
               <VStack spacing={6} align="stretch">
                 {/* Process Name */}
                 <FormControl isRequired>
-                  <FormLabel>Process Name</FormLabel>
+                  <FormLabel>{t('team.studio.createProcess.nameLabel')}</FormLabel>
                   <Input
-                    placeholder="Enter process name"
+                    placeholder={t('team.studio.createProcess.namePlaceholder')}
                     value={processName}
                     onChange={(e) => setProcessName(e.target.value)}
                     bg="white"
                   />
                   <FormHelperText>
-                    Give your process a clear and descriptive name
+                    {t('team.studio.createProcess.nameHelper')}
                   </FormHelperText>
                 </FormControl>
 
                 {/* Description */}
                 <FormControl>
-                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormLabel>{t('team.studio.createProcess.descLabel')}</FormLabel>
                   <Textarea
-                    placeholder="Describe what this process does..."
+                    placeholder={t('team.studio.createProcess.descPlaceholder')}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     bg="white"
                     rows={4}
                   />
                   <FormHelperText>
-                    Provide details about the process purpose and functionality
+                    {t('team.studio.createProcess.descHelper')}
                   </FormHelperText>
                 </FormControl>
 
@@ -137,15 +141,15 @@ export default function CreateTeamProcessPage() {
                     onClick={() => router.back()}
                     isDisabled={createMutation.isPending}
                   >
-                    Cancel
+                    {t('team.studio.createProcess.cancel')}
                   </Button>
                   <Button
                     colorScheme="teal"
                     onClick={handleSubmit}
                     isLoading={createMutation.isPending}
-                    loadingText="Creating..."
+                    loadingText={t('team.studio.createProcess.submitting')}
                   >
-                    Create & Edit
+                    {t('team.studio.createProcess.submit')}
                   </Button>
                 </HStack>
               </VStack>
@@ -156,3 +160,16 @@ export default function CreateTeamProcessPage() {
     </TeamLayout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

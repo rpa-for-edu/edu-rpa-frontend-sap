@@ -31,9 +31,10 @@ import {
 import ReactPaginate from 'react-paginate';
 import { Connection } from '@/interfaces/connection';
 import connectionApi from '@/apis/connectionApi';
-import { useRouter } from 'next/router';
 import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 import ConnectionRow from './ConnectionRow';
+import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
 
 interface ConnectionTableProps {
   header: string[];
@@ -59,6 +60,7 @@ const ConnectionTable = (props: ConnectionTableProps) => {
   const currentData = connectionData.slice(startIndex, endIndex);
   const toast = useToast();
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -86,7 +88,7 @@ const ConnectionTable = (props: ConnectionTableProps) => {
     try {
       await connectionApi.removeConnection(provider, name);
       toast({
-        title: 'Connection removed',
+        title: t('table.connection.removedSuccess'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -98,7 +100,7 @@ const ConnectionTable = (props: ConnectionTableProps) => {
       );
     } catch (error) {
       toast({
-        title: 'Failed to remove connection',
+        title: t('table.connection.removedFailed'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -142,23 +144,22 @@ const ConnectionTable = (props: ConnectionTableProps) => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Confirmation to remove connection</ModalHeader>
+          <ModalHeader>{t('table.connection.removeConfirmTitle')}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>Are you sure to remove this connection ?</Text>
+            <Text>{t('table.connection.removeConfirmMessage')}</Text>
             <Text fontWeight={'bold'}>
-              Provider: {selectedForRemove.provider}, Name:{' '}
+              {t('table.connection.provider')} {selectedForRemove.provider}, {t('table.connection.name')}{' '}
               {selectedForRemove.name}
             </Text>
             <Text>
-              Robot using this connection will not be able to run if this
-              connection is removed.
+              {t('table.connection.removeWarning')}
             </Text>
           </ModalBody>
 
           <ModalFooter>
             <Button variant="outline" mr={3} onClick={onClose}>
-              Cancel
+              {t('buttons.cancel')}
             </Button>
             <Button
               colorScheme="red"
@@ -169,7 +170,7 @@ const ConnectionTable = (props: ConnectionTableProps) => {
                 );
                 onClose();
               }}>
-              Remove
+              {t('table.connection.removeButton')}
             </Button>
           </ModalFooter>
         </ModalContent>

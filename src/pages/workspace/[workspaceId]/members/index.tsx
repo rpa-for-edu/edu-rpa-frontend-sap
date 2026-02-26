@@ -41,6 +41,9 @@ import { MdArrowDropDown, MdEmail } from 'react-icons/md';
 import { COLORS } from '@/constants/colors';
 import { useSelector } from 'react-redux';
 import { homeSelector } from '@/redux/selector';
+import { useTranslation } from 'next-i18next';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 interface InviteWorkspaceMemberModalProps {
   isOpen: boolean;
@@ -61,6 +64,7 @@ const InviteWorkspaceMemberModal: React.FC<InviteWorkspaceMemberModalProps> = ({
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation('workspace');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,8 +74,8 @@ const InviteWorkspaceMemberModal: React.FC<InviteWorkspaceMemberModalProps> = ({
       setIsSubmitting(true);
       await workspaceApi.inviteWorkspaceMember(workspaceId, { email, role });
       toast({
-        title: 'Success',
-        description: 'Member invited successfully',
+        title: t('messages.success'),
+        description: t('messages.invitationSent'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -82,9 +86,9 @@ const InviteWorkspaceMemberModal: React.FC<InviteWorkspaceMemberModalProps> = ({
       setRole(WorkspaceMemberRole.MEMBER);
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: t('messages.error'),
         description:
-          error?.response?.data?.message || 'Failed to invite member',
+          error?.response?.data?.message || t('messages.failedToInvite'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -136,7 +140,7 @@ const InviteWorkspaceMemberModal: React.FC<InviteWorkspaceMemberModalProps> = ({
               mr={-4}
             />
           </Flex>
-          Invite Your Workspace Member
+          {t('inviteMemberTitle')}
         </ModalHeader>
         <ModalCloseButton />
         <form onSubmit={handleSubmit}>
@@ -188,7 +192,7 @@ const InviteWorkspaceMemberModal: React.FC<InviteWorkspaceMemberModalProps> = ({
           </ModalBody>
           <ModalFooter justifyContent="center" alignItems="center">
             <Button variant="ghost" mr={3} onClick={onClose} w="100px">
-              Cancel
+              {t('membersPage.cancel')}
             </Button>
             <Button
               type="submit"
@@ -210,6 +214,7 @@ const WorkspaceMembersPage: React.FC = () => {
   const toast = useToast();
   const { workspaceId } = router.query as { workspaceId: string };
   const { workspaces } = useSelector(homeSelector);
+  const { t } = useTranslation('workspace');
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<WorkspaceMember[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -271,8 +276,8 @@ const WorkspaceMembersPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch members:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch members',
+        title: t('messages.error'),
+        description: t('messages.fetchFailed'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -315,8 +320,8 @@ const WorkspaceMembersPage: React.FC = () => {
         pendingDelete.memberId
       );
       toast({
-        title: 'Success',
-        description: 'Member removed successfully',
+        title: t('messages.success'),
+        description: t('messages.success'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -324,9 +329,9 @@ const WorkspaceMembersPage: React.FC = () => {
       fetchMembers();
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: t('messages.error'),
         description:
-          error?.response?.data?.message || 'Failed to remove member',
+          error?.response?.data?.message || t('messages.error'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -358,8 +363,8 @@ const WorkspaceMembersPage: React.FC = () => {
         }
       );
       toast({
-        title: 'Success',
-        description: 'Member role updated successfully',
+        title: t('messages.success'),
+        description: t('messages.success'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -367,9 +372,9 @@ const WorkspaceMembersPage: React.FC = () => {
       fetchMembers();
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: t('messages.error'),
         description:
-          error?.response?.data?.message || 'Failed to update member role',
+          error?.response?.data?.message || t('messages.error'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -423,24 +428,24 @@ const WorkspaceMembersPage: React.FC = () => {
         >
           <BreadcrumbItem>
             <BreadcrumbLink onClick={() => router.push('/workspace')}>
-              Workspaces
+              {t('workspaces')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
             <BreadcrumbLink
               onClick={() => router.push(`/workspace/${workspaceId}`)}
             >
-              {workspace?.name || 'Workspace'}
+              {workspace?.name || t('title')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink>Members</BreadcrumbLink>
+            <BreadcrumbLink>{t('membersPage.title')}</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
 
         <Flex justify="space-between" align="center" mb={6}>
           <Heading size="lg" color={COLORS.primary}>
-            Members
+            {t('membersPage.title')}
           </Heading>
         </Flex>
 
@@ -451,7 +456,7 @@ const WorkspaceMembersPage: React.FC = () => {
                 <SearchIcon color="gray.300" />
               </InputLeftElement>
               <Input
-                placeholder="Find a member..."
+                placeholder={t('membersPage.findMember')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -463,7 +468,7 @@ const WorkspaceMembersPage: React.FC = () => {
                   variant="outline"
                   leftIcon={<Text>📥</Text>}
                 >
-                  Export
+                  {t('membersPage.export')}
                 </MenuButton>
                 <MenuList>
                   <MenuItem onClick={exportToJSON}>JSON</MenuItem>
@@ -471,7 +476,7 @@ const WorkspaceMembersPage: React.FC = () => {
                 </MenuList>
               </Menu>
               <Button colorScheme="teal" onClick={onOpen}>
-                Invite member
+                {t('membersPage.inviteMember')}
               </Button>
             </Flex>
           </Flex>
@@ -616,7 +621,7 @@ const WorkspaceMembersPage: React.FC = () => {
 
             {filteredMembers.length === 0 && (
               <Box p={8} textAlign="center">
-                <Text color="gray.500">No members found</Text>
+                <Text color="gray.500">{t('membersPage.noMembersFound')}</Text>
               </Box>
             )}
           </Stack>
@@ -634,21 +639,19 @@ const WorkspaceMembersPage: React.FC = () => {
       <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Remove Member</ModalHeader>
+          <ModalHeader>{t('membersPage.removeMember')}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text>
-              Are you sure you want to remove{' '}
-              <strong>{pendingDelete?.memberName}</strong> from this workspace?
-              This action cannot be undone.
+              {t('membersPage.removeConfirmation').replace('{{memberName}}', pendingDelete?.memberName || '')}
             </Text>
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onDeleteClose}>
-              Cancel
+              {t('membersPage.cancel')}
             </Button>
             <Button colorScheme="red" onClick={confirmDelete}>
-              Remove
+              {t('membersPage.removeMenu')}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -658,26 +661,22 @@ const WorkspaceMembersPage: React.FC = () => {
       <Modal isOpen={isRoleChangeOpen} onClose={onRoleChangeClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Change Member Role</ModalHeader>
+          <ModalHeader>{t('membersPage.changeRole')}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text>
-              Are you sure you want to change{' '}
-              <strong>{pendingRoleChange?.memberName}</strong>'s role to{' '}
-              <strong>
-                {pendingRoleChange?.newRole === WorkspaceMemberRole.OWNER
-                  ? 'Owner'
-                  : 'Member'}
-              </strong>
-              ?
+              {t('membersPage.changeRoleConfirmation')
+                .replace('{{memberName}}', pendingRoleChange?.memberName || '')
+                .replace('{{newRole}}', pendingRoleChange?.newRole === WorkspaceMemberRole.OWNER ? 'Owner' : 'Member')
+              }
             </Text>
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onRoleChangeClose}>
-              Cancel
+              {t('membersPage.cancel')}
             </Button>
             <Button colorScheme="teal" onClick={confirmRoleChange}>
-              Confirm
+              {t('membersPage.confirm')}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -687,3 +686,16 @@ const WorkspaceMembersPage: React.FC = () => {
 };
 
 export default WorkspaceMembersPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

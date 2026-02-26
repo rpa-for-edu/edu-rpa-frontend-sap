@@ -44,6 +44,7 @@ import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import { defaultXML, generateProcessID } from '@/utils/processService';
 import { GetServerSideProps } from 'next';
 import { getServerSideTranslations } from '@/utils/i18n';
+import { useTranslation } from 'next-i18next';
 
 export default function TeamStudioPage() {
   const router = useRouter();
@@ -56,6 +57,7 @@ export default function TeamStudioPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>('desc');
   const toast = useToast();
+  const { t } = useTranslation('workspace');
 
   // Modal refs and state for creating new process
   const initialRef = useRef<HTMLInputElement>(null);
@@ -106,7 +108,7 @@ export default function TeamStudioPage() {
 
     if (!processName) {
       toast({
-        title: 'Process name is required',
+        title: t('team.studio.nameRequired'),
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -129,7 +131,7 @@ export default function TeamStudioPage() {
       });
 
       toast({
-        title: 'Process created successfully!',
+        title: t('team.studio.processCreated'),
         status: 'success',
         position: 'top-right',
         duration: 2000,
@@ -148,7 +150,7 @@ export default function TeamStudioPage() {
     } catch (error) {
       console.error('❌ Failed to create team process:', error);
       toast({
-        title: 'Failed to create process',
+        title: t('team.studio.failedToCreate'),
         description: error instanceof Error ? error.message : 'Unknown error',
         status: 'error',
         position: 'top-right',
@@ -210,7 +212,7 @@ export default function TeamStudioPage() {
 
   const handleDownloadProcessByID = (processID: string) => {
     toast({
-      title: 'Download feature coming soon',
+      title: t('team.studio.downloadComingSoon'),
       status: 'info',
       position: 'top-right',
       duration: 2000,
@@ -220,7 +222,7 @@ export default function TeamStudioPage() {
 
   const handleDuplicateProcess = (processID: string) => {
     toast({
-      title: 'Duplicate feature coming soon',
+      title: t('team.studio.duplicateComingSoon'),
       status: 'info',
       position: 'top-right',
       duration: 2000,
@@ -230,7 +232,7 @@ export default function TeamStudioPage() {
 
   const handleShareProcess = (processID: string) => {
     toast({
-      title: 'Share feature coming soon',
+      title: t('team.studio.shareComingSoon'),
       status: 'info',
       position: 'top-right',
       duration: 2000,
@@ -240,7 +242,7 @@ export default function TeamStudioPage() {
 
   const handlePinProcess = (processID: string) => {
     toast({
-      title: 'Pin feature coming soon',
+      title: t('team.studio.pinComingSoon'),
       status: 'info',
       position: 'top-right',
       duration: 2000,
@@ -250,7 +252,7 @@ export default function TeamStudioPage() {
 
   const handleProcessSettings = (processID: string) => {
     toast({
-      title: 'Settings feature coming soon',
+      title: t('team.studio.settingsComingSoon'),
       status: 'info',
       position: 'top-right',
       duration: 2000,
@@ -260,7 +262,7 @@ export default function TeamStudioPage() {
 
   const handleImportBPMN = () => {
     toast({
-      title: 'Import feature coming soon',
+      title: t('team.studio.importComingSoon'),
       status: 'info',
       position: 'top-right',
       duration: 2000,
@@ -320,12 +322,12 @@ export default function TeamStudioPage() {
 
   const tableProps = {
     header: [
-      'Process name',
-      'Process description',
-      'Owner',
-      'Last Modified',
-      'Version',
-      'Status',
+      t('team.studio.table.name'),
+      t('team.studio.table.description'),
+      t('team.studio.table.owner'),
+      t('team.studio.table.lastModified'),
+      t('team.studio.table.version'),
+      t('team.studio.table.status'),
     ],
     headerKeys: [
       'name',
@@ -345,10 +347,10 @@ export default function TeamStudioPage() {
           <SidebarContent>
             <Box textAlign="center" py={10}>
               <Text fontSize="xl" fontWeight="bold" color="red.500">
-                Access Denied
+                {t('team.studio.accessDenied')}
               </Text>
               <Text color="gray.600" mt={2}>
-                You don't have permission to view team processes
+                {t('team.studio.noPermission')}
               </Text>
             </Box>
           </SidebarContent>
@@ -361,21 +363,21 @@ export default function TeamStudioPage() {
   if (processesError) {
     const errorStatus = (processesError as any)?.response?.status;
     const errorMessage = errorStatus === 403 
-      ? "You don't have permission to access team processes"
-      : (processesError as any)?.response?.data?.message || 'Failed to load processes';
+      ? t('team.studio.noPermission')
+      : (processesError as any)?.response?.data?.message || t('team.studio.failedToLoad');
     
     return (
       <TeamLayout>
         <div className="mb-[200px]">
           <SidebarContent>
             <h1 className="pl-[20px] ml-[35px] font-bold text-2xl text-[#319795]">
-              Team Studio
+              {t('team.studio.title')}
             </h1>
             <Box mt={6} mx="auto" maxW="600px">
               <Alert status="error" borderRadius="md">
                 <AlertIcon />
                 <Box>
-                  <AlertTitle>Error Loading Processes</AlertTitle>
+                  <AlertTitle>{t('team.studio.errorLoading')}</AlertTitle>
                   <AlertDescription>{errorMessage}</AlertDescription>
                 </Box>
               </Alert>
@@ -401,7 +403,7 @@ export default function TeamStudioPage() {
                     : 'text-gray-600 hover:text-[#319795]'
                 }`}
               >
-                Process List
+                {t('team.studio.tabs.processes')}
               </button>
               <button
                 onClick={() => setActiveTab('templates')}
@@ -411,7 +413,7 @@ export default function TeamStudioPage() {
                     : 'text-gray-600 hover:text-[#319795]'
                 }`}
               >
-                Templates
+                {t('team.studio.tabs.templates')}
               </button>
               {/* Sliding underline */}
               <div
@@ -443,7 +445,7 @@ export default function TeamStudioPage() {
                     <Input
                       bg="white"
                       type="text"
-                      placeholder="Search by name..."
+                      placeholder={t('team.studio.search')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -451,7 +453,7 @@ export default function TeamStudioPage() {
                   <Box>
                     <HStack spacing={2}>
                       <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                        Owner:
+                        {t('team.studio.owner')}
                       </Text>
                       <Select
                         size="sm"
@@ -460,7 +462,7 @@ export default function TeamStudioPage() {
                         value={ownerFilter}
                         onChange={(e) => setOwnerFilter(e.target.value)}
                       >
-                        <option value="all">All</option>
+                        <option value="all">{t('team.studio.all')}</option>
                         {processesData?.processes &&
                           Array.from(
                             new Set(
@@ -479,7 +481,7 @@ export default function TeamStudioPage() {
                   <Box>
                     <HStack spacing={2}>
                       <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                        Status:
+                        {t('team.studio.status')}
                       </Text>
                       <Select
                         size="sm"
@@ -488,9 +490,9 @@ export default function TeamStudioPage() {
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                       >
-                        <option value="all">All</option>
-                        <option value="draft">draft</option>
-                        <option value="deployed">deployed</option>
+                        <option value="all">{t('team.studio.all')}</option>
+                        <option value="draft">{t('team.studio.draft')}</option>
+                        <option value="deployed">{t('team.studio.deployed')}</option>
                       </Select>
                     </HStack>
                   </Box>
@@ -498,7 +500,7 @@ export default function TeamStudioPage() {
                 <div className="flex justify-between gap-[10px]">
                   {canCreateProcess && (
                     <Button colorScheme="teal" onClick={onCreateOpen}>
-                      New Process
+                      {t('team.studio.newProcess')}
                     </Button>
                   )}
                   <input
@@ -518,7 +520,7 @@ export default function TeamStudioPage() {
                       }
                     }}
                   >
-                    Import Process
+                    {t('team.studio.importProcess')}
                   </Button>
                 </div>
               </div>
@@ -544,9 +546,9 @@ export default function TeamStudioPage() {
               {tableProps.data.length === 0 && !isLoading && (
                 <div className="w-90 m-auto flex justify-center items-center mt-10">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">No processes here</div>
+                    <div className="text-2xl font-bold">{t('team.studio.noProcesses')}</div>
                     <div className="text-gray-500">
-                      Create a new process or switch to templates
+                      {t('team.studio.createOrSwitch')}
                     </div>
                   </div>
                 </div>
@@ -557,9 +559,9 @@ export default function TeamStudioPage() {
           {activeTab === 'templates' && (
             <div className="w-90 m-auto flex justify-center items-center mt-10">
               <div className="text-center">
-                <div className="text-2xl font-bold">Templates Coming Soon</div>
+                <div className="text-2xl font-bold">{t('team.studio.templatesComingSoon')}</div>
                 <div className="text-gray-500">
-                  Process templates will be available here
+                  {t('team.studio.templatesAvailableHere')}
                 </div>
               </div>
             </div>
@@ -568,15 +570,14 @@ export default function TeamStudioPage() {
       </div>
 
       <ConfirmModal
-        title="Delete Process"
-        content="delete this process"
+        title={t('team.studio.deleteTitle')}
+        content={t('team.studio.deleteConfirmation')}
         isOpen={isDeleteOpen}
         isLoading={deleteMutation.isPending}
         onClose={onDeleteClose}
         onConfirm={handleDeleteConfirm}
       />
 
-      {/* Create New Process Modal */}
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
@@ -585,16 +586,16 @@ export default function TeamStudioPage() {
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Create new process</ModalHeader>
+          <ModalHeader>{t('team.studio.createModal.title')}</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl>
-              <FormLabel>Process name</FormLabel>
-              <Input ref={initialRef} placeholder="Process name" />
+              <FormLabel>{t('team.studio.createModal.nameLabel')}</FormLabel>
+              <Input ref={initialRef} placeholder={t('team.studio.createModal.namePlaceholder')} />
             </FormControl>
             <FormControl mt={4}>
-              <FormLabel>Description</FormLabel>
-              <Input ref={descRepf} placeholder="Your description" />
+              <FormLabel>{t('team.studio.createModal.descLabel')}</FormLabel>
+              <Input ref={descRepf} placeholder={t('team.studio.createModal.descPlaceholder')} />
             </FormControl>
           </ModalBody>
           <ModalFooter>
@@ -604,14 +605,14 @@ export default function TeamStudioPage() {
               mr={3}
               onClick={onCreateClose}
             >
-              Cancel
+              {t('team.studio.createModal.cancel')}
             </Button>
             <Button
               colorScheme="teal"
               onClick={handleCreateNewProcess}
               isLoading={createMutation.isPending}
             >
-              Save
+              {t('team.studio.createModal.save')}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -620,3 +621,15 @@ export default function TeamStudioPage() {
   );
 }
 
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

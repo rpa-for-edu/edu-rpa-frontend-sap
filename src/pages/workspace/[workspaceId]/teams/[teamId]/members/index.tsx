@@ -68,10 +68,10 @@ export default function TeamMembersPage() {
             ) : filteredMembers.length === 0 ? (
               <Box textAlign="center" py={10}>
                 <Text fontSize="xl" fontWeight="bold">
-                  No members found
+                  {t('team.noMembersFound')}
                 </Text>
                 <Text color="gray.500" mt={2}>
-                  No members in this team
+                  {t('team.noMembersInTeam')}
                 </Text>
               </Box>
             ) : (
@@ -84,10 +84,10 @@ export default function TeamMembersPage() {
                 <Table variant="simple">
                   <Thead bg="gray.50">
                     <Tr>
-                      <Th>Member</Th>
-                      <Th>Email</Th>
-                      <Th>Role</Th>
-                      <Th>Joined At</Th>
+                      <Th>{t('team.member')}</Th>
+                      <Th>{t('team.email')}</Th>
+                      <Th>{t('team.role')}</Th>
+                      <Th>{t('team.joinedAt')}</Th>
                     </Tr>
                   </Thead>
                   <Tbody>

@@ -11,14 +11,34 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { MdLanguage } from 'react-icons/md';
+import { useDispatch } from 'react-redux';
+import { setUserLanguage } from '@/redux/slice/userSlice';
+import userApi from '@/apis/userApi';
+import { LocalStorage } from '@/constants/localStorage';
+import { getLocalStorageObject } from '@/utils/localStorageService';
 
 const LanguageSwitcher = () => {
   const router = useRouter();
   const { i18n } = useTranslation();
+  const dispatch = useDispatch();
 
-  const changeLanguage = (locale: string) => {
+  const changeLanguage = async (locale: string) => {
+    // Update Next.js locale routing
     const { pathname, asPath, query } = router;
     router.push({ pathname, query }, asPath, { locale, shallow: false });
+
+    // Update Redux store
+    dispatch(setUserLanguage(locale));
+
+    // Sync to backend in background only if user is logged in
+    try {
+      const accessToken = getLocalStorageObject(LocalStorage.ACCESS_TOKEN);
+      if (accessToken && accessToken.length > 0) {
+        await userApi.updateProfile({ language: locale });
+      }
+    } catch (error) {
+      console.error('Failed to sync language to backend', error);
+    }
   };
 
   const currentLocale = router.locale || 'en';
@@ -60,4 +80,3 @@ const LanguageSwitcher = () => {
 };
 
 export default LanguageSwitcher;
-

@@ -22,6 +22,7 @@ import { useTeamConnections } from '@/hooks/useTeam';
 import { ToolTipExplain } from '@/constants/description';
 import { GetServerSideProps } from 'next';
 import { getServerSideTranslations } from '@/utils/i18n';
+import { useTranslation } from 'next-i18next';
 
 const PROVIDERS = [
   { value: '', label: 'All' },
@@ -38,6 +39,7 @@ export default function TeamConnectionsPage() {
   const { workspaceId, teamId } = router.query;
   const [searchQuery, setSearchQuery] = useState('');
   const [providerFilter, setProviderFilter] = useState('');
+  const { t } = useTranslation('workspace');
 
   const { data: connections, isLoading, error: connectionsError } = useTeamConnections(
     teamId as string,
@@ -47,7 +49,13 @@ export default function TeamConnectionsPage() {
   const connectionData = connections || [];
 
   const tableProps = {
-    header: ['Service', 'Connection name', 'Created at', 'Status', 'Action'],
+    header: [
+      t('team.connections.service'),
+      t('team.connections.connectionName'),
+      t('team.connections.createdAt'),
+      t('team.connections.status'),
+      t('team.connections.action')
+    ],
     data: connectionData,
   };
 
@@ -55,21 +63,21 @@ export default function TeamConnectionsPage() {
   if (connectionsError) {
     const errorStatus = (connectionsError as any)?.response?.status;
     const errorMessage = errorStatus === 403 
-      ? "You don't have permission to access team connections"
-      : (connectionsError as any)?.response?.data?.message || 'Failed to load connections';
+      ? t('team.connections.accessDenied')
+      : (connectionsError as any)?.response?.data?.message || t('team.connections.failedToLoad');
     
     return (
       <TeamLayout>
         <div className="mb-[200px]">
           <SidebarContent>
             <h1 className="pl-[20px] ml-[35px] font-bold text-2xl text-[#319795]">
-              Team Integration Service
+              {t('team.connections.title')}
             </h1>
             <Box mt={6} mx="auto" maxW="600px">
               <Alert status="error" borderRadius="md">
                 <AlertIcon />
                 <Box>
-                  <AlertTitle>Error Loading Connections</AlertTitle>
+                  <AlertTitle>{t('team.connections.errorLoading')}</AlertTitle>
                   <AlertDescription>{errorMessage}</AlertDescription>
                 </Box>
               </Alert>
@@ -87,7 +95,7 @@ export default function TeamConnectionsPage() {
         <SidebarContent>
           <div className="flex flex-start items-center">
             <h1 className="pl-[20px] pr-[10px] ml-[35px] font-bold text-2xl text-[#319795]">
-              Team Integration Service
+              {t('team.connections.title')}
             </h1>
             <Tooltip
               hasArrow
@@ -103,10 +111,9 @@ export default function TeamConnectionsPage() {
             <Alert status="info" borderRadius="md" mb={4}>
               <AlertIcon />
               <Box flex="1">
-                <AlertTitle>Read-Only Access</AlertTitle>
+                <AlertTitle>{t('team.connections.readOnlyTitle')}</AlertTitle>
                 <AlertDescription>
-                  Team connections are managed at the workspace level. Contact
-                  your workspace administrator to create or modify connections.
+                  {t('team.connections.readOnlyDesc')}
                 </AlertDescription>
               </Box>
             </Alert>
@@ -119,7 +126,7 @@ export default function TeamConnectionsPage() {
                 <Input
                   bg="white"
                   type="text"
-                  placeholder="Search by name..."
+                  placeholder={t('team.connections.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -134,7 +141,7 @@ export default function TeamConnectionsPage() {
                 >
                   {PROVIDERS.map((provider) => (
                     <option key={provider.value} value={provider.value}>
-                      {provider.label}
+                      {provider.value === '' ? t(`team.connections.allProviders`) : provider.label}
                     </option>
                   ))}
                 </Select>
@@ -153,9 +160,9 @@ export default function TeamConnectionsPage() {
           {tableProps.data.length === 0 && !isLoading && (
             <div className="w-90 m-auto flex justify-center items-center mt-10">
               <div className="text-center">
-                <div className="text-2xl font-bold">No connections here</div>
+                <div className="text-2xl font-bold">{t('team.connections.noConnectionsHere')}</div>
                 <div className="text-gray-500">
-                  Contact your workspace administrator to set up connections
+                  {t('team.connections.contactAdmin')}
                 </div>
               </div>
             </div>

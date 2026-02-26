@@ -21,33 +21,34 @@ import {
   clearCurrentWorkspace,
 } from '@/redux/slice/homeSlice';
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'next-i18next';
 
-const getWorkspaceSidebarItems = (workspaceId: string) => [
+const getWorkspaceSidebarItems = (workspaceId: string, t: any) => [
   {
     path: `/workspace/${workspaceId}`,
-    name: 'Dashboard',
+    name: t('dashboard'),
     icon: MdDashboard,
   },
   {
     path: `/workspace/${workspaceId}/studio`,
-    name: 'Studio',
+    name: t('studio'),
     icon: RiFlowChart,
   },
-  { path: `/workspace/${workspaceId}/robot`, name: 'Robot', icon: FaRobot },
+  { path: `/workspace/${workspaceId}/robot`, name: t('robot'), icon: FaRobot },
   {
     path: `/workspace/${workspaceId}/integration-service`,
-    name: 'Integration Service',
+    name: t('integrationService'),
     icon: IoIosRocket,
   },
   {
     path: `/workspace/${workspaceId}/members`,
-    name: 'Member',
+    name: t('member'),
     icon: MdPeople,
   },
-  { path: `/workspace/${workspaceId}/teams`, name: 'Teams', icon: MdGroups },
+  { path: `/workspace/${workspaceId}/teams`, name: t('teams'), icon: MdGroups },
   {
     path: `/workspace/${workspaceId}/settings`,
-    name: 'Settings',
+    name: t('settings'),
     icon: MdSettings,
   },
 ];
@@ -63,6 +64,7 @@ const WorkspaceLayout = ({
   pt = '80px',
   children,
 }: Props) => {
+  const { t } = useTranslation('sidebar');
   const { isOpen, onClose } = useDisclosure();
   const pathName = usePathname();
   const dispatch = useDispatch();
@@ -83,9 +85,9 @@ const WorkspaceLayout = ({
   // Workspace sidebar items
   const sidebarItems = useMemo(() => {
     return currentWorkspaceId
-      ? getWorkspaceSidebarItems(currentWorkspaceId)
+      ? getWorkspaceSidebarItems(currentWorkspaceId, t)
       : [];
-  }, [currentWorkspaceId]);
+  }, [currentWorkspaceId, t]);
 
   return (
     <Box

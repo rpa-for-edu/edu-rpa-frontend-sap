@@ -5,6 +5,7 @@ interface UserState {
   name: string;
   email: string;
   avatarUrl: string;
+  language: string;
 }
 
 const initialState: UserState = {
@@ -12,6 +13,7 @@ const initialState: UserState = {
   name: '',
   email: '',
   avatarUrl: '',
+  language: 'vi',
 };
 
 const userSlice = createSlice({
@@ -23,6 +25,15 @@ const userSlice = createSlice({
       state.name = action.payload.name;
       state.email = action.payload.email;
       state.avatarUrl = action.payload.avatarUrl;
+      state.language = action.payload.language || 'vi';
+    },
+
+    setUserLanguage: (state, action: PayloadAction<string>) => {
+      state.language = action.payload;
+    },
+
+    setUserAvatarUrl: (state, action: PayloadAction<string>) => {
+      state.avatarUrl = action.payload;
     },
 
     removeUser: (state) => {
@@ -31,6 +42,7 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, removeUser } = userSlice.actions;
+export const { setUser, removeUser, setUserLanguage, setUserAvatarUrl } = userSlice.actions;
 
 export default userSlice;
+

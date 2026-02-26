@@ -37,7 +37,27 @@
     "storageService": "Lưu trữ file là nơi bạn có thể lưu các tệp của mình. Robot có thể truy cập các tệp này để thực hiện nhiệm vụ của chúng"
   },
   "table": {
-    "itemsPerPage": "Số mục mỗi trang:"
+    "itemsPerPage": "Số mục mỗi trang:",
+    "actions": "Hành động",
+    "deleteConfirmTitle": "Xác nhận Xóa",
+    "deleteConfirmMessage": "Bạn có chắc chắn muốn xóa mục này không?",
+    "deleteConfirmWarning": "Hành động này không thể hoàn tác và bạn sẽ không thể khôi phục mục này sau đó.",
+    "processSettings": "Cài đặt quy trình",
+    "duplicate": "Nhân bản",
+    "share": "Chia sẻ",
+    "download": "Tải xuống",
+    "pin": "Ghim",
+    "unpin": "Bỏ ghim",
+    "connection": {
+      "removeConfirmTitle": "Xác nhận xóa kết nối",
+      "removeConfirmMessage": "Bạn có chắc chắn muốn xóa kết nối này không?",
+      "provider": "Nhà cung cấp:",
+      "name": "Tên:",
+      "removeWarning": "Robot sử dụng kết nối này sẽ không thể chạy nếu kết nối này bị xóa.",
+      "removedSuccess": "Đã xóa kết nối",
+      "removedFailed": "Không thể xóa kết nối",
+      "removeButton": "Xóa"
+    }
   },
   "footer": {
     "product": "Sản phẩm",

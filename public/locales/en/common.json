@@ -37,7 +37,27 @@
     "storageService": "File storage is a place where you can store your files. Robots can access these files to perform their tasks"
   },
   "table": {
-    "itemsPerPage": "Items per page:"
+    "itemsPerPage": "Items per page:",
+    "actions": "Actions",
+    "deleteConfirmTitle": "Confirmation Delete",
+    "deleteConfirmMessage": "Are you sure you want to delete this item?",
+    "deleteConfirmWarning": "This action is irreversible and you will not be able to restore the item afterward.",
+    "processSettings": "Process settings",
+    "duplicate": "Duplicate",
+    "share": "Share",
+    "download": "Download",
+    "pin": "Pin",
+    "unpin": "Unpin",
+    "connection": {
+      "removeConfirmTitle": "Confirmation to remove connection",
+      "removeConfirmMessage": "Are you sure to remove this connection ?",
+      "provider": "Provider:",
+      "name": "Name:",
+      "removeWarning": "Robot using this connection will not be able to run if this connection is removed.",
+      "removedSuccess": "Connection removed",
+      "removedFailed": "Failed to remove connection",
+      "removeButton": "Remove"
+    }
   },
   "footer": {
     "product": "Product",

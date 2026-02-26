@@ -15,7 +15,6 @@ import {
   FormControl,
   FormLabel,
   Textarea,
-  Divider,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -34,6 +33,9 @@ import workspaceApi from '@/apis/workspaceApi';
 import { COLORS } from '@/constants/colors';
 import { userSelector } from '@/redux/selector';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'next-i18next';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 const WorkspaceSettingsPage: React.FC = () => {
   const router = useRouter();
@@ -44,6 +46,7 @@ const WorkspaceSettingsPage: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation('workspace');
   const {
     isOpen: isDeleteOpen,
     onOpen: onDeleteOpen,
@@ -65,8 +68,8 @@ const WorkspaceSettingsPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch workspace:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch workspace details',
+        title: t('messages.error'),
+        description: t('messages.fetchFailed'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -78,8 +81,8 @@ const WorkspaceSettingsPage: React.FC = () => {
     e.preventDefault();
     if (!name.trim()) {
       toast({
-        title: 'Error',
-        description: 'Workspace name is required',
+        title: t('messages.error'),
+        description: t('messages.pleaseFillRequired'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -94,8 +97,8 @@ const WorkspaceSettingsPage: React.FC = () => {
         description: description.trim(),
       });
       toast({
-        title: 'Success',
-        description: 'Workspace updated successfully',
+        title: t('messages.success'),
+        description: t('messages.success'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -103,9 +106,9 @@ const WorkspaceSettingsPage: React.FC = () => {
       fetchWorkspace();
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: t('messages.error'),
         description:
-          error?.response?.data?.message || 'Failed to update workspace',
+          error?.response?.data?.message || t('messages.error'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -119,8 +122,8 @@ const WorkspaceSettingsPage: React.FC = () => {
     try {
       await workspaceApi.deleteWorkspace(workspaceId);
       toast({
-        title: 'Success',
-        description: 'Workspace deleted successfully',
+        title: t('messages.success'),
+        description: t('messages.deleteSuccess'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -128,9 +131,9 @@ const WorkspaceSettingsPage: React.FC = () => {
       router.push('/workspace');
     } catch (error: any) {
       toast({
-        title: 'Error',
+        title: t('messages.error'),
         description:
-          error?.response?.data?.message || 'Failed to delete workspace',
+          error?.response?.data?.message || t('messages.deleteFailed'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -160,7 +163,7 @@ const WorkspaceSettingsPage: React.FC = () => {
         >
           <BreadcrumbItem>
             <BreadcrumbLink onClick={() => router.push('/workspace')}>
-              Workspaces
+              {t('workspaces')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
@@ -171,13 +174,13 @@ const WorkspaceSettingsPage: React.FC = () => {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink>Settings</BreadcrumbLink>
+            <BreadcrumbLink>{t('settings')}</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
 
         <Flex justify="space-between" align="center" mb={6}>
           <Heading size="lg" color={COLORS.primary}>
-            Workspace Settings
+            {t('settingsPage.title')}
           </Heading>
         </Flex>
 
@@ -185,26 +188,26 @@ const WorkspaceSettingsPage: React.FC = () => {
           {/* General Information */}
           <Box bg="white" borderRadius="lg" shadow="sm" p={6}>
             <Heading size="md" mb={4}>
-              General Information
+              {t('settingsPage.generalInformation')}
             </Heading>
             <form onSubmit={handleUpdate}>
               <Stack spacing={4}>
                 <FormControl isRequired>
-                  <FormLabel>Workspace Name</FormLabel>
+                  <FormLabel>{t('workspaceName')}</FormLabel>
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter workspace name"
+                    placeholder={t('enterWorkspaceName')}
                     isDisabled={!isOwner}
                   />
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('description')}</FormLabel>
                   <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Enter workspace description"
+                    placeholder={t('enterDescription')}
                     rows={4}
                     isDisabled={!isOwner}
                   />
@@ -217,7 +220,7 @@ const WorkspaceSettingsPage: React.FC = () => {
                       colorScheme="teal"
                       isLoading={isSubmitting}
                     >
-                      Save Changes
+                      {t('settingsPage.saveChanges')}
                     </Button>
                   </Flex>
                 )}
@@ -228,7 +231,7 @@ const WorkspaceSettingsPage: React.FC = () => {
           {/* Workspace Owner */}
           <Box bg="white" borderRadius="lg" shadow="sm" p={6}>
             <Heading size="md" mb={4}>
-              Workspace Owner
+              {t('settingsPage.workspaceOwner')}
             </Heading>
             <Flex align="center" gap={3}>
               <Avatar
@@ -256,14 +259,13 @@ const WorkspaceSettingsPage: React.FC = () => {
               borderWidth="1px"
             >
               <Heading size="md" mb={2} color="red.600">
-                Danger Zone
+                {t('settingsPage.dangerZone')}
               </Heading>
               <Text fontSize="sm" color="gray.600" mb={4}>
-                Once you delete a workspace, there is no going back. Please be
-                certain.
+                {t('settingsPage.dangerZoneDescription')}
               </Text>
               <Button colorScheme="red" onClick={onDeleteOpen}>
-                Delete Workspace
+                {t('modals.deleteTitle')}
               </Button>
             </Box>
           )}
@@ -274,13 +276,11 @@ const WorkspaceSettingsPage: React.FC = () => {
       <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Delete Workspace</ModalHeader>
+          <ModalHeader>{t('modals.deleteTitle')}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Text>
-              Are you sure you want to delete <strong>{workspace.name}</strong>?
-              This action cannot be undone and will permanently delete all data
-              associated with this workspace.
+              {t('settingsPage.deleteConfirmation')} <strong>{workspace.name}</strong>?
             </Text>
           </ModalBody>
           <ModalFooter>
@@ -288,7 +288,7 @@ const WorkspaceSettingsPage: React.FC = () => {
               Cancel
             </Button>
             <Button colorScheme="red" onClick={handleDelete}>
-              Delete Permanently
+              {t('settingsPage.deletePermanently')}
             </Button>
           </ModalFooter>
         </ModalContent>
@@ -298,3 +298,16 @@ const WorkspaceSettingsPage: React.FC = () => {
 };
 
 export default WorkspaceSettingsPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

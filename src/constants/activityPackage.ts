@@ -1688,7 +1688,7 @@
           type: "activity",
           arguments: {
             "Connection": {
-              type: "connection.ERP Next",
+              type: "connection.ERPNext",
               description: "Connect to ERPNext",
               keywordArg: "token_file_path",
               provider: "ERPNext",

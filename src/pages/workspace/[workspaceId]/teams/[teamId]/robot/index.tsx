@@ -50,6 +50,9 @@ import {
   ValidationWarnings,
 } from '@/components/Team/ValidationDisplay';
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
+import { useTranslation } from 'next-i18next';
 
 export default function TeamRobotPage() {
   const router = useRouter();
@@ -59,6 +62,7 @@ export default function TeamRobotPage() {
   const [deleteRobotKey, setDeleteRobotKey] = useState<string | null>(null);
   const [validation, setValidation] = useState<RobotValidation | null>(null);
   const toast = useToast();
+  const { t } = useTranslation('workspace');
 
   // Robot creation form state
   const [robotName, setRobotName] = useState('');
@@ -109,7 +113,7 @@ export default function TeamRobotPage() {
 
   const fetchData = async () => {
     toast({
-      title: 'Refresh functionality coming soon',
+      title: t('team.robot.refreshComingSoon'),
       status: 'info',
       position: 'top-right',
       duration: 2000,
@@ -127,7 +131,7 @@ export default function TeamRobotPage() {
   const handleCreateRobotSubmit = async () => {
     if (!robotName.trim()) {
       toast({
-        title: 'Robot name is required',
+        title: t('team.robot.nameRequired'),
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -138,7 +142,7 @@ export default function TeamRobotPage() {
 
     if (!selectedProcessId) {
       toast({
-        title: 'Please select a process',
+        title: t('team.robot.selectProcess'),
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -162,7 +166,7 @@ export default function TeamRobotPage() {
       });
 
       toast({
-        title: 'Robot created successfully!',
+        title: t('team.robot.createSuccess'),
         status: 'success',
         position: 'top-right',
         duration: 2000,
@@ -172,7 +176,7 @@ export default function TeamRobotPage() {
       onCreateClose();
     } catch (error) {
       toast({
-        title: 'Failed to create robot',
+        title: t('team.robot.createFailed'),
         description: error instanceof Error ? error.message : 'Unknown error',
         status: 'error',
         position: 'top-right',
@@ -198,13 +202,13 @@ export default function TeamRobotPage() {
 
   const tableProps = {
     header: [
-      'Robot Name',
-      'Process ID',
-      'Process Version',
-      'Created At',
-      'Trigger Type',
-      'Status',
-      'Actions',
+      t('team.robot.name'),
+      t('team.robot.processId'),
+      t('team.robot.processVersion'),
+      t('team.robot.createdAt'),
+      t('team.robot.triggerType'),
+      t('team.robot.status'),
+      t('team.robot.actions'),
     ],
     data: formatData,
   };
@@ -278,10 +282,10 @@ export default function TeamRobotPage() {
           <SidebarContent>
             <Box textAlign="center" py={10}>
               <Text fontSize="xl" fontWeight="bold" color="red.500">
-                Access Denied
+                {t('team.robot.accessDenied')}
               </Text>
               <Text color="gray.600" mt={2}>
-                You don't have permission to view team robots
+                {t('team.robot.noPermission')}
               </Text>
             </Box>
           </SidebarContent>
@@ -294,21 +298,21 @@ export default function TeamRobotPage() {
   if (robotsError) {
     const errorStatus = (robotsError as any)?.response?.status;
     const errorMessage = errorStatus === 403 
-      ? "You don't have permission to access team robots"
-      : (robotsError as any)?.response?.data?.message || 'Failed to load robots';
+      ? t('team.robot.noPermission')
+      : (robotsError as any)?.response?.data?.message || t('team.robot.failedToLoad');
     
     return (
       <TeamLayout>
         <div className="mb-[200px]">
           <SidebarContent>
             <h1 className="pl-[20px] ml-[35px] font-bold text-2xl text-[#319795]">
-              Team Robot List
+              {t('team.robot.list')}
             </h1>
             <Box mt={6} mx="auto" maxW="600px">
               <Alert status="error" borderRadius="md">
                 <AlertIcon />
                 <Box>
-                  <Text fontWeight="bold">Error Loading Robots</Text>
+                  <Text fontWeight="bold">{t('team.robot.errorLoading')}</Text>
                   <Text fontSize="sm">{errorMessage}</Text>
                 </Box>
               </Alert>
@@ -326,7 +330,7 @@ export default function TeamRobotPage() {
         <SidebarContent>
           <div className="flex flex-start items-center">
             <h1 className="pl-[20px] pr-[10px] ml-[35px] font-bold text-2xl text-[#319795]">
-              Team Robot List
+              {t('team.robot.list')}
             </h1>
             <Tooltip
               hasArrow
@@ -347,7 +351,7 @@ export default function TeamRobotPage() {
                 <Input
                   bg="white.300"
                   type="text"
-                  placeholder="Search by robot name"
+                  placeholder={t('team.robot.search')}
                   value={nameFilter}
                   onChange={(e) => setNameFilter(e.target.value)}
                 />
@@ -365,11 +369,11 @@ export default function TeamRobotPage() {
           {tableProps.data.length === 0 && (
             <div className="w-90 m-auto flex justify-center items-center">
               <div className="text-center">
-                <div className="text-2xl font-bold">No robots here</div>
+                <div className="text-2xl font-bold">{t('team.robot.noRobotsHere')}</div>
                 <div className="text-gray-500">
                   {canCreateRobot
-                    ? 'Create your first robot to get started'
-                    : 'No robots available in this team'}
+                    ? t('team.robot.createFirst')
+                    : t('team.robot.noRobotsAvailable')}
                 </div>
               </div>
             </div>
@@ -387,8 +391,8 @@ export default function TeamRobotPage() {
         <ModalContent>
           <ModalHeader>
             {validation?.action === 'run'
-              ? 'Run Robot Validation'
-              : 'Delete Robot Validation'}
+              ? t('team.robot.validationModal.runTitle')
+              : t('team.robot.validationModal.deleteTitle')}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -399,22 +403,24 @@ export default function TeamRobotPage() {
 
                 {validation.isValid && validation.action === 'run' && (
                   <Text color="green.600" fontWeight="bold">
-                    ✓ Robot is ready to run!
+                    {t('team.robot.validationModal.readyToRun')}
                   </Text>
                 )}
               </>
             )}
           </ModalBody>
           <ModalFooter>
-            <Button onClick={onValidationClose}>Close</Button>
+            <Button onClick={onValidationClose}>
+              {t('team.robot.validationModal.close')}
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
 
       {/* Delete Confirmation Modal */}
       <ConfirmModal
-        title="Delete Robot"
-        content="delete this robot"
+        title={t('team.robot.deleteModal.title')}
+        content={t('team.robot.deleteModal.content')}
         isOpen={isDeleteOpen}
         isLoading={deleteMutation.isPending}
         onClose={onDeleteClose}
@@ -433,4 +439,17 @@ export default function TeamRobotPage() {
     </TeamLayout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {
+import { useTranslation } from 'next-i18next';import {
   Container,
   Flex,
   Box,
@@ -29,6 +29,8 @@ import {
 import { BsGithub, BsYoutube, BsPerson } from 'react-icons/bs';
 
 export default function ContactUsHome() {
+  const { t } = useTranslation('landing');
+  
   return (
     <Box bgColor={'white'}>
       <Stack spacing={4} as={Container} maxW={'3xl'} textAlign={'center'}>
@@ -38,11 +40,10 @@ export default function ContactUsHome() {
           mt={10}
           color="teal.500"
         >
-          Contact Us
+          {t('contact.title')}
         </Heading>
         <Text color={'gray.600'} fontSize={{ base: 'sm', sm: 'lg' }}>
-          Feel free to reach out to us anytime. We&apos;re here to assist you
-          with any questions or concerns you may have.
+          {t('contact.subtitle')}
         </Text>
       </Stack>
       <Container maxW="full" m={0} centerContent overflow="hidden">
@@ -58,9 +59,9 @@ export default function ContactUsHome() {
               <Wrap spacing={{ base: 20, sm: 3, md: 5, lg: 20 }}>
                 <WrapItem>
                   <Box>
-                    <Heading>Contact</Heading>
+                    <Heading>{t('contact.title')}</Heading>
                     <Text mt={{ sm: 3, md: 3, lg: 5 }} color="gray.500">
-                      Fill up the form below to contact
+                      {t('contact.subtitle')}
                     </Text>
                     <Box py={{ base: 5, sm: 5, md: 8, lg: 10 }}>
                       <VStack pl={0} spacing={3} alignItems="flex-start">
@@ -134,7 +135,7 @@ export default function ContactUsHome() {
                     <Box m={8} color="#0B0E3F" paddingX={3}>
                       <VStack spacing={5}>
                         <FormControl id="name">
-                          <FormLabel>Your Name</FormLabel>
+                          <FormLabel>{t('contact.name')}</FormLabel>
                           <InputGroup borderColor="#E0E1E7">
                             <InputLeftElement pointerEvents="none">
                               <BsPerson color="gray.800" />
@@ -143,14 +144,14 @@ export default function ContactUsHome() {
                               type="text"
                               size="md"
                               bg="white"
-                              placeholder="Your name"
+                              placeholder={t('contact.namePlaceholder')}
                               color="#319795"
                               borderRadius="md"
                             />
                           </InputGroup>
                         </FormControl>
                         <FormControl id="email">
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{t('contact.email')}</FormLabel>
                           <InputGroup borderColor="#E0E1E7">
                             <InputLeftElement pointerEvents="none">
                               <MdOutlineEmail color="gray.800" />
@@ -160,19 +161,19 @@ export default function ContactUsHome() {
                               size="md"
                               bg="white"
                               color="#319795"
-                              placeholder="Your email"
+                              placeholder={t('contact.emailPlaceholder')}
                               borderRadius="md"
                             />
                           </InputGroup>
                         </FormControl>
                         <FormControl id="message">
-                          <FormLabel>Message</FormLabel>
+                          <FormLabel>{t('contact.message')}</FormLabel>
                           <Textarea
                             borderColor="gray.300"
                             _hover={{
                               borderRadius: 'gray.300',
                             }}
-                            placeholder="Your message"
+                            placeholder={t('contact.messagePlaceholder')}
                             bg="white"
                             color="#319795"
                             borderRadius="md"
@@ -186,7 +187,7 @@ export default function ContactUsHome() {
                             _hover={{ bg: '#4FD1C5', color: 'white' }}
                             borderRadius="md"
                           >
-                            Send Message
+                            {t('contact.send')}
                           </Button>
                         </FormControl>
                       </VStack>

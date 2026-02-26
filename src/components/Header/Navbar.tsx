@@ -82,6 +82,13 @@ const Navbar = () => {
           const userData = await userApi.getMe();
           setUserInfo(userData);
           dispatch(setUser(userData));
+
+          // Phase 5: Apply user's language preference on bootstrap
+          const userLang = userData.language || 'vi';
+          if (router.locale !== userLang) {
+            const { pathname, asPath, query } = router;
+            router.push({ pathname, query }, asPath, { locale: userLang, shallow: false });
+          }
         } catch (error) {
           console.error('Failed to fetch user data', error);
         }
@@ -163,7 +170,7 @@ const Navbar = () => {
                     ml={2}
                     size="xs"
                     bg="gray.500"
-                    src={user.avatarUrl}
+                    src={user.avatarUrl || undefined}
                     icon={currentWorkspaceId ? <MdWorkspaces /> : <MdPerson />}
                   />
 
@@ -176,7 +183,7 @@ const Navbar = () => {
                     <Text fontSize="sm">
                       {currentWorkspaceId
                         ? workspaces.find((w) => w.id === currentWorkspaceId)
-                            ?.name || 'Workspace'
+                            ?.name || t('workspace')
                         : user.name || user.email}
                     </Text>
                   </VStack>
@@ -340,7 +347,7 @@ const Navbar = () => {
           <Menu>
             <MenuButton py={2} transition="all 0.3s">
               <HStack>
-                <Avatar size="sm" bg="gray.500" src={user.avatarUrl} />
+                <Avatar size="sm" bg="gray.500" src={user.avatarUrl || undefined} />
               </HStack>
             </MenuButton>
             <MenuList

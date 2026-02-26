@@ -3,10 +3,12 @@ export interface UserDto {
   name: string;
   email: string;
   avatarUrl: string;
+  language: string;
   provider: string;
   providerId: string | null;
 }
 
 export interface UpdateProfileDto {
-  name: string;
+  name?: string;
+  language?: string;
 }

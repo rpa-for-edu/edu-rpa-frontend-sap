@@ -2,6 +2,7 @@ export interface ActivityArgument {
   id?: string;
   name: string;
   description?: string;
+  descriptionVi?: string;
   type: string;
   keywordArgument?: string; // Tên tham số trong python function (e.g. "selector")
   isRequired?: boolean;
@@ -13,14 +14,18 @@ export interface ActivityReturnValue {
   id?: string;
   type: string;
   description?: string;
+  descriptionVi?: string;
   displayName?: string;
+  displayNameVi?: string;
   activityTemplateId?: string;
 }
 
 export interface ActivityTemplate {
   id: string;
   name: string; // Display name của template (e.g. "Click")
+  nameVi?: string;
   description?: string;
+  descriptionVi?: string;
   keyword: string; // Tên hiển thị (e.g. "Click")
   activityPackageId: string;
   keywordName: string; // Tên decorator (e.g. "Click")
@@ -62,7 +67,9 @@ export interface SuggestedTemplate {
 export interface ActivityPackage {
   id: string; // e.g. "browser_automation"
   displayName: string; // e.g. "Browser automation"
+  displayNameVi?: string;
   description?: string;
+  descriptionVi?: string;
   imageKey?: string | null;
   library: string; // e.g. "RPA.Browser.Playwright"
   version: string;

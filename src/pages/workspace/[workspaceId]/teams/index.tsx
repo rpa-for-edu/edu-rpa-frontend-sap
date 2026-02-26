@@ -35,10 +35,14 @@ import { useSelector } from 'react-redux';
 import { homeSelector } from '@/redux/selector';
 import { COLORS } from '@/constants/colors';
 import { MdArrowDropDown } from 'react-icons/md';
+import { useTranslation } from 'next-i18next';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 const TeamListPage: React.FC = () => {
   const router = useRouter();
   const toast = useToast();
+  const { t } = useTranslation('workspace');
   const { workspaceId } = router.query as { workspaceId: string };
   const { workspaces } = useSelector(homeSelector);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -80,8 +84,8 @@ const TeamListPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch teams:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to fetch teams',
+        title: t('messages.error', { ns: 'common' }),
+        description: t('teamsPage.failedToFetch'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -124,8 +128,8 @@ const TeamListPage: React.FC = () => {
       setIsSubmitting(true);
       await workspaceApi.deleteTeam(pendingTeamId);
       toast({
-        title: 'Success',
-        description: 'Team deleted successfully',
+        title: t('messages.success', { ns: 'common' }),
+        description: t('teamsPage.teamDeleted'),
         status: 'success',
         duration: 3000,
         isClosable: true,
@@ -135,8 +139,8 @@ const TeamListPage: React.FC = () => {
       setPendingTeamId(null);
     } catch (error: any) {
       toast({
-        title: 'Error',
-        description: error?.response?.data?.message || 'Failed to delete team',
+        title: t('messages.error', { ns: 'common' }),
+        description: error?.response?.data?.message || t('teamsPage.failedToDelete'),
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -156,24 +160,24 @@ const TeamListPage: React.FC = () => {
         >
           <BreadcrumbItem>
             <BreadcrumbLink onClick={() => router.push('/workspace')}>
-              Workspaces
+              {t('workspaces')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
             <BreadcrumbLink
               onClick={() => router.push(`/workspace/${workspaceId}`)}
             >
-              {workspace?.name || 'Workspace'}
+              {workspace?.name || t('title')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink>Teams</BreadcrumbLink>
+            <BreadcrumbLink>{t('teamsPage.title')}</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
 
         <Flex justify="space-between" align="center" mb={6}>
           <Heading size="lg" color={COLORS.primary}>
-            Teams
+            {t('teamsPage.title')}
           </Heading>
           <Button
             colorScheme="teal"
@@ -181,7 +185,7 @@ const TeamListPage: React.FC = () => {
               router.push(`/workspace/${workspaceId}/teams/create`)
             }
           >
-            New Team
+            {t('teamsPage.newTeam')}
           </Button>
         </Flex>
 
@@ -192,7 +196,7 @@ const TeamListPage: React.FC = () => {
                 <SearchIcon color="gray.300" />
               </InputLeftElement>
               <Input
-                placeholder="Find a teams..."
+                placeholder={t('teamsPage.findTeam')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -216,7 +220,7 @@ const TeamListPage: React.FC = () => {
                   }
                   onChange={handleSelectAll}
                 />
-                <Text fontWeight="medium">Select All</Text>
+                <Text fontWeight="medium">{t('teamsPage.selectAll')}</Text>
               </Flex>
             </Flex>
 
@@ -250,17 +254,16 @@ const TeamListPage: React.FC = () => {
 
                 <Flex gap={4} align="center">
                   <Text fontSize="sm" color="gray.500" textAlign="right">
-                    {team.members?.length || 1} member
-                    {team.members?.length !== 1 ? 's' : ''}
+                    {team.members?.length || 1} {t('teamsPage.members')}
                   </Text>
                   <Text fontSize="sm" color="gray.500" textAlign="right">
-                    0 roles
+                    0 {t('teamsPage.roles')}
                   </Text>
                   <Text fontSize="sm" color="gray.500" textAlign="right">
-                    0 teams
+                    0 {t('teamsPage.teams')}
                   </Text>
                   <IconButton
-                    aria-label="Delete"
+                    aria-label={t('teamsPage.deleteTeam')}
                     icon={<FaTrash />}
                     size="sm"
                     variant="ghost"
@@ -273,7 +276,7 @@ const TeamListPage: React.FC = () => {
 
             {filteredTeams.length === 0 && !isLoading && (
               <Box p={8} textAlign="center">
-                <Text color="gray.500">No teams found</Text>
+                <Text color="gray.500">{t('teamsPage.noTeamsFound')}</Text>
               </Box>
             )}
           </Stack>
@@ -288,8 +291,8 @@ const TeamListPage: React.FC = () => {
       />
 
       <ConfirmModal
-        title="Delete Team"
-        content="delete this team"
+        title={t('teamsPage.deleteTeam')}
+        content={t('teamsPage.deleteConfirmation')}
         isOpen={isDeleteOpen}
         isLoading={isSubmitting}
         onClose={onDeleteClose}
@@ -300,3 +303,16 @@ const TeamListPage: React.FC = () => {
 };
 
 export default TeamListPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

@@ -29,11 +29,15 @@ import {
   useCurrentTeamMember,
 } from '@/hooks/useTeam';
 import { hasTeamPermission } from '@/utils/teamPermissions';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
+import { useTranslation } from 'next-i18next';
 
 export default function CreateTeamRobotPage() {
   const router = useRouter();
   const toast = useToast();
   const { workspaceId, teamId } = router.query;
+  const { t } = useTranslation('workspace');
 
   // Fetch current team member
   const {
@@ -64,7 +68,7 @@ export default function CreateTeamRobotPage() {
   const handleSubmit = async () => {
     if (!robotName.trim()) {
       toast({
-        title: 'Robot name is required',
+        title: t('team.createRobot.nameRequired'),
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -75,7 +79,7 @@ export default function CreateTeamRobotPage() {
 
     if (!selectedProcessId) {
       toast({
-        title: 'Please select a process',
+        title: t('team.createRobot.processRequired'),
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -111,10 +115,10 @@ export default function CreateTeamRobotPage() {
         <SidebarContent>
           <Box textAlign="center" py={10}>
             <Text fontSize="xl" fontWeight="bold" color="red.500">
-              Access Denied
+              {t('team.createRobot.accessDenied')}
             </Text>
             <Text color="gray.600" mt={2}>
-              You don't have permission to create robots in this team
+              {t('team.createRobot.noPermission')}
             </Text>
           </Box>
         </SidebarContent>
@@ -127,7 +131,7 @@ export default function CreateTeamRobotPage() {
       <SidebarContent>
         <Box px={8} py={6}>
           <Heading size="lg" mb={6} color="teal.600">
-            Create Team Robot
+            {t('team.createRobot.title')}
           </Heading>
 
           <Card maxW="800px">
@@ -135,28 +139,28 @@ export default function CreateTeamRobotPage() {
               <VStack spacing={6} align="stretch">
                 {/* Robot Name */}
                 <FormControl isRequired>
-                  <FormLabel>Robot Name</FormLabel>
+                  <FormLabel>{t('team.createRobot.nameLabel')}</FormLabel>
                   <Input
-                    placeholder="Enter robot name"
+                    placeholder={t('team.createRobot.namePlaceholder')}
                     value={robotName}
                     onChange={(e) => setRobotName(e.target.value)}
                     bg="white"
                   />
                   <FormHelperText>
-                    Give your robot a descriptive name
+                    {t('team.createRobot.nameHelper')}
                   </FormHelperText>
                 </FormControl>
 
                 {/* Process Selection */}
                 <FormControl isRequired>
-                  <FormLabel>Select Process</FormLabel>
+                  <FormLabel>{t('team.createRobot.processLabel')}</FormLabel>
                   {isLoadingProcesses ? (
                     <Flex justify="center" py={4}>
                       <Spinner size="md" color="teal.500" />
                     </Flex>
                   ) : (
                     <Select
-                      placeholder="Choose a process"
+                      placeholder={t('team.createRobot.processPlaceholder')}
                       value={selectedProcessId}
                       onChange={(e) => {
                         setSelectedProcessId(e.target.value);
@@ -179,21 +183,21 @@ export default function CreateTeamRobotPage() {
                     </Select>
                   )}
                   <FormHelperText>
-                    Select which team process this robot will execute
+                    {t('team.createRobot.processHelper')}
                   </FormHelperText>
                 </FormControl>
 
                 {/* Process Version (read-only, auto-filled) */}
                 {selectedProcessVersion && (
                   <FormControl>
-                    <FormLabel>Process Version</FormLabel>
+                    <FormLabel>{t('team.createRobot.versionLabel')}</FormLabel>
                     <Input
                       value={`Version ${selectedProcessVersion}`}
                       isReadOnly
                       bg="gray.50"
                     />
                     <FormHelperText>
-                      Robot will use the selected process version
+                      {t('team.createRobot.versionHelper')}
                     </FormHelperText>
                   </FormControl>
                 )}
@@ -203,10 +207,9 @@ export default function CreateTeamRobotPage() {
                   <Alert status="info" borderRadius="md">
                     <AlertIcon />
                     <Box>
-                      <Text fontWeight="bold">Available Connections</Text>
+                      <Text fontWeight="bold">{t('team.createRobot.connectionsInfo')}</Text>
                       <Text fontSize="sm">
-                        {connections.length} connection(s) will be available to
-                        this robot
+                        {connections.length} {t('team.createRobot.connectionsHelper')}
                       </Text>
                     </Box>
                   </Alert>
@@ -219,15 +222,15 @@ export default function CreateTeamRobotPage() {
                     onClick={() => router.back()}
                     isDisabled={createMutation.isPending}
                   >
-                    Cancel
+                    {t('team.createRobot.cancel')}
                   </Button>
                   <Button
                     colorScheme="teal"
                     onClick={handleSubmit}
                     isLoading={createMutation.isPending}
-                    loadingText="Creating..."
+                    loadingText={t('team.createRobot.submitting')}
                   >
-                    Create Robot
+                    {t('team.createRobot.submit')}
                   </Button>
                 </HStack>
               </VStack>
@@ -238,3 +241,16 @@ export default function CreateTeamRobotPage() {
     </TeamLayout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

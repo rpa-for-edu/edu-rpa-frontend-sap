@@ -281,17 +281,12 @@ export default function PropertiesPanel({
   // Update activity keyword when activity changes
   useEffect(() => {
     if (activityItem && sideBarState.activityName) {
-      console.log(
-        '🔍 Looking for keyword for activity:',
-        sideBarState.activityName
-      );
       ActivityPackages.forEach((activityPackage) => {
         const activityInfo = getArgumentsByActivity(
           activityPackage.activityTemplates,
           sideBarState.activityName
         );
         if (activityInfo?.[0]?.keyword) {
-          console.log('✅ Found keyword:', activityInfo[0].keyword);
           setActivityKeyword(activityInfo[0].keyword);
         }
       });
@@ -497,7 +492,7 @@ export default function PropertiesPanel({
                 'connection.Google Sheets': '',
                 'connection.SAP Mock': '',
                 'connection.Moodle': '',
-                'connection.ERP Next': '',
+                'connection.ERPNext': '',
                 'enum.shareType': 'user',
                 'enum.permission': 'reader',
                 label_ids: 'inbox',
@@ -574,6 +569,7 @@ export default function PropertiesPanel({
                 return null;
               }
 
+              console.log('Current Identifier Type:', paramValue.type);
               switch (paramValue.type) {
                 case 'string':
                 case 'email':
