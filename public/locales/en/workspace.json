@@ -163,7 +163,8 @@
       "nameRequired": "Robot name is required",
       "selectProcess": "Please select a process",
       "createSuccess": "Robot created successfully!",
-      "createFailed": "Failed to create robot"
+      "createFailed": "Failed to create robot",
+      "publishHint": "Publish a robot from your existing processes."
     },
     "createRobot": {
       "title": "Create Team Robot",
@@ -239,8 +240,8 @@
       "importProcess": "Import Process",
       "noProcesses": "No processes here",
       "createOrSwitch": "Create a new process or switch to templates",
-      "templatesComingSoon": "Templates Coming Soon",
-      "templatesAvailableHere": "Process templates will be available here",
+      "templatesComingSoon": "Templates coming soon",
+      "templatesAvailableHere": "Templates will be available here.",
       "deleteTitle": "Delete Process",
       "deleteConfirmation": "delete this process",
       "createModal": {
@@ -281,5 +282,56 @@
     "visibleDesc": "A visible team can be seen by every member of this organization.",
     "secret": "Secret",
     "secretDesc": "A secret team can only be seen by its members."
+  },
+  "workspaceStudio": {
+    "processNameRequired": "Process name is required",
+    "processSettingsUpdated": "Process settings updated successfully!",
+    "processShared": "Process shared",
+    "pleaseEnterEmail": "Please enter an email address",
+    "processDuplicated": "Process duplicated successfully!",
+    "processPinned": "Process pinned",
+    "processUnpinned": "Process unpinned",
+    "errorImport": "Error during XML file import",
+    "checkXML": "Please check the XML file and try again.",
+    "noFileSelected": "No file selected.",
+    "deleteSuccess": "Delete item successfully!",
+    "templates": {
+      "title1": "Grading 100 English Exams from sample document",
+      "desc1": "Evaluating 100 English Exam Papers from the provided sample document, ensuring accuracy and fairness throughout the grading process...",
+      "title2": "Get 100 emails from Inbox",
+      "desc2": "Retrieve 100 emails from your Inbox, managing and organizing your electronic correspondence efficiently and effectively...",
+      "title3": "Export Data To Google Sheet",
+      "desc3": "Seamlessly transfer your data directly to Google Sheets with our intuitive export feature...",
+      "title4": "Extract Text From An Image",
+      "desc4": "Unlock the hidden potential of your images with our cutting-edge templates..."
+    }
+  },
+  "teamDetail": {
+    "noDescription": "This team has no description",
+    "members": "Members",
+    "findMember": "Find a member...",
+    "addMember": "Add a member",
+    "selectAll": "Select All",
+    "allRoles": "All Roles",
+    "noRole": "No Role",
+    "noMembersFound": "No members found",
+    "removeMemberTitle": "Remove Member",
+    "removeMemberContent": "remove this member from the team",
+    "activityPackage": "Activity Package",
+    "findPackage": "Find a package...",
+    "addPackage": "Add new package",
+    "packageName": "Package Name",
+    "noDescriptionPackage": "No description",
+    "noPackagesFound": "No activity packages found",
+    "removePackageTitle": "Remove Package",
+    "removePackageContent": "remove this package from the team",
+    "teamRoles": "Team Roles",
+    "findRole": "Find a role...",
+    "createRole": "Create new role",
+    "roleName": "Role Name",
+    "noRolesFound": "No roles found",
+    "deleteRoleTitle": "Delete Role",
+    "deleteRoleContent": "delete this role",
+    "back": "BACK"
   }
 }

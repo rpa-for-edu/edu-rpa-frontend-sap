@@ -19,8 +19,10 @@ import CreateNewConnectionModal from '@/components/Connection/CreateNewConnectio
 import { useWorkspaceConnections } from '@/hooks/useWorkspaceConnections';
 import { AuthorizationProvider } from '@/types/workspaceConnection';
 import { ToolTipExplain } from '@/constants/description';
+import { useTranslation } from 'next-i18next';
 
 export default function WorkspaceIntegrationService() {
+  const { t } = useTranslation('integration-service');
   const router = useRouter();
   const { workspaceId } = router.query;
   const toast = useToast();
@@ -55,7 +57,7 @@ export default function WorkspaceIntegrationService() {
 
     if (errorMessage) {
       toast({
-        title: `Error: ${errorMessage}`,
+        title: `${t('toast.error')}: ${errorMessage}`,
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -67,7 +69,7 @@ export default function WorkspaceIntegrationService() {
 
     if (successMessage) {
       toast({
-        title: `Success: ${successMessage}`,
+        title: `${t('toast.success')}: ${successMessage}`,
         status: 'success',
         position: 'top-right',
         duration: 2000,
@@ -81,7 +83,13 @@ export default function WorkspaceIntegrationService() {
   }, [router.query.error, router.query.message]);
 
   const tableProps = {
-    header: ['Service', 'Connection name', 'Created at', 'Status', 'Action'],
+    header: [
+      t('table.service'), 
+      t('table.connectionName'), 
+      t('table.createdAt'), 
+      t('table.status'), 
+      t('table.action')
+    ],
     data: connectionData,
   };
 
@@ -90,7 +98,7 @@ export default function WorkspaceIntegrationService() {
     try {
       await refetch();
       toast({
-        title: 'Connection list refreshed',
+        title: t('toast.listRefreshed'),
         status: 'success',
         position: 'top-right',
         duration: 2000,
@@ -98,7 +106,7 @@ export default function WorkspaceIntegrationService() {
       });
     } catch (error) {
       toast({
-        title: 'Failed to refresh connections',
+        title: t('toast.error'),
         status: 'error',
         position: 'top-right',
         duration: 2000,
@@ -114,7 +122,7 @@ export default function WorkspaceIntegrationService() {
         <SidebarContent>
           <div className="flex flex-start">
             <h1 className="pl-[20px] pr-[10px] ml-[35px] font-bold text-2xl text-[#319795]">
-              Connection List
+              {t('page.title')}
             </h1>
             <Tooltip
               hasArrow
@@ -135,7 +143,7 @@ export default function WorkspaceIntegrationService() {
                 width="40vw"
                 bg="white.300"
                 type="text"
-                placeholder="Search..."
+                placeholder={t('page.search')}
               />
               <Box className="w-[15vw] ml-[20px]">
                 <Select
@@ -148,7 +156,7 @@ export default function WorkspaceIntegrationService() {
                     });
                   }}
                 >
-                  <option value="">All services</option>
+                  <option value="">{t('page.allServices')}</option>
                   {Object.values(AuthorizationProvider).map((provider) => {
                     return (
                       <option key={provider} value={provider}>
@@ -166,7 +174,7 @@ export default function WorkspaceIntegrationService() {
                 _hover={{ bg: 'teal.600' }}
                 onClick={onOpen}
               >
-                New Connection
+                {t('page.newConnection')}
               </Button>
             </div>
 
@@ -185,10 +193,9 @@ export default function WorkspaceIntegrationService() {
           ) : (
             <div className="w-90 m-auto flex justify-center items-center">
               <div className="text-center">
-                <div className="text-2xl font-bold">No connections</div>
+                <div className="text-2xl font-bold">{t('page.noConnections')}</div>
                 <div className="text-gray-500">
-                  Create a new connection to help you integrate with other
-                  services
+                  {t('page.noConnectionsDescription')}
                 </div>
               </div>
             </div>
@@ -198,3 +205,20 @@ export default function WorkspaceIntegrationService() {
     </WorkspaceLayout>
   );
 }
+
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+        'integration-service',
+      ])),
+    },
+  };
+};

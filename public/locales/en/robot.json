@@ -103,5 +103,22 @@
       "stopSuccess": "Stop robot successfully!",
       "stopFailed": "Stop robot failed!"
     }
+  },
+  "statusMap": {
+    "notrunning": "Not Running",
+    "pending": "Pending",
+    "stopping": "Stopping",
+    "running": "Running",
+    "setup": "Setup",
+    "executing": "Executing",
+    "cooldown": "Cooldown"
+  },
+  "robotRow": {
+    "loading": "Loading",
+    "runBtn": "Run",
+    "runRobot": "Run robot",
+    "stopRobot": "Stop robot",
+    "configTrigger": "Configure trigger robot",
+    "removeRobot": "Remove robot"
   }
 }

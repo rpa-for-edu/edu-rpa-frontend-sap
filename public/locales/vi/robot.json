@@ -103,5 +103,22 @@
       "stopSuccess": "Dừng robot thành công!",
       "stopFailed": "Dừng robot thất bại!"
     }
+  },
+  "statusMap": {
+    "notrunning": "Chưa chạy",
+    "pending": "Đang đợi",
+    "stopping": "Đang dừng",
+    "running": "Đang chạy",
+    "setup": "Thiết lập",
+    "executing": "Thực thi",
+    "cooldown": "Làm nguội"
+  },
+  "robotRow": {
+    "loading": "Đang tải",
+    "runBtn": "Chạy",
+    "runRobot": "Chạy robot",
+    "stopRobot": "Dừng robot",
+    "configTrigger": "Cấu hình kích hoạt",
+    "removeRobot": "Xóa robot"
   }
 }

@@ -163,7 +163,8 @@
       "nameRequired": "Tên Robot là bắt buộc",
       "selectProcess": "Vui lòng chọn quy trình",
       "createSuccess": "Tạo Robot thành công!",
-      "createFailed": "Tạo Robot thất bại"
+      "createFailed": "Tạo Robot thất bại",
+      "publishHint": "Xuất bản một robot từ các quy trình hiện có của bạn."
     },
     "createRobot": {
       "title": "Tạo Robot Nhóm",
@@ -239,8 +240,8 @@
       "importProcess": "Nhập quy trình",
       "noProcesses": "Chưa có quy trình nào",
       "createOrSwitch": "Tạo quy trình mới hoặc chuyển sang tab Mẫu",
-      "templatesComingSoon": "Tính năng Mẫu sắp ra mắt",
-      "templatesAvailableHere": "Mẫu quy trình sẽ có tại đây",
+      "templatesComingSoon": "Tính năng mẫu sắp ra mắt",
+      "templatesAvailableHere": "Chức năng mẫu đang được phát triển.",
       "deleteTitle": "Xóa Quy trình",
       "deleteConfirmation": "xóa quy trình này",
       "createModal": {
@@ -281,5 +282,56 @@
     "visibleDesc": "Mọi thành viên trong tổ chức đều có thể nhìn thấy nhóm hiển thị.",
     "secret": "Bí mật",
     "secretDesc": "Nhóm bí mật chỉ có thể được nhìn thấy bởi các thành viên của nó."
+  },
+  "workspaceStudio": {
+    "processNameRequired": "Tên quy trình là bắt buộc",
+    "processSettingsUpdated": "Cập nhật cài đặt quy trình thành công!",
+    "processShared": "Đã chia sẻ quy trình",
+    "pleaseEnterEmail": "Vui lòng nhập địa chỉ email",
+    "processDuplicated": "Nhân bản quy trình thành công!",
+    "processPinned": "Đã ghim quy trình",
+    "processUnpinned": "Đã bỏ ghim quy trình",
+    "errorImport": "Lỗi khi nhập tệp XML",
+    "checkXML": "Vui lòng kiểm tra tệp XML và thử lại.",
+    "noFileSelected": "Chưa chọn tệp.",
+    "deleteSuccess": "Xóa mục thành công!",
+    "templates": {
+      "title1": "Chấm 100 bài thi Tiếng Anh từ tài liệu mẫu",
+      "desc1": "Đánh giá 100 bài thi Tiếng Anh từ tài liệu mẫu được cung cấp, đảm bảo tính chính xác và công bằng trong quá trình chấm điểm...",
+      "title2": "Lấy 100 email từ Hộp thư đến",
+      "desc2": "Lấy 100 email từ Hộp thư đến của bạn, quản lý và sắp xếp thư từ điện tử một cách hiệu quả...",
+      "title3": "Xuất Dữ liệu sang Google Sheet",
+      "desc3": "Chuyển đổi dữ liệu của bạn trực tiếp sang Google Sheets một cách liền mạch với chức năng xuất của chúng tôi...",
+      "title4": "Trích xuất Văn bản Từ Hình ảnh",
+      "desc4": "Chuyển đổi nội dung hình ảnh thành văn bản với mẫu mới nhất của chúng tôi..."
+    }
+  },
+  "teamDetail": {
+    "noDescription": "Nhóm này chưa có mô tả",
+    "members": "Thành viên",
+    "findMember": "Tìm thành viên...",
+    "addMember": "Thêm thành viên",
+    "selectAll": "Chọn tất cả",
+    "allRoles": "Tất cả vai trò",
+    "noRole": "Không có vai trò",
+    "noMembersFound": "Không tìm thấy thành viên",
+    "removeMemberTitle": "Xóa thành viên",
+    "removeMemberContent": "xóa thành viên này khỏi nhóm",
+    "activityPackage": "Gói hoạt động",
+    "findPackage": "Tìm kiếm gói...",
+    "addPackage": "Thêm gói mới",
+    "packageName": "Tên gói",
+    "noDescriptionPackage": "Không có mô tả",
+    "noPackagesFound": "Không tìm thấy gói hoạt động",
+    "removePackageTitle": "Xóa gói",
+    "removePackageContent": "xóa gói này khỏi nhóm",
+    "teamRoles": "Vai trò của nhóm",
+    "findRole": "Tìm vai trò...",
+    "createRole": "Tạo vai trò mới",
+    "roleName": "Tên vai trò",
+    "noRolesFound": "Không tìm thấy vai trò",
+    "deleteRoleTitle": "Xóa vai trò",
+    "deleteRoleContent": "xóa vai trò này",
+    "back": "QUAY LẠI"
   }
 }

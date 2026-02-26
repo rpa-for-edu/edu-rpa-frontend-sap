@@ -22,11 +22,14 @@ import { toastError } from '@/utils/common';
 import { ToolTipExplain } from '@/constants/description';
 import { formatDateTime } from '@/utils/time';
 
+import { useTranslation } from 'next-i18next';
+
 export default function WorkspaceRobotPage() {
   const router = useRouter();
   const { workspaceId } = router.query;
   const [nameFilter, setNameFilter] = useState('');
   const toast = useToast();
+  const { t } = useTranslation('workspace');
 
   const { data: countRobot, isLoading: countRobotLoading } = useQuery({
     queryKey: [QUERY_KEY.ROBOT_COUNT, workspaceId],
@@ -46,7 +49,7 @@ export default function WorkspaceRobotPage() {
 
   const fetchData = async () => {
     // TODO: implement refresh functionallity
-    toastError(toast, 'Refresh functionallity is not implemented yet');
+    toastError(toast, t('team.robot.refreshComingSoon') || 'Refresh functionallity is not implemented yet');
   };
 
   if (isLoadingRobot || countRobotLoading) {
@@ -72,13 +75,13 @@ export default function WorkspaceRobotPage() {
 
   const tableProps = {
     header: [
-      'Robot Name',
-      'Process ID',
-      'Process Version',
-      'Created At',
-      'Trigger Type',
-      'Status',
-      'Actions',
+      t('team.robot.name'),
+      t('team.robot.processId'),
+      t('team.robot.processVersion'),
+      t('team.robot.createdAt'),
+      t('team.robot.triggerType'),
+      t('team.robot.status'),
+      t('team.robot.actions'),
     ],
     data: formatData ?? [],
   };
@@ -89,7 +92,7 @@ export default function WorkspaceRobotPage() {
         <SidebarContent>
           <div className="flex flex-start">
             <h1 className="pl-[20px] pr-[10px] ml-[35px] font-bold text-2xl text-[#319795]">
-              Robot List
+              {t('team.robot.list')}
             </h1>
             <Tooltip
               hasArrow
@@ -108,7 +111,7 @@ export default function WorkspaceRobotPage() {
                 width="30vw"
                 bg="white.300"
                 type="text"
-                placeholder="Search by robot name"
+                placeholder={t('team.robot.search')}
                 value={nameFilter}
                 onChange={(e) => setNameFilter(e.target.value)}
               />
@@ -125,9 +128,9 @@ export default function WorkspaceRobotPage() {
           {tableProps.data.length === 0 && (
             <div className="w-90 m-auto flex justify-center items-center">
               <div className="text-center">
-                <div className="text-2xl font-bold">No robots here</div>
+                <div className="text-2xl font-bold">{t('team.robot.noRobotsHere')}</div>
                 <div className="text-gray-500">
-                  Publish a robot from your existing processes.
+                  {t('team.robot.publishHint')}
                 </div>
               </div>
             </div>
@@ -141,3 +144,19 @@ export default function WorkspaceRobotPage() {
     </WorkspaceLayout>
   );
 }
+
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

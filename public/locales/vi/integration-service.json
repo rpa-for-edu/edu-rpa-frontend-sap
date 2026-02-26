@@ -101,5 +101,21 @@
         "nameMax": "Tên phải ít hơn 100 ký tự"
       }
     }
+  },
+  "row": {
+    "connected": "Đã kết nối",
+    "disconnected": "Chưa kết nối",
+    "refreshing": "Đang làm mới",
+    "refresh": "Làm mới",
+    "cannotReconnectTitle": "Không thể kết nối lại",
+    "cannotReconnectDesc": "Vui lòng xóa kết nối này và tạo kết nối mới với thông tin cập nhật.",
+    "activate": "Kích hoạt",
+    "inactivate": "Hủy kích hoạt",
+    "activated": "Đã kích hoạt",
+    "inactivated": "Chưa kích hoạt",
+    "activateRobotTitle": "Kích hoạt Robot",
+    "inactivateRobotTitle": "Hủy kích hoạt Robot",
+    "activateRobotWarning": "Bạn có chắc chắn muốn kích hoạt robot không?",
+    "inactivateRobotWarning": "Bạn có chắc chắn muốn hủy kích hoạt robot không?"
   }
 }

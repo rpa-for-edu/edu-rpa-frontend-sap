@@ -101,5 +101,21 @@
         "nameMax": "Name must be less than 100 characters"
       }
     }
+  },
+  "row": {
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "refreshing": "Refreshing",
+    "refresh": "Refresh",
+    "cannotReconnectTitle": "Cannot Reconnect",
+    "cannotReconnectDesc": "Please delete this connection and create a new one with updated credentials.",
+    "activate": "Activate",
+    "inactivate": "Inactivate",
+    "activated": "Activated",
+    "inactivated": "Inactivated",
+    "activateRobotTitle": "Activate Robot",
+    "inactivateRobotTitle": "Inactivate Robot",
+    "activateRobotWarning": "Are you sure you want to activate robot?",
+    "inactivateRobotWarning": "Are you sure you want to inactivate robot?"
   }
 }

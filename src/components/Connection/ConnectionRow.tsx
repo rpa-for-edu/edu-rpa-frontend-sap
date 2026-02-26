@@ -33,6 +33,7 @@ import { useMutation } from '@tanstack/react-query';
 import { ActivateConnectionDto } from '@/dtos/connectionDto';
 import { useRouter } from 'next/router';
 import { formatDateTime } from '@/utils/time';
+import { useTranslation } from 'next-i18next';
 
 interface ConnectionRowProps {
   data: Connection;
@@ -42,6 +43,7 @@ interface ConnectionRowProps {
 }
 
 const ConnectionRow = (props: ConnectionRowProps) => {
+  const { t } = useTranslation('integration-service');
   const [isLoadingRefresh, setIsLoadingRefresh] = useState(false);
   const [status, setStatus] = useState('Connected');
   const user = useSelector(userSelector);
@@ -81,8 +83,8 @@ const ConnectionRow = (props: ConnectionRowProps) => {
       // Moodle doesn't use OAuth, so we can't reconnect this way
       if (provider.name === AuthorizationProvider.MOODLE) {
         toast({
-          title: 'Cannot Reconnect',
-          description: 'Please delete this connection and create a new one with updated credentials.',
+          title: t('row.cannotReconnectTitle'),
+          description: t('row.cannotReconnectDesc'),
           status: 'warning',
           position: 'top-right',
           duration: 5000,
@@ -112,7 +114,7 @@ const ConnectionRow = (props: ConnectionRowProps) => {
             p={3}
             rounded={10}
           >
-            {value}
+            {value === 'Connected' ? t('row.connected') : t('row.disconnected')}
           </Tag>
         );
       case 'type':
@@ -183,13 +185,13 @@ const ConnectionRow = (props: ConnectionRowProps) => {
         {isLoadingRefresh ? (
           <Button
             isLoading
-            loadingText="Refreshing"
+            loadingText={t('row.refreshing')}
             colorScheme="teal"
             variant="outline"
             size="sm"
             onClick={handleRefreshConnection}
           >
-            Refresh
+            {t('row.refresh')}
           </Button>
         ) : (
           <Tag
@@ -198,7 +200,7 @@ const ConnectionRow = (props: ConnectionRowProps) => {
             p={3}
             rounded={10}
           >
-            {status}
+            {status === 'Connected' ? t('row.connected') : t('row.disconnected')}
           </Tag>
         )}
       </Td>
@@ -212,25 +214,25 @@ const ConnectionRow = (props: ConnectionRowProps) => {
               className="hover:cursor-pointer"
               onClick={handleActivate}
             >
-              {isActivate ? 'Activated' : 'Inactivated'}
+              {isActivate ? t('row.activated') : t('row.inactivated')}
             </Button>
             <Modal isOpen={isOpen} onClose={onClose}>
               <ModalOverlay />
               <ModalContent>
                 <ModalHeader>
-                  {isActivate ? 'Inactivate Robot' : 'Activate Robot'}
+                  {isActivate ? t('row.inactivateRobotTitle') : t('row.activateRobotTitle')}
                 </ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <Text>
                     {isActivate
-                      ? 'Are you sure you want to inactivate robot?'
-                      : 'Are you sure you want to activate robot?'}
+                      ? t('row.inactivateRobotWarning')
+                      : t('row.activateRobotWarning')}
                   </Text>
                 </ModalBody>
                 <ModalFooter>
                   <Button variant="outline" mr={3} onClick={onClose}>
-                    Cancel
+                    {t('modal.cancel')}
                   </Button>
                   <Button
                     colorScheme={isActivate ? 'red' : 'teal'}
@@ -242,7 +244,7 @@ const ConnectionRow = (props: ConnectionRowProps) => {
                       onClose();
                     }}
                   >
-                    {isActivate ? 'Inactivate' : 'Activate'}
+                    {isActivate ? t('row.inactivate') : t('row.activate')}
                   </Button>
                 </ModalFooter>
               </ModalContent>

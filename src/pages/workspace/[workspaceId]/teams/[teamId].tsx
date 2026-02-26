@@ -38,8 +38,12 @@ import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import { FaTrash, FaEdit, FaEllipsisV } from 'react-icons/fa';
 import { MdArrowDropDown } from 'react-icons/md';
 import { COLORS } from '@/constants/colors';
+import { useTranslation } from 'next-i18next';
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
 
 const TeamDetailPage: React.FC = () => {
+  const { t } = useTranslation('workspace');
   const router = useRouter();
   const toast = useToast();
   const { workspaceId, teamId } = router.query as {
@@ -325,18 +329,18 @@ const TeamDetailPage: React.FC = () => {
         >
           <BreadcrumbItem>
             <BreadcrumbLink onClick={() => router.push('/workspace')}>
-              Workspaces
+              {t('workspaces')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem>
             <BreadcrumbLink
               onClick={() => router.push(`/workspace/${workspaceId}/teams`)}
             >
-              Teams
+              {t('teams')}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink>{team?.name || 'Team'}</BreadcrumbLink>
+            <BreadcrumbLink>{team?.name || t('team.member')}</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
 
@@ -351,7 +355,7 @@ const TeamDetailPage: React.FC = () => {
           <Stack spacing={1}>
             <Heading size="lg">{team?.name}</Heading>
             <Text color="gray.500">
-              {team?.description || 'This team has no description'}
+              {team?.description || t('teamDetail.noDescription')}
             </Text>
           </Stack>
         </Box>
@@ -359,7 +363,7 @@ const TeamDetailPage: React.FC = () => {
         {/* Members Section */}
         <Flex justify="space-between" align="center">
           <Heading size="md" color={COLORS.primary}>
-            Members
+            {t('teamDetail.members')}
           </Heading>
         </Flex>
 
@@ -370,14 +374,14 @@ const TeamDetailPage: React.FC = () => {
                 <SearchIcon color="gray.300" />
               </InputLeftElement>
               <Input
-                placeholder="Find a member..."
+                placeholder={t('teamDetail.findMember')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </InputGroup>
 
             <Button colorScheme="teal" onClick={onInviteOpen}>
-              Add a member
+              {t('teamDetail.addMember')}
             </Button>
           </Flex>
 
@@ -391,13 +395,13 @@ const TeamDetailPage: React.FC = () => {
             >
               <Flex align="center" gap={4}>
                 <Checkbox
-                  isChecked={
+                  checked={
                     selectedMembers.length === filteredMembers.length &&
                     filteredMembers.length > 0
                   }
                   onChange={handleSelectAll}
                 >
-                  Select All
+                  {t('teamDetail.selectAll')}
                 </Checkbox>
               </Flex>
               <Menu>
@@ -414,13 +418,13 @@ const TeamDetailPage: React.FC = () => {
                   fontWeight="normal"
                 >
                   {filterRole === 'all'
-                    ? 'All Roles'
+                    ? t('teamDetail.allRoles')
                     : roles.find((r) => r.id === filterRole)?.name ||
-                      'All Roles'}
+                      t('teamDetail.allRoles')}
                 </MenuButton>
                 <MenuList>
                   <MenuItem onClick={() => setFilterRole('all')}>
-                    All Roles
+                    {t('teamDetail.allRoles')}
                   </MenuItem>
                   {roles.map((role) => (
                     <MenuItem
@@ -486,7 +490,7 @@ const TeamDetailPage: React.FC = () => {
                       }
                     }}
                   >
-                    <option value="">No Role</option>
+                    <option value="">{t('teamDetail.noRole')}</option>
                     {roles.map((role) => (
                       <option key={role.id} value={role.id}>
                         {role.name}
@@ -494,7 +498,7 @@ const TeamDetailPage: React.FC = () => {
                     ))}
                   </Select>
                   <IconButton
-                    aria-label="Remove member"
+                    aria-label={t('teamDetail.removeMemberTitle')}
                     icon={<FaTrash />}
                     size="sm"
                     variant="ghost"
@@ -507,7 +511,7 @@ const TeamDetailPage: React.FC = () => {
 
             {filteredMembers.length === 0 && (
               <Box p={8} textAlign="center">
-                <Text color="gray.500">No members found</Text>
+                <Text color="gray.500">{t('teamDetail.noMembersFound')}</Text>
               </Box>
             )}
           </Stack>
@@ -516,7 +520,7 @@ const TeamDetailPage: React.FC = () => {
         {/* Activity Packages Section */}
         <Flex justify="space-between" align="center" mt={4}>
           <Heading size="md" color={COLORS.primary}>
-            Activity Package
+            {t('teamDetail.activityPackage')}
           </Heading>
         </Flex>
 
@@ -527,13 +531,13 @@ const TeamDetailPage: React.FC = () => {
                 <SearchIcon color="gray.300" />
               </InputLeftElement>
               <Input
-                placeholder="Find a package..."
+                placeholder={t('teamDetail.findPackage')}
                 value={searchPackageQuery}
                 onChange={(e) => setSearchPackageQuery(e.target.value)}
               />
             </InputGroup>
             <Button colorScheme="teal" onClick={onAddPackageOpen}>
-              Add new package
+              {t('teamDetail.addPackage')}
             </Button>
           </Flex>
 
@@ -545,7 +549,7 @@ const TeamDetailPage: React.FC = () => {
               align="center"
               justify="space-between"
             >
-              <Text fontWeight="medium">Package Name</Text>
+              <Text fontWeight="medium">{t('teamDetail.packageName')}</Text>
             </Flex>
 
             {activityPackages
@@ -568,13 +572,13 @@ const TeamDetailPage: React.FC = () => {
                     <Stack spacing={0}>
                       <Text fontWeight="medium">{pkg.displayName}</Text>
                       <Text fontSize="sm" color="gray.500">
-                        {pkg.description || 'No description'}
+                        {pkg.description || t('teamDetail.noDescriptionPackage')}
                       </Text>
                     </Stack>
                   </Flex>
 
                   <IconButton
-                    aria-label="Delete package"
+                    aria-label={t('teamDetail.removePackageTitle')}
                     icon={<FaTrash />}
                     size="sm"
                     variant="ghost"
@@ -590,7 +594,7 @@ const TeamDetailPage: React.FC = () => {
                 .includes(searchPackageQuery.toLowerCase())
             ).length === 0 && (
               <Box p={8} textAlign="center">
-                <Text color="gray.500">No activity packages found</Text>
+                <Text color="gray.500">{t('teamDetail.noPackagesFound')}</Text>
               </Box>
             )}
           </Stack>
@@ -599,7 +603,7 @@ const TeamDetailPage: React.FC = () => {
         {/* Roles Section */}
         <Flex justify="space-between" align="center" mt={4}>
           <Heading size="md" color={COLORS.primary}>
-            Team Roles
+            {t('teamDetail.teamRoles')}
           </Heading>
         </Flex>
 
@@ -610,7 +614,7 @@ const TeamDetailPage: React.FC = () => {
                 <SearchIcon color="gray.300" />
               </InputLeftElement>
               <Input
-                placeholder="Find a role..."
+                placeholder={t('teamDetail.findRole')}
                 value={searchRoleQuery}
                 onChange={(e) => setSearchRoleQuery(e.target.value)}
               />
@@ -623,7 +627,7 @@ const TeamDetailPage: React.FC = () => {
                 )
               }
             >
-              Create new role
+              {t('teamDetail.createRole')}
             </Button>
           </Flex>
 
@@ -635,7 +639,7 @@ const TeamDetailPage: React.FC = () => {
               align="center"
               justify="space-between"
             >
-              <Text fontWeight="medium">Role Name</Text>
+              <Text fontWeight="medium">{t('teamDetail.roleName')}</Text>
             </Flex>
 
             {roles
@@ -654,7 +658,7 @@ const TeamDetailPage: React.FC = () => {
                   <Stack spacing={0} flex={1}>
                     <Text fontWeight="medium">{role.name}</Text>
                     <Text fontSize="sm" color="gray.500">
-                      {role.description || 'No description'}
+                      {role.description || t('teamDetail.noDescription')}
                     </Text>
                   </Stack>
 
@@ -687,7 +691,7 @@ const TeamDetailPage: React.FC = () => {
               role.name.toLowerCase().includes(searchRoleQuery.toLowerCase())
             ).length === 0 && (
               <Box p={8} textAlign="center">
-                <Text color="gray.500">No roles found</Text>
+                <Text color="gray.500">{t('teamDetail.noRolesFound')}</Text>
               </Box>
             )}
           </Stack>
@@ -701,7 +705,7 @@ const TeamDetailPage: React.FC = () => {
             w={130}
             onClick={() => router.back()}
           >
-            BACK
+            {t('teamDetail.back')}
           </Button>
         </Flex>
       </Container>
@@ -724,8 +728,8 @@ const TeamDetailPage: React.FC = () => {
       />
 
       <ConfirmModal
-        title="Remove Member"
-        content="remove this member from the team"
+        title={t('teamDetail.removeMemberTitle')}
+        content={t('teamDetail.removeMemberContent')}
         isOpen={isDeleteMemberOpen}
         isLoading={isSubmitting}
         onClose={onDeleteMemberClose}
@@ -733,8 +737,8 @@ const TeamDetailPage: React.FC = () => {
       />
 
       <ConfirmModal
-        title="Delete Role"
-        content="delete this role"
+        title={t('teamDetail.deleteRoleTitle')}
+        content={t('teamDetail.deleteRoleContent')}
         isOpen={isDeleteRoleOpen}
         isLoading={isSubmitting}
         onClose={onDeleteRoleClose}
@@ -750,8 +754,8 @@ const TeamDetailPage: React.FC = () => {
       />
 
       <ConfirmModal
-        title="Remove Package"
-        content="remove this package from the team"
+        title={t('teamDetail.removePackageTitle')}
+        content={t('teamDetail.removePackageContent')}
         isOpen={isDeletePackageOpen}
         isLoading={isSubmitting}
         onClose={onDeletePackageClose}
@@ -762,3 +766,16 @@ const TeamDetailPage: React.FC = () => {
 };
 
 export default TeamDetailPage;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};

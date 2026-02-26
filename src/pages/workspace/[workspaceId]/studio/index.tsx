@@ -51,8 +51,11 @@ import LoadingIndicator from "@/components/LoadingIndicator/LoadingIndicator";
 import { ToolTipExplain } from "@/constants/description";
 import { formatDateTime } from "@/utils/time";
 import WorkspaceLayout from "@/components/Layouts/WorkspaceLayout";
+import { useTranslation } from "next-i18next";
 
 export default function WorkspaceStudio() {
+  const { t } = useTranslation('workspace');
+  const { t: tCommon } = useTranslation('common');
   const router = useRouter();
   const { workspaceId } = router.query;
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -231,12 +234,12 @@ export default function WorkspaceStudio() {
 
   const tableProps = {
     header: [
-      "Process name",
-      "Process description",
-      "Owner",
-      "Last Modified",
-      "Version",
-      "Status",
+      t('team.studio.table.name'),
+      t('team.studio.table.description'),
+      t('team.studio.table.owner'),
+      t('team.studio.table.lastModified'),
+      t('team.studio.table.version'),
+      t('team.studio.table.status'),
     ],
     headerKeys: [
       "name",
@@ -547,7 +550,7 @@ export default function WorkspaceStudio() {
                     : "text-gray-600 hover:text-[#319795]"
                 }`}
               >
-                Process List
+                {t('team.studio.tabs.processes')}
               </button>
               <button
                 onClick={() => setActiveTab("templates")}
@@ -557,7 +560,7 @@ export default function WorkspaceStudio() {
                     : "text-gray-600 hover:text-[#319795]"
                 }`}
               >
-                Templates
+                {t('team.studio.tabs.templates')}
               </button>
               {/* Sliding underline */}
               <div
@@ -587,7 +590,7 @@ export default function WorkspaceStudio() {
                   <Input
                     bg="white"
                     type="text"
-                    placeholder="Search by name..."
+                    placeholder={t('team.studio.search')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -595,7 +598,7 @@ export default function WorkspaceStudio() {
                 <Box>
                   <HStack spacing={2}>
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                      Owner:
+                      {t('team.studio.owner')}
                     </Text>
                     <Select
                       size="sm"
@@ -604,7 +607,7 @@ export default function WorkspaceStudio() {
                       value={ownerFilter}
                       onChange={(e) => setOwnerFilter(e.target.value)}
                     >
-                      <option value="all">All</option>
+                      <option value="all">{t('team.studio.all')}</option>
                       {allProcess && Array.isArray(allProcess) &&
                         Array.from(
                           new Set(
@@ -623,7 +626,7 @@ export default function WorkspaceStudio() {
                 <Box>
                   <HStack spacing={2}>
                     <Text fontSize="sm" fontWeight="medium" color="gray.700">
-                      Status:
+                      {t('team.studio.status')}
                     </Text>
                     <Select
                       size="sm"
@@ -632,16 +635,16 @@ export default function WorkspaceStudio() {
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
                     >
-                      <option value="all">All</option>
-                      <option value="draft">draft</option>
-                      <option value="deployed">deployed</option>
+                      <option value="all">{t('team.studio.all')}</option>
+                      <option value="draft">{t('team.studio.draft')}</option>
+                      <option value="deployed">{t('team.studio.deployed')}</option>
                     </Select>
                   </HStack>
                 </Box>
               </div>
               <div className="flex justify-between gap-[10px]">
                 <Button colorScheme="teal" onClick={onOpen}>
-                  New Process
+                  {t('team.studio.newProcess')}
                 </Button>
                 <input
                   type="file"
@@ -662,7 +665,7 @@ export default function WorkspaceStudio() {
                     }
                   }}
                 >
-                  Import Process
+                  {t('team.studio.importProcess')}
                 </Button>
               </div>
             </div>
@@ -691,9 +694,9 @@ export default function WorkspaceStudio() {
               {tableProps.data.length === 0 && !isLoadingProcess && (
                 <div className="w-90 m-auto flex justify-center items-center mt-10">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">No processes here</div>
+                    <div className="text-2xl font-bold">{t('team.studio.noProcesses')}</div>
                     <div className="text-gray-500">
-                      Create a new process or switch to templates
+                      {t('team.studio.createOrSwitch')}
                     </div>
                   </div>
                 </div>
@@ -706,23 +709,23 @@ export default function WorkspaceStudio() {
               <div className="grid grid-cols-3 gap-[15px] mt-[30px]">
                 <TemplateCard
                   image={AutomationTemplateImage}
-                  title="Grading 100 English Exams from sample document"
-                  description="Evaluating 100 English Exam Papers from the provided sample document, ensuring accuracy and fairness throughout the grading process..."
+                  title={t('workspaceStudio.templates.title1')}
+                  description={t('workspaceStudio.templates.desc1')}
                 />
                 <TemplateCard
                   image={AutomationTemplateImage}
-                  title="Get 100 emails from Inbox"
-                  description="Retrieve 100 emails from your Inbox, managing and organizing your electronic correspondence efficiently and effectively..."
+                  title={t('workspaceStudio.templates.title2')}
+                  description={t('workspaceStudio.templates.desc2')}
                 />
                 <TemplateCard
                   image={AutomationTemplateImage}
-                  title="Export Data To Google Sheet"
-                  description="Seamlessly transfer your data directly to Google Sheets with our intuitive export feature. Whether you're managing extensive datasets, tracking project progress, or analyzing financial records, our tool ensures your information is synchronized in real-time."
+                  title={t('workspaceStudio.templates.title3')}
+                  description={t('workspaceStudio.templates.desc3')}
                 />
                 <TemplateCard
                   image={AutomationTemplateImage}
-                  title="Extract Text From An Image"
-                  description="Unlock the hidden potential of your images with our cutting-edge templates. It's your gateway to converting visual content into actionable text, making information more accessible and versatile than ever before."
+                  title={t('workspaceStudio.templates.title4')}
+                  description={t('workspaceStudio.templates.desc4')}
                 />
               </div>
             </div>
@@ -737,16 +740,16 @@ export default function WorkspaceStudio() {
           >
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Create new process</ModalHeader>
+              <ModalHeader>{t('team.studio.createModal.title')}</ModalHeader>
               <ModalCloseButton />
               <ModalBody pb={6}>
                 <FormControl>
-                  <FormLabel>Process name</FormLabel>
-                  <Input ref={initialRef} placeholder="Process name" />
+                  <FormLabel>{t('team.studio.createModal.nameLabel')}</FormLabel>
+                  <Input ref={initialRef} placeholder={t('team.studio.createModal.namePlaceholder')} />
                 </FormControl>
                 <FormControl>
-                  <FormLabel>Description</FormLabel>
-                  <Input ref={descRepf} placeholder="Your description" />
+                  <FormLabel>{t('team.studio.createModal.descLabel')}</FormLabel>
+                  <Input ref={descRepf} placeholder={t('team.studio.createModal.descPlaceholder')} />
                 </FormControl>
               </ModalBody>
               <ModalFooter>
@@ -756,10 +759,10 @@ export default function WorkspaceStudio() {
                   mr={3}
                   onClick={onClose}
                 >
-                  Cancel
+                  {tCommon('buttons.cancel')}
                 </Button>
                 <Button colorScheme="teal" onClick={handleCreateNewProcess}>
-                  Save
+                  {tCommon('buttons.save')}
                 </Button>
               </ModalFooter>
             </ModalContent>
@@ -773,14 +776,14 @@ export default function WorkspaceStudio() {
           >
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Duplicate Process</ModalHeader>
+              <ModalHeader>{tCommon('buttons.duplicate') || 'Duplicate Process'}</ModalHeader>
               <ModalCloseButton />
               <ModalBody pb={6}>
                 <FormControl>
-                  <FormLabel>New Process Name</FormLabel>
+                  <FormLabel>{t('team.studio.createModal.nameLabel')}</FormLabel>
                   <Input
                     ref={duplicateNameRef}
-                    placeholder="Enter new process name"
+                    placeholder={t('team.studio.createModal.namePlaceholder')}
                   />
                 </FormControl>
               </ModalBody>
@@ -791,10 +794,10 @@ export default function WorkspaceStudio() {
                   mr={3}
                   onClick={onDuplicateClose}
                 >
-                  Cancel
+                  {tCommon('buttons.cancel')}
                 </Button>
                 <Button colorScheme="teal" onClick={confirmDuplicate}>
-                  Duplicate
+                  {tCommon('buttons.confirm')}
                 </Button>
               </ModalFooter>
             </ModalContent>
@@ -808,7 +811,7 @@ export default function WorkspaceStudio() {
           >
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Share Process</ModalHeader>
+              <ModalHeader>{tCommon('table.share') || 'Share Process'}</ModalHeader>
               <ModalCloseButton />
               <ModalBody pb={6}>
                 <FormControl>
@@ -827,10 +830,10 @@ export default function WorkspaceStudio() {
                   mr={3}
                   onClick={onShareClose}
                 >
-                  Cancel
+                  {tCommon('buttons.cancel')}
                 </Button>
                 <Button colorScheme="teal" onClick={confirmShare}>
-                  Share
+                  {tCommon('table.share')}
                 </Button>
               </ModalFooter>
             </ModalContent>
@@ -844,11 +847,11 @@ export default function WorkspaceStudio() {
           >
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Process Settings</ModalHeader>
+              <ModalHeader>{tCommon('table.processSettings') || 'Process Settings'}</ModalHeader>
               <ModalCloseButton />
               <ModalBody pb={6}>
                 <FormControl mb={4}>
-                  <FormLabel>Process Name</FormLabel>
+                  <FormLabel>{t('team.studio.createModal.nameLabel')}</FormLabel>
                   <Input
                     ref={settingsNameRef}
                     defaultValue={
@@ -856,7 +859,7 @@ export default function WorkspaceStudio() {
                         ? allProcess.find((p: any) => p.id === selectedProcessId)?.name
                         : ''
                     }
-                    placeholder="Process name"
+                    placeholder={t('team.studio.createModal.namePlaceholder')}
                     borderColor="teal.500"
                     borderWidth="2px"
                     _hover={{ borderColor: "teal.600" }}
@@ -867,7 +870,7 @@ export default function WorkspaceStudio() {
                   />
                 </FormControl>
                 <FormControl>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('team.studio.createModal.descLabel')}</FormLabel>
                   <Input
                     ref={settingsDescRef}
                     defaultValue={
@@ -875,7 +878,7 @@ export default function WorkspaceStudio() {
                         ? allProcess.find((p: any) => p.id === selectedProcessId)?.description
                         : ''
                     }
-                    placeholder="Description"
+                    placeholder={t('team.studio.createModal.descPlaceholder')}
                     borderColor="teal.500"
                     borderWidth="2px"
                     _hover={{ borderColor: "teal.600" }}
@@ -893,10 +896,10 @@ export default function WorkspaceStudio() {
                   mr={3}
                   onClick={onSettingsClose}
                 >
-                  Cancel
+                  {tCommon('buttons.cancel')}
                 </Button>
                 <Button colorScheme="teal" onClick={confirmProcessSettings}>
-                  Save
+                  {tCommon('buttons.save')}
                 </Button>
               </ModalFooter>
             </ModalContent>
@@ -906,3 +909,19 @@ export default function WorkspaceStudio() {
     </WorkspaceLayout>
   );
 }
+
+import { GetServerSideProps } from 'next';
+import { getServerSideTranslations } from '@/utils/i18n';
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      ...(await getServerSideTranslations(context, [
+        'common',
+        'sidebar',
+        'navbar',
+        'workspace',
+      ])),
+    },
+  };
+};
