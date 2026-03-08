@@ -30,4 +30,10 @@ export const QUERY_KEY = {
   TEAM_ROBOT_CONNECTIONS: 'team-robot-connections',
   TEAM_CONNECTIONS: 'team-connections',
   TEAM_CONNECTION_DETAIL: 'team-connection',
+
+  // Dashboard query keys
+  DASHBOARD_SUMMARY: 'dashboard-summary',
+  DASHBOARD_ROBOT_STATUSES: 'dashboard-robot-statuses',
+  DASHBOARD_JOBS_HISTORY: 'dashboard-jobs-history',
+  DASHBOARD_TRANSACTIONS: 'dashboard-transactions',
 };
