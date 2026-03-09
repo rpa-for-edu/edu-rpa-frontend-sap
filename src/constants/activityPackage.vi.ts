@@ -394,7 +394,7 @@ export const ActivityPackages = [
         arguments: {
           Connection: {
             type: 'connection.Google Sheets',
-            keywordArg: 'token_file_path',
+            keywordArg: 'token_file',
             provider: 'Google Sheets',
             description: 'ID kết nối của bạn với Google Sheet',
             value: null,
@@ -647,7 +647,7 @@ export const ActivityPackages = [
           Connection: {
             type: 'connection.Google Classroom',
             description: 'ID kết nối của bạn với Google Classroom',
-            keywordArg: 'token_file_path',
+            keywordArg: 'token_file',
             provider: 'Google Classroom',
             value: null,
           },
@@ -1019,7 +1019,7 @@ export const ActivityPackages = [
           },
           Connection: {
             type: 'connection.Google Form',
-            keywordArg: 'token_file_path',
+            keywordArg: 'token_file',
             description: 'ID kết nối của bạn với Google Form',
             provider: 'Google Forms',
             value: null,
@@ -1529,7 +1529,7 @@ export const ActivityPackages = [
           'Token File Path': {
             type: 'connection.SAP Mock',
             description: 'Đường dẫn đến tệp chứa token truy cập SAP',
-            keywordArg: 'token_file_path',
+            keywordArg: 'token_file',
             value: '',
           },
           'Verify SSL': {
@@ -1694,7 +1694,7 @@ export const ActivityPackages = [
         type: 'activity',
         keyword: 'Setup ERPNext Connection',
         arguments: {
-          'Connection': {
+          Connection: {
             type: 'connection.ERP Next',
             description: 'Kết nối đến ERPNext',
             keywordArg: 'token_file_path',
@@ -2362,7 +2362,7 @@ export const ActivityPackages = [
         arguments: {
           Connection: {
             type: 'connection.Moodle',
-            keywordArg: 'token_file_path',
+            keywordArg: 'token_file',
             provider: 'Moodle',
             description: 'Kết nối của bạn với Moodle',
             value: null,
@@ -2379,7 +2379,7 @@ export const ActivityPackages = [
         arguments: {
           Connection: {
             type: 'connection.Google Drive',
-            keywordArg: 'token_file_path',
+            keywordArg: 'token_file',
             description: 'Đường dẫn đến tệp JSON token Google API',
             value: '',
           },

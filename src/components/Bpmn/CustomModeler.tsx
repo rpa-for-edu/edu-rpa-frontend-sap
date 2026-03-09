@@ -38,7 +38,7 @@ import {
   getIndexVariableStorage,
   getVariableItemFromLocalStorage,
 } from '@/utils/variableService';
-import UnsavedChangesModal from "./UnsavedChangesModal";
+import UnsavedChangesModal from './UnsavedChangesModal';
 import { useParams } from 'next/navigation';
 import { QUERY_KEY } from '@/constants/queryKey';
 import processApi from '@/apis/processApi';
@@ -62,9 +62,13 @@ import { useActivityPackages } from '@/hooks/useActivityPackages';
 import { PublishRobotModal } from './FunctionalTabBar/PublishRobotModal';
 import { Modal, ModalOverlay } from '@chakra-ui/react';
 import { useTranslation } from 'next-i18next';
-import { useRobotTrackingSocket, ExecutedStep, StepStatus } from "@/hooks/useRobotTrackingSocket";
-import { BpmnExecutionHighlighter } from "@/services/bpmnExecutionHighlighter";
-import { SimulationMode, RobotLogEntry } from "@/contexts/RobotTrackingContext";
+import {
+  useRobotTrackingSocket,
+  ExecutedStep,
+  StepStatus,
+} from '@/hooks/useRobotTrackingSocket';
+import { BpmnExecutionHighlighter } from '@/services/bpmnExecutionHighlighter';
+import { SimulationMode, RobotLogEntry } from '@/contexts/RobotTrackingContext';
 
 interface OriginalObject {
   [key: string]: {
@@ -110,7 +114,9 @@ function CustomModeler() {
   } = useDisclosure();
   const [errorTrace, setErrorTrace] = useState<string>('');
   const [showRobotCode, setShowRobotCode] = useState(false);
-  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(
+    null
+  );
   const [subProcessInfo, setSubProcessInfo] = useState<{
     name: string;
     elementCount: number;
@@ -129,7 +135,8 @@ function CustomModeler() {
   const allowNavigationRef = useRef(false);
 
   // Robot tracking state
-  const [simulationMode, setSimulationMode] = useState<SimulationMode>("step-by-step");
+  const [simulationMode, setSimulationMode] =
+    useState<SimulationMode>('step-by-step');
   const [executionLogs, setExecutionLogs] = useState<RobotLogEntry[]>([]);
   const [selectedLog, setSelectedLog] = useState<RobotLogEntry | null>(null);
   const highlighterRef = useRef<BpmnExecutionHighlighter | null>(null);
@@ -440,7 +447,7 @@ function CustomModeler() {
       mutateSaveAll.mutate(payload);
     }
   };
- const handleSaveAndExit = async () => {
+  const handleSaveAndExit = async () => {
     try {
       await handleSaveAll();
       // Allow navigation after save completes
@@ -452,7 +459,7 @@ function CustomModeler() {
       }
     } catch (error) {
       // Error is already handled by mutation onError
-      console.error("Failed to save:", error);
+      console.error('Failed to save:', error);
     }
   };
 
@@ -552,7 +559,10 @@ function CustomModeler() {
    * Syncs modeler state to localStorage first, then compiles robot code
    * Returns null on error (with toast notification)
    */
-  const getSimulationRobotCode = async (): Promise<{ code: string; credentials: any } | null> => {
+  const getSimulationRobotCode = async (): Promise<{
+    code: string;
+    credentials: any;
+  } | null> => {
     // Sync XML and activities from modeler to localStorage before compiling
     if (bpmnReactJs.bpmnModeler) {
       try {
@@ -877,20 +887,22 @@ function CustomModeler() {
 
   const handleTokenSimulationChange = (enabled: boolean) => {
     setTokenSimulation(enabled);
-    
+
     if (bpmnReactJs.bpmnModeler) {
       try {
-        const toggleMode = bpmnReactJs.bpmnModeler.get("toggleMode") as any;
+        const toggleMode = bpmnReactJs.bpmnModeler.get('toggleMode') as any;
         if (toggleMode) {
           toggleMode.toggleMode(enabled);
-          console.log(`🎮 Token simulation ${enabled ? "enabled" : "disabled"}`);
+          console.log(
+            `🎮 Token simulation ${enabled ? 'enabled' : 'disabled'}`
+          );
         }
       } catch (error) {
-        console.error("Failed to toggle token simulation:", error);
+        console.error('Failed to toggle token simulation:', error);
         toast({
-          title: "Failed to toggle simulation mode",
-          status: "error",
-          position: "top-right",
+          title: 'Failed to toggle simulation mode',
+          status: 'error',
+          position: 'top-right',
           duration: 2000,
           isClosable: true,
         });
@@ -907,7 +919,7 @@ function CustomModeler() {
   // Handle step start - highlight node and add to logs
   const handleStepStart = useCallback((step: ExecutedStep) => {
     console.log('[CustomModeler] Step started:', step);
-    
+
     if (highlighterRef.current) {
       highlighterRef.current.highlightNode(step.bpmnNodeId, 'RUNNING');
       highlighterRef.current.centerOnNode(step.bpmnNodeId);
@@ -922,106 +934,128 @@ function CustomModeler() {
 
     const newLog: RobotLogEntry = {
       id: `log-${++logIdCounter.current}`,
-      timestamp: new Date(step.startTime).toLocaleTimeString('en-US', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit' 
+      timestamp: new Date(step.startTime).toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
       }),
       stepName: step.stepId,
       status: 'RUNNING',
-      bpmnNodeId: step.bpmnNodeId,  // Add BPMN node ID for navigation
+      bpmnNodeId: step.bpmnNodeId, // Add BPMN node ID for navigation
       packageActivity: step.stepId,
     };
-    
-    setExecutionLogs(prev => [...prev, newLog]);
+
+    setExecutionLogs((prev) => [...prev, newLog]);
   }, []);
 
   // Handle step end - update highlight and log
-  const handleStepEnd = useCallback((step: ExecutedStep) => {
-    console.log('[CustomModeler] Step ended:', step);
-    
-    if (highlighterRef.current) {
-      highlighterRef.current.highlightNode(step.bpmnNodeId, step.status);
-    }
+  const handleStepEnd = useCallback(
+    (step: ExecutedStep) => {
+      console.log('[CustomModeler] Step ended:', step);
 
-    previousStepRef.current = step;
-
-    // Parse variables from args - extract ${varName} patterns
-    let extractedVariables: { name: string; value: string }[] = [];
-    if (step.args && step.args.length > 0) {
-      const variableStorage = getVariableItemFromLocalStorage(processID as string);
-      const variableRegex = /\$\{([^}]+)\}/g;
-      const foundVarNames = new Set<string>();
-      
-      step.args.forEach(arg => {
-        let match;
-        while ((match = variableRegex.exec(arg)) !== null) {
-          foundVarNames.add(match[1]); // match[1] is the variable name without ${}
-        }
-      });
-
-      // Look up variable values from storage
-      if (variableStorage?.variables) {
-        foundVarNames.forEach(varName => {
-          const variable = variableStorage.variables.find(
-            (v: any) => v.name === varName
-          );
-          extractedVariables.push({
-            name: varName,
-            value: variable?.value ?? 'undefined',
-          });
-        });
-      } else {
-        // If no storage, just add the names with undefined value
-        foundVarNames.forEach(varName => {
-          extractedVariables.push({
-            name: varName,
-            value: 'undefined',
-          });
-        });
+      if (highlighterRef.current) {
+        highlighterRef.current.highlightNode(step.bpmnNodeId, step.status);
       }
-    }
 
-    setExecutionLogs(prev => prev.map(log => 
-      log.stepName === step.stepId && log.status === 'RUNNING'
-        ? {
-            ...log,
-            status: step.status,
-            durationMs: step.durationMs,
-            args: step.args,
-            variables: extractedVariables,
-            error: step.status === 'ERROR' || step.status === 'FAIL' 
-              ? step.message || 'Step execution failed'
-              : undefined,
+      previousStepRef.current = step;
+
+      // Parse variables from args - extract ${varName} patterns
+      let extractedVariables: { name: string; value: string }[] = [];
+      if (step.args && step.args.length > 0) {
+        const variableStorage = getVariableItemFromLocalStorage(
+          processID as string
+        );
+        const variableRegex = /\$\{([^}]+)\}/g;
+        const foundVarNames = new Set<string>();
+
+        step.args.forEach((arg) => {
+          let match;
+          while ((match = variableRegex.exec(arg)) !== null) {
+            foundVarNames.add(match[1]); // match[1] is the variable name without ${}
           }
-        : log
-    ));
+        });
 
-    const statusEmoji = step.status === 'PASS' ? '✅' : step.status === 'ERROR' ? '❌' : '⏭️';
-    toast({
-      title: `${statusEmoji} ${step.stepId}: ${step.status}`,
-      description: step.durationMs ? `Duration: ${step.durationMs}ms` : undefined,
-      status: step.status === 'PASS' ? 'success' : step.status === 'ERROR' ? 'error' : 'warning',
-      duration: 2000,
-      isClosable: true,
-      position: 'bottom-right',
-    });
-  }, [toast, processID]);
+        // Look up variable values from storage
+        if (variableStorage?.variables) {
+          foundVarNames.forEach((varName) => {
+            const variable = variableStorage.variables.find(
+              (v: any) => v.name === varName
+            );
+            extractedVariables.push({
+              name: varName,
+              value: variable?.value ?? 'undefined',
+            });
+          });
+        } else {
+          // If no storage, just add the names with undefined value
+          foundVarNames.forEach((varName) => {
+            extractedVariables.push({
+              name: varName,
+              value: 'undefined',
+            });
+          });
+        }
+      }
+
+      setExecutionLogs((prev) =>
+        prev.map((log) =>
+          log.stepName === step.stepId && log.status === 'RUNNING'
+            ? {
+                ...log,
+                status: step.status,
+                durationMs: step.durationMs,
+                args: step.args,
+                variables: extractedVariables,
+                error:
+                  step.status === 'ERROR' || step.status === 'FAIL'
+                    ? step.message || 'Step execution failed'
+                    : undefined,
+              }
+            : log
+        )
+      );
+
+      const statusEmoji =
+        step.status === 'PASS' ? '✅' : step.status === 'ERROR' ? '❌' : '⏭️';
+      toast({
+        title: `${statusEmoji} ${step.stepId}: ${step.status}`,
+        description: step.durationMs
+          ? `Duration: ${step.durationMs}ms`
+          : undefined,
+        status:
+          step.status === 'PASS'
+            ? 'success'
+            : step.status === 'ERROR'
+              ? 'error'
+              : 'warning',
+        duration: 2000,
+        isClosable: true,
+        position: 'bottom-right',
+      });
+    },
+    [toast, processID]
+  );
 
   // Handle run end
-  const handleRunEnd = useCallback((status: StepStatus) => {
-    console.log('[CustomModeler] Run ended:', status);
-    previousStepRef.current = null;
+  const handleRunEnd = useCallback(
+    (status: StepStatus) => {
+      console.log('[CustomModeler] Run ended:', status);
+      previousStepRef.current = null;
 
-    toast({
-      title: status === 'PASS' ? '🎉 Robot completed successfully!' : '⚠️ Robot finished with errors',
-      status: status === 'PASS' ? 'success' : 'error',
-      duration: 5000,
-      isClosable: true,
-      position: 'top',
-    });
-  }, [toast]);
+      toast({
+        title:
+          status === 'PASS'
+            ? '🎉 Robot completed successfully!'
+            : '⚠️ Robot finished with errors',
+        status: status === 'PASS' ? 'success' : 'error',
+        duration: 5000,
+        isClosable: true,
+        position: 'top',
+      });
+    },
+    [toast]
+  );
 
   // Initialize robot tracking WebSocket hook
   const {
@@ -1041,7 +1075,9 @@ function CustomModeler() {
   // Initialize highlighter when modeler is ready
   useEffect(() => {
     if (bpmnReactJs.bpmnModeler) {
-      highlighterRef.current = new BpmnExecutionHighlighter(bpmnReactJs.bpmnModeler);
+      highlighterRef.current = new BpmnExecutionHighlighter(
+        bpmnReactJs.bpmnModeler
+      );
       console.log('[CustomModeler] Highlighter initialized');
     }
 
@@ -1187,8 +1223,8 @@ function CustomModeler() {
         return;
       }
       // Don't intercept if it's the same route (query params change)
-      const currentPath = router.asPath.split("?")[0];
-      const newPath = url.split("?")[0];
+      const currentPath = router.asPath.split('?')[0];
+      const newPath = url.split('?')[0];
       if (currentPath === newPath) {
         return;
       }
@@ -1196,11 +1232,11 @@ function CustomModeler() {
       shouldBlockNavigationRef.current = true;
       setPendingNavigation(url);
       onOpenUnsavedChangesModal();
-      throw "Route change aborted by user";
+      throw 'Route change aborted by user';
     };
 
     const handleRouteChangeError = (err: any, url: string) => {
-      if (err === "Route change aborted by user") {
+      if (err === 'Route change aborted by user') {
         // This is expected, don't log as error
         return;
       }
@@ -1208,20 +1244,20 @@ function CustomModeler() {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (!isSavedChanges.isSaved) {
         e.preventDefault();
-        e.returnValue = "";
-        return "";
+        e.returnValue = '';
+        return '';
       }
     };
 
     // Listen to route change events
-    router.events.on("routeChangeStart", handleRouteChangeStart);
-    router.events.on("routeChangeError", handleRouteChangeError);
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    router.events.on('routeChangeStart', handleRouteChangeStart);
+    router.events.on('routeChangeError', handleRouteChangeError);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
-      router.events.off("routeChangeStart", handleRouteChangeStart);
-      router.events.off("routeChangeError", handleRouteChangeError);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      router.events.off('routeChangeStart', handleRouteChangeStart);
+      router.events.off('routeChangeError', handleRouteChangeError);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [router, isSavedChanges.isSaved, onOpenUnsavedChangesModal]);
 
@@ -1426,8 +1462,8 @@ function CustomModeler() {
         />
       }
       bottomPanel={
-        <BpmnBottomPanel 
-          processID={processID as string} 
+        <BpmnBottomPanel
+          processID={processID as string}
           modelerRef={bpmnReactJs}
           executionLogs={executionLogs}
           selectedLog={selectedLog}
@@ -1521,7 +1557,7 @@ function CustomModeler() {
         elementCount={subProcessInfo.elementCount}
         hasNestedSubProcesses={subProcessInfo.hasNested}
       />
-         {/* Unsaved Changes Modal */}
+      {/* Unsaved Changes Modal */}
       <UnsavedChangesModal
         isOpen={isUnsavedChangesModalOpen}
         onClose={handleCancelNavigation}

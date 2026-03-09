@@ -155,6 +155,7 @@ for assistance creating a new BPMN process and assign existing activity package 
   >(null);
   const [pendingMapping, setPendingMapping] = useState<any>(null);
   const [storedMappingData, setStoredMappingData] = useState<any>(null);
+  const [xmlApplyCounter, setXmlApplyCounter] = useState(0);
   const [selectedAutomaticNode, setSelectedAutomaticNode] = useState<{
     nodeId: string;
     nodeName: string;
@@ -473,9 +474,11 @@ for assistance creating a new BPMN process and assign existing activity package 
     try {
       const layoutedXml = await layoutProcess(xml);
       setFinalXml(layoutedXml);
+      setXmlApplyCounter((c) => c + 1);
     } catch (e) {
       console.error("❌ [Pipeline] bpmn-auto-layout failed, using raw XML:", e);
       setFinalXml(xml);
+      setXmlApplyCounter((c) => c + 1);
     }
   };
 
@@ -889,30 +892,16 @@ for assistance creating a new BPMN process and assign existing activity package 
               e
             );
           }
-        } else if (
+        }
 
-          data.interrupt.type === "mapping_feedback" &&
-
-          data.interrupt.mapping
-
-        ) {
-
-          // No new BPMN but have new mapping - auto-assign activities directly
-
+        // No new BPMN but have new mapping - auto-assign activities directly
+        if (!data.interrupt.bpmn && data.interrupt.mapping) {
           console.log(
-
             "🔄 [AIChatbot] No new BPMN, but mapping changed - auto-assigning activities..."
-
           );
-
-          // Small delay to ensure state is updated
-
           const mappingToAssign = data.interrupt.mapping;
-
           setTimeout(() => {
-
             autoAssignActivities(mappingToAssign);
-
           }, 100);
         }
       }
@@ -1371,7 +1360,7 @@ I don't always get it right, so please review the process and feel free to try a
     };
     apply();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finalXml]);
+  }, [finalXml, xmlApplyCounter]);
 
   const handleResetChat = () => {
     const welcome: ChatMessage = {

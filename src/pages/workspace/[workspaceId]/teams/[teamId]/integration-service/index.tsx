@@ -41,10 +41,11 @@ export default function TeamConnectionsPage() {
   const [providerFilter, setProviderFilter] = useState('');
   const { t } = useTranslation('workspace');
 
-  const { data: connections, isLoading, error: connectionsError } = useTeamConnections(
-    teamId as string,
-    providerFilter || undefined
-  );
+  const {
+    data: connections,
+    isLoading,
+    error: connectionsError,
+  } = useTeamConnections(teamId as string, providerFilter || undefined);
 
   const connectionData = connections || [];
 
@@ -54,7 +55,7 @@ export default function TeamConnectionsPage() {
       t('team.connections.connectionName'),
       t('team.connections.createdAt'),
       t('team.connections.status'),
-      t('team.connections.action')
+      t('team.connections.action'),
     ],
     data: connectionData,
   };
@@ -62,10 +63,12 @@ export default function TeamConnectionsPage() {
   // Handle API error (403 Forbidden, etc.)
   if (connectionsError) {
     const errorStatus = (connectionsError as any)?.response?.status;
-    const errorMessage = errorStatus === 403 
-      ? t('team.connections.accessDenied')
-      : (connectionsError as any)?.response?.data?.message || t('team.connections.failedToLoad');
-    
+    const errorMessage =
+      errorStatus === 403
+        ? t('team.connections.accessDenied')
+        : (connectionsError as any)?.response?.data?.message ||
+          t('team.connections.failedToLoad');
+
     return (
       <TeamLayout>
         <div className="mb-[200px]">
@@ -87,7 +90,6 @@ export default function TeamConnectionsPage() {
       </TeamLayout>
     );
   }
-
 
   return (
     <TeamLayout>
@@ -141,7 +143,9 @@ export default function TeamConnectionsPage() {
                 >
                   {PROVIDERS.map((provider) => (
                     <option key={provider.value} value={provider.value}>
-                      {provider.value === '' ? t(`team.connections.allProviders`) : provider.label}
+                      {provider.value === ''
+                        ? t(`team.connections.allProviders`)
+                        : provider.label}
                     </option>
                   ))}
                 </Select>
@@ -160,7 +164,9 @@ export default function TeamConnectionsPage() {
           {tableProps.data.length === 0 && !isLoading && (
             <div className="w-90 m-auto flex justify-center items-center mt-10">
               <div className="text-center">
-                <div className="text-2xl font-bold">{t('team.connections.noConnectionsHere')}</div>
+                <div className="text-2xl font-bold">
+                  {t('team.connections.noConnectionsHere')}
+                </div>
                 <div className="text-gray-500">
                   {t('team.connections.contactAdmin')}
                 </div>
@@ -186,4 +192,3 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   };
 };
-

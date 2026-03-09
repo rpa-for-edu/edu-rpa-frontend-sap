@@ -1,7 +1,7 @@
-import { array } from "prop-types";
-import { VariableError, VariableErrorCode } from "../error";
-import _, { values } from "lodash";
-import { VariableType } from "@/types/variable";
+import { array } from 'prop-types';
+import { VariableError, VariableErrorCode } from '../error';
+import _, { values } from 'lodash';
+import { VariableType } from '@/types/variable';
 
 export interface S3Library {
   name: string;
@@ -24,22 +24,24 @@ export class Keyword extends BodyItem {
     super();
   }
   toJSON() {
-    let args = this.args.filter((item) => item.value.length).map((item) => item.toJSON());
+    let args = this.args
+      .filter((item) => item.value.length)
+      .map((item) => item.toJSON());
     let assignsVarName = this.assigns.map((item) => {
-      let i = item.toJSON()
-      if (typeof i === "string") {
-        return i
-      }else {
-        return i.name
+      let i = item.toJSON();
+      if (typeof i === 'string') {
+        return i;
+      } else {
+        return i.name;
       }
     });
 
-    let assigns: string[] = []
+    let assigns: string[] = [];
     if (assignsVarName.length > 0) {
       for (let i = 0; i < assignsVarName.length - 1; i++) {
         assigns.push(assignsVarName[i]);
       }
-      assigns.push(assignsVarName.at(-1) + "=");
+      assigns.push(assignsVarName.at(-1) + '=');
     }
     return {
       name: this.name,
@@ -51,21 +53,28 @@ export class Keyword extends BodyItem {
 
 export class GoogleCredentialKeyword extends Keyword {
   constructor(credentialFilePath: string) {
-    super('Set up OAuth token in vault', [new Argument('token_file_path',credentialFilePath)], []);
+    super(
+      'Set up OAuth token in vault',
+      [new Argument('token_file', credentialFilePath)],
+      []
+    );
   }
 }
 
 export class Argument {
-  constructor(public name: string, public value: string) {}
+  constructor(
+    public name: string,
+    public value: string
+  ) {}
   toJSON() {
-    if(this.name.length) {
+    console.log(' Argument Checking: ', this.name, this.value);
+    if (this.name.length) {
       return `${this.name}=${this.value}`;
-    }else {
+    } else {
       return `${this.value}`;
     }
     // return `${this.value}`;
   }
-
 }
 
 export class ProcessVariable {
@@ -74,9 +83,14 @@ export class ProcessVariable {
     public value?: any | any[],
     public type?: string
   ) {
-    if(/[^\w\s]/.test(name)) {
-      console.log(name)
-      throw new VariableError(VariableErrorCode["Invalid Variable Name - Variable Contain Special Character"], this.name)
+    if (/[^\w\s]/.test(name)) {
+      console.log(name);
+      throw new VariableError(
+        VariableErrorCode[
+          'Invalid Variable Name - Variable Contain Special Character'
+        ],
+        this.name
+      );
     }
   }
   toJSON() {
@@ -85,46 +99,43 @@ export class ProcessVariable {
     // @ For List
     // & For Dictionary
 
-    switch(this.type) {
+    switch (this.type) {
       case VariableType.List:
-        this.name =  "@{"+this.name.replace(/[^\w\s]/gi, '')+"}"
-        break
+        this.name = '@{' + this.name.replace(/[^\w\s]/gi, '') + '}';
+        break;
       case VariableType.DocumentTemplate:
         // Document Template is kind of dictionary
-        this.name =  "${"+this.name.replace(/[^\w\s]/gi, '')+"}"
+        this.name = '${' + this.name.replace(/[^\w\s]/gi, '') + '}';
       case VariableType.Dictionary:
-        this.name =  "${"+this.name.replace(/[^\w\s]/gi, '')+"}"
-        break
+        this.name = '${' + this.name.replace(/[^\w\s]/gi, '') + '}';
+        break;
       default:
-        this.name =  "${"+this.name.replace(/[^\w\s]/gi, '')+"}"
+        this.name = '${' + this.name.replace(/[^\w\s]/gi, '') + '}';
     }
 
     if (_.isNil(this.value)) {
-      if(this.type === "string") {
-        this.value = ""
+      if (this.type === 'string') {
+        this.value = '';
       }
-    }
-    else if (Array.isArray(this.value)) {
-      if (this.type !== "list")
+    } else if (Array.isArray(this.value)) {
+      if (this.type !== 'list')
         throw new VariableError(
-          VariableErrorCode["Incompatible Type"],
+          VariableErrorCode['Incompatible Type'],
           this.name
         );
       this.value = this.value.map((v) => JSON.stringify(v));
-    } else if (typeof this.value === "object") {
-      if (this.type !== "dictionary" && this.type !== "template")
+    } else if (typeof this.value === 'object') {
+      if (this.type !== 'dictionary' && this.type !== 'template')
         throw new VariableError(
-          VariableErrorCode["Incompatible Type"],
+          VariableErrorCode['Incompatible Type'],
           this.name
         );
       this.value = Object.keys(this.value).map(
         (k) => `${k}=${JSON.stringify(this.value[k])}`
       );
     } else {
-      if(this.value)
-        this.value = [this.value];
-      else
-        this.value = []
+      if (this.value) this.value = [this.value];
+      else this.value = [];
     }
 
     return {
@@ -137,7 +148,7 @@ export class ProcessVariable {
 /**
  * Control Sequence
  */
-export type BranchType = "IF" | "ELSE IF" | "ELSE";
+export type BranchType = 'IF' | 'ELSE IF' | 'ELSE';
 export class IfBranch {
   constructor(
     public type: BranchType,
@@ -159,8 +170,31 @@ export class If extends BodyItem {
   }
   toJSON() {
     return {
-      type: "IF/ELSE ROOT",
+      type: 'IF/ELSE ROOT',
       body: this.body.map((bodyItem) => bodyItem.toJSON()),
+    };
+  }
+}
+
+// Parallel Branch - no condition needed
+export class ParallelBranch {
+  constructor(public body: BodyItem[]) {}
+  toJSON() {
+    return {
+      body: this.body.map((bodyItem) => bodyItem.toJSON()),
+    };
+  }
+}
+
+// Parallel execution block - all branches run
+export class Parallel extends BodyItem {
+  constructor(public branches: ParallelBranch[]) {
+    super();
+  }
+  toJSON() {
+    return {
+      type: 'PARALLEL',
+      branches: this.branches.map((branch) => branch.toJSON()),
     };
   }
 }
@@ -168,7 +202,7 @@ export class If extends BodyItem {
 export class For extends BodyItem {
   constructor(
     public variables: ProcessVariable[],
-    public flavor: "IN" | "IN RANGE",
+    public flavor: 'IN' | 'IN RANGE',
     public values: ProcessVariable[] | string[],
     public body: BodyItem[],
     public start?: string,
@@ -180,24 +214,20 @@ export class For extends BodyItem {
 
   toJSON() {
     return {
-      type: "FOR",
+      type: 'FOR',
       variables: this.variables.map((v) => {
-        let i = v.toJSON()
-        if(typeof i === "string") 
-          return i
-        else 
-          return i.name
+        let i = v.toJSON();
+        if (typeof i === 'string') return i;
+        else return i.name;
       }),
       values: this.values.map((v) => {
-        if(typeof v === "string") {
+        if (typeof v === 'string') {
           // Parameter
-          return v
+          return v;
         }
-        let i = v.toJSON()
-        if(typeof i === "string") 
-          return i
-        else 
-          return i.name
+        let i = v.toJSON();
+        if (typeof i === 'string') return i;
+        else return i.name;
       }),
       flavor: this.flavor,
       body: this.body.map((item) => item.toJSON()),
@@ -212,7 +242,10 @@ export class For extends BodyItem {
  * Overall
  */
 export class Test {
-  constructor(public name: string, public body: BodyItem[]) {}
+  constructor(
+    public name: string,
+    public body: BodyItem[]
+  ) {}
   toJSON() {
     return {
       name: this.name,
@@ -236,15 +269,20 @@ export class Resource {
 }
 
 export class Lib {
-  constructor(public name: string, public args : any = null) {}
+  constructor(
+    public name: string,
+    public args: any = null
+  ) {}
   toJSON() {
     let libJson = {
-      type: "LIBRARY",
+      type: 'LIBRARY',
       name: this.name,
     };
-    if(this.args)
-      libJson["args"] = Object.keys(this.args).map(k => `${k}=${this.args[k]}`)
-    return libJson
+    if (this.args)
+      libJson['args'] = Object.keys(this.args).map(
+        (k) => `${k}=${this.args[k]}`
+      );
+    return libJson;
   }
 }
 
@@ -259,14 +297,14 @@ export class Robot {
   toJSON() {
     const result: any = {
       name: this.name,
-      tests: this.tests.map(t => t.toJSON()),
+      tests: this.tests.map((t) => t.toJSON()),
       resource: this.resource.toJSON(),
     };
-    
+
     if (this.s3Libraries && this.s3Libraries.length > 0) {
       result.s3Libraries = this.s3Libraries;
     }
-    
+
     return result;
   }
 }

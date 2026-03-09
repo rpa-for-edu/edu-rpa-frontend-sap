@@ -23,6 +23,7 @@ interface VariablesPanelProps {
 
 export default function VariablesPanel({ processID }: VariablesPanelProps) {
   const initialStorage = getVariableItemFromLocalStorage(processID);
+  console.log('initialStorage', initialStorage);
   const [variableList, setVariableList] = useState<Variable[]>(
     initialStorage ? initialStorage.variables : []
   );
@@ -40,12 +41,20 @@ export default function VariablesPanel({ processID }: VariablesPanelProps) {
 
     // Check immediately on mount - try VARIABLE_LIST first, then fall back to PROCESS_LIST
     const variableStorage = getVariableItemFromLocalStorage(processID);
-    if (variableStorage && variableStorage.variables && variableStorage.variables.length > 0) {
+    if (
+      variableStorage &&
+      variableStorage.variables &&
+      variableStorage.variables.length > 0
+    ) {
       setVariableList(variableStorage.variables);
     } else {
       // Try to get from PROCESS_LIST and convert
       const processData = getProcessFromLocalStorage(processID);
-      if (processData && processData.variables && Object.keys(processData.variables).length > 0) {
+      if (
+        processData &&
+        processData.variables &&
+        Object.keys(processData.variables).length > 0
+      ) {
         // Convert object format to array format
         const variablesArray = Object.entries(processData.variables).map(
           ([name, data]: [string, any], index) => ({
@@ -60,10 +69,16 @@ export default function VariablesPanel({ processID }: VariablesPanelProps) {
       }
     }
 
-    window.addEventListener('variables-updated', handleVariablesUpdate as EventListener);
+    window.addEventListener(
+      'variables-updated',
+      handleVariablesUpdate as EventListener
+    );
 
     return () => {
-      window.removeEventListener('variables-updated', handleVariablesUpdate as EventListener);
+      window.removeEventListener(
+        'variables-updated',
+        handleVariablesUpdate as EventListener
+      );
     };
   }, [processID]);
 
@@ -73,9 +88,9 @@ export default function VariablesPanel({ processID }: VariablesPanelProps) {
       processID: processID,
       variables: variableList,
     };
-    
+
     const existingStorage = getVariableItemFromLocalStorage(processID);
-    
+
     if (!existingStorage) {
       setLocalStorageObject(LocalStorage.VARIABLE_LIST, [
         ...getLocalStorageObject(LocalStorage.VARIABLE_LIST),
@@ -84,7 +99,7 @@ export default function VariablesPanel({ processID }: VariablesPanelProps) {
     } else {
       const newStorage = replaceVariableStorage(processID, currentVariable);
       setLocalStorageObject(LocalStorage.VARIABLE_LIST, newStorage);
-      
+
       const variableListByID = getVariableItemFromLocalStorage(processID);
       const processProperties = getProcessFromLocalStorage(processID as string);
       const refactoredVariables = convertToRefactoredObject(variableListByID);
@@ -118,4 +133,3 @@ export default function VariablesPanel({ processID }: VariablesPanelProps) {
     </Box>
   );
 }
-
