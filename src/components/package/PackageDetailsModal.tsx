@@ -46,7 +46,9 @@ const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
     <Modal isOpen={isOpen} onClose={onClose} size="xl" scrollBehavior="inside">
       <ModalOverlay />
       <ModalContent maxW="800px">
-        <ModalHeader>{pkg.displayName} ({pkg.version})</ModalHeader>
+        <ModalHeader>
+          {pkg.displayName} ({pkg.version})
+        </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Tabs colorScheme="teal">
@@ -72,19 +74,30 @@ const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
                   </HStack>
                   <HStack>
                     <Text fontWeight="bold">Parse Status:</Text>
-                    <Badge 
+                    <Badge
                       colorScheme={
-                        pkg.parseStatus === 'success' ? 'green' : 
-                        pkg.parseStatus === 'failed' ? 'red' : 'yellow'
+                        pkg.parseStatus === 'success'
+                          ? 'green'
+                          : pkg.parseStatus === 'failed'
+                            ? 'red'
+                            : 'yellow'
                       }
                     >
                       {pkg.parseStatus}
                     </Badge>
                   </HStack>
                   {pkg.parseError && (
-                    <Box p={3} bg="red.50" color="red.500" borderRadius="md" w="full">
+                    <Box
+                      p={3}
+                      bg="red.50"
+                      color="red.500"
+                      borderRadius="md"
+                      w="full"
+                    >
                       <Text fontWeight="bold">Parse Error:</Text>
-                      <Code display="block" colorScheme="red" bg="transparent">{pkg.parseError}</Code>
+                      <Code display="block" colorScheme="red" bg="transparent">
+                        {pkg.parseError}
+                      </Code>
                     </Box>
                   )}
                   <Box>
@@ -93,11 +106,11 @@ const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
                   </Box>
                   <HStack>
                     <Text fontWeight="bold">File:</Text>
-                    <Text>{pkg.fileName} ({pkg.fileSize ? (pkg.fileSize / 1024).toFixed(2) + ' KB' : 'N/A'})</Text>
+                    <Text>{pkg.libraryFileName} </Text>
                   </HStack>
                   <HStack>
-                    <Text fontWeight="bold">Checksum:</Text>
-                    <Code fontSize="xs">{pkg.checksum || 'N/A'}</Code>
+                    <Text fontWeight="bold">Version:</Text>
+                    <Code fontSize="xs">{pkg.version || 'N/A'}</Code>
                   </HStack>
                 </VStack>
               </TabPanel>
@@ -115,21 +128,32 @@ const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
                     {pkg.parsedKeywords?.map((kw, idx) => (
                       <Tr key={idx}>
                         <Td fontWeight="medium">{kw.name}</Td>
-                        <Td><Code>{kw.methodName}</Code></Td>
+                        <Td>
+                          <Code>{kw.methodName}</Code>
+                        </Td>
                         <Td>
                           <VStack align="start" spacing={1}>
                             {kw.args.map((arg, i) => (
                               <Text key={i} fontSize="xs">
                                 <Code fontSize="xs">{arg.name}</Code>
-                                {arg.type && <span style={{ color: 'gray' }}>: {arg.type}</span>}
+                                {arg.type && (
+                                  <span style={{ color: 'gray' }}>
+                                    : {arg.type}
+                                  </span>
+                                )}
                               </Text>
                             ))}
                           </VStack>
                         </Td>
                       </Tr>
                     ))}
-                    {(!pkg.parsedKeywords || pkg.parsedKeywords.length === 0) && (
-                      <Tr><Td colSpan={3} textAlign="center">No keywords found</Td></Tr>
+                    {(!pkg.parsedKeywords ||
+                      pkg.parsedKeywords.length === 0) && (
+                      <Tr>
+                        <Td colSpan={3} textAlign="center">
+                          No keywords found
+                        </Td>
+                      </Tr>
                     )}
                   </Tbody>
                 </Table>
@@ -139,29 +163,43 @@ const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
                 <VStack align="stretch" spacing={4}>
                   {pkg.parsedClasses?.map((cls, idx) => (
                     <Box key={idx} p={3} borderWidth={1} borderRadius="md">
-                      <Text fontWeight="bold" fontSize="lg">{cls.name}</Text>
-                      <Text color="gray.500" fontSize="sm" mb={2}>{cls.docstring}</Text>
-                      <Text fontWeight="semibold" size="sm">Methods:</Text>
+                      <Text fontWeight="bold" fontSize="lg">
+                        {cls.name}
+                      </Text>
+                      <Text color="gray.500" fontSize="sm" mb={2}>
+                        {cls.docstring}
+                      </Text>
+                      <Text fontWeight="semibold" size="sm">
+                        Methods:
+                      </Text>
                       <HStack wrap="wrap" spacing={2}>
                         {cls.methods.map((m, i) => (
-                          <Tag key={i} size="sm" variant="outline">{m}</Tag>
+                          <Tag key={i} size="sm" variant="outline">
+                            {m}
+                          </Tag>
                         ))}
                       </HStack>
                     </Box>
                   ))}
-                   {(!pkg.parsedClasses || pkg.parsedClasses.length === 0) && (
-                    <Text textAlign="center" color="gray.500">No classes found</Text>
+                  {(!pkg.parsedClasses || pkg.parsedClasses.length === 0) && (
+                    <Text textAlign="center" color="gray.500">
+                      No classes found
+                    </Text>
                   )}
                 </VStack>
               </TabPanel>
-              
+
               <TabPanel>
                 <VStack align="start">
                   {pkg.imports?.map((imp, idx) => (
-                    <Code key={idx} width="full">{imp}</Code>
+                    <Code key={idx} width="full">
+                      {imp}
+                    </Code>
                   ))}
                   {(!pkg.imports || pkg.imports.length === 0) && (
-                    <Text textAlign="center" color="gray.500">No imports found</Text>
+                    <Text textAlign="center" color="gray.500">
+                      No imports found
+                    </Text>
                   )}
                 </VStack>
               </TabPanel>
