@@ -1,0 +1,29 @@
+/* Dashboard Orchestrator Styles */
+
+.dashboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 50%, #e2e8f0 100%);
+  padding-bottom: 80px;
+}
+
+/* Smooth card animations */
+.dashboard-container [class*="css-"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Summary card hover glow effect */
+.dashboard-container .chakra-box:hover {
+  filter: brightness(1.02);
+}
+
+/* Chart container styles */
+.dashboard-container canvas {
+  border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding-bottom: 40px;
+  }
+}

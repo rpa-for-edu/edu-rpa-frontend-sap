@@ -3,6 +3,7 @@ import { AppProps } from 'next/app';
 import { ChakraProvider } from '@chakra-ui/react';
 import React from 'react';
 import '@/styles/global.css';
+import '@/styles/dashboard.css';
 import theme from '@/utils/theme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
@@ -42,6 +43,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
       '/home',
       '/studio',
       '/robot',
+      '/robot/dashboard',
       '/profile',
       '/integration-service',
       '/storage',

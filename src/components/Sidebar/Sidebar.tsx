@@ -11,7 +11,7 @@ import { FaHome, FaRobot, FaFileInvoice } from 'react-icons/fa';
 import { RiFlowChart } from 'react-icons/ri';
 import { IoIosRocket } from 'react-icons/io';
 import { FaFile } from 'react-icons/fa6';
-import { MdWorkspaces, MdGroups, MdPeople } from 'react-icons/md';
+import { MdWorkspaces, MdGroups, MdPeople, MdDashboard } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
 import Navbar from '../Header/Navbar';
 import SidebarList from './SidebarList';
@@ -38,6 +38,7 @@ const Sidebar = ({ children }: Props) => {
 
   const personalSidebarItems = [
     { path: '/home', name: t('home'), icon: FaHome },
+    { path: '/robot/dashboard', name: 'Dashboard', icon: MdDashboard },
     { path: '/studio', name: t('studio'), icon: RiFlowChart },
     { path: '/robot', name: t('robot'), icon: FaRobot },
     {

@@ -247,9 +247,8 @@ function CustomModeler() {
     };
     const currentLocalStorageList = getLocalStorageObject(
       LocalStorage.VARIABLE_LIST,
-    );
-
-    if (indexLocalStorage === undefined) {
+    )
+    if (indexLocalStorage === -1) {
       setLocalStorageObject(LocalStorage.VARIABLE_LIST, [
         ...currentLocalStorageList,
         payloadStorage,
