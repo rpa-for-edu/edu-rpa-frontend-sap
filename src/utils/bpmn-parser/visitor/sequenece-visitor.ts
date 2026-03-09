@@ -78,7 +78,7 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
   private initCredentialPaths: Map<string, string> = new Map();
 
   private _buildInitMappings() {
-    for (const pkg of ActivityPackages) {
+    for (const pkg of this.activityPackages) {
       if (!pkg.activityTemplates) continue;
       // Find the connection/init template for this package
       const initTemplate = pkg.activityTemplates.find(

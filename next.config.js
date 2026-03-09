@@ -1,6 +1,14 @@
 const config = {
   swcMinify: false,
   transpilePackages: ["monaco-editor", "bpmn-js", "diagram-js"],
+  async rewrites() {
+    return [
+      {
+        source: '/api-proxy/:path*',
+        destination: 'http://130.33.114.1:8080/:path*',
+      },
+    ];
+  },
   webpack: (config, { isServer }) => {
     config.optimization = config.optimization || {};
     config.optimization.minimize = false;

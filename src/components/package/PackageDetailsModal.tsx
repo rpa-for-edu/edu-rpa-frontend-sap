@@ -93,11 +93,11 @@ const PackageDetailsModal: React.FC<PackageDetailsModalProps> = ({
                   </Box>
                   <HStack>
                     <Text fontWeight="bold">File:</Text>
-                    <Text>{pkg.libraryFileName || 'N/A'}</Text>
+                    <Text>{pkg.fileName} ({pkg.fileSize ? (pkg.fileSize / 1024).toFixed(2) + ' KB' : 'N/A'})</Text>
                   </HStack>
                   <HStack>
                     <Text fontWeight="bold">Checksum:</Text>
-                    <Code fontSize="xs">{pkg.libraryChecksum || 'N/A'}</Code>
+                    <Code fontSize="xs">{pkg.checksum || 'N/A'}</Code>
                   </HStack>
                 </VStack>
               </TabPanel>
