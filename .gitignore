@@ -91,3 +91,4 @@ pnpm-debug.log*
 # Custom
 /tmp
 .vercel
+.env.development

@@ -19,7 +19,7 @@ const customRules = {
   "event-based-gateway": "off",
   "event-sub-process-typed-start-event": "off",
   "global": "off",
-  "label-required": "off",
+  "label-required": "warn",
   "link-event": "off",
   "no-bpmndi": "off",
   "no-complex-gateway": "off",
