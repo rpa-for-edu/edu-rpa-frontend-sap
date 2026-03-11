@@ -1,11 +1,11 @@
 const config = {
   swcMinify: false,
-  transpilePackages: ["monaco-editor", "bpmn-js", "diagram-js"],
+  transpilePackages: ['monaco-editor', 'bpmn-js', 'diagram-js'],
   async rewrites() {
     return [
       {
         source: '/api-proxy/:path*',
-        destination: 'http://130.33.114.1:8080/:path*',
+        destination: 'https://be-rpa.khanhzip14.io.vn/:path*',
       },
     ];
   },
@@ -14,7 +14,7 @@ const config = {
     config.optimization.minimize = false;
     config.module.rules.push({
       test: /\.svg$/,
-      use: ["@svgr/webpack"],
+      use: ['@svgr/webpack'],
     });
 
     // Handle Monaco Editor for SSR
@@ -39,7 +39,7 @@ const config = {
 
 const { i18n } = require('./next-i18next.config');
 
-require("dotenv").config({ path: `./.env.${process.env.NODE_ENV}` });
+require('dotenv').config({ path: `./.env.${process.env.NODE_ENV}` });
 
 module.exports = {
   ...config,
