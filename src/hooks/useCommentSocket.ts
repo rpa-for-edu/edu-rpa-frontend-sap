@@ -55,7 +55,7 @@ interface UseCommentSocketReturn {
 }
 
 // BE WebSocket namespace for process comments
-const WS_BASE_URL = process.env.NEXT_PUBLIC_DEV_API;
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL;
 const WS_NAMESPACE = '/ws/process-comments';
 
 export function useCommentSocket({
