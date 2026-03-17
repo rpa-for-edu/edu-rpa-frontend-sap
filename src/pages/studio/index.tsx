@@ -53,6 +53,7 @@ import { formatDateTime } from '@/utils/time';
 import { GetServerSideProps } from 'next';
 import { getServerSideTranslations } from '@/utils/i18n';
 import { useTranslation } from 'next-i18next';
+import { ShareWithModal } from '@/components/Bpmn/FunctionalTabBar/ShareWithModal';
 
 export default function Studio() {
   const router = useRouter();
@@ -634,8 +635,8 @@ export default function Studio() {
                     onChange={(e) => setStatusFilter(e.target.value)}
                   >
                     <option value="all">{t('filters.all')}</option>
-                    <option value="draft">{t('filters.draft')}</option>
-                    <option value="deployed">{t('filters.published')}</option>
+                    <option value="Draft">{t('filters.draft')}</option>
+                    <option value="Published">{t('filters.published')}</option>
                   </Select>
                 </HStack>
               </Box>
@@ -814,7 +815,7 @@ export default function Studio() {
           onClose={onShareClose}
         >
           <ModalOverlay />
-          <ModalContent>
+          {/* <ModalContent>
             <ModalHeader>{t('modals.share.title')}</ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
@@ -840,7 +841,12 @@ export default function Studio() {
                 {t('modals.share.share')}
               </Button>
             </ModalFooter>
-          </ModalContent>
+          </ModalContent> */}
+          <ShareWithModal
+           
+            onClose={onShareClose}
+            processID={selectedProcessId}
+          />
         </Modal>
 
         {/* Process Settings Modal */}

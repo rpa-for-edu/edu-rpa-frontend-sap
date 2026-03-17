@@ -17,6 +17,14 @@
 <body>
   <h2>SubProcess Extraction Test</h2>
   
+  <div style="margin-bottom: 15px;">
+    <label for="complexitySelect"><strong>Complexity Level:</strong></label>
+    <select id="complexitySelect" style="padding: 5px; margin-left: 10px;">
+      <option value="simple">Medium (Default)</option>
+      <option value="complex">Complex (Gateways/Branches)</option>
+    </select>
+  </div>
+  
   <button id="loadBtn">1. Load Parent Process with SubProcess</button>
   <button id="extractBtn" disabled>2. Extract SubProcess to New Process</button>
   
@@ -39,8 +47,8 @@
     const modeler1 = new BpmnJS({ container: '#canvas1' });
     const modeler2 = new BpmnJS({ container: '#canvas2' });
 
-    // Original XML with subprocess
-    const originalXML = `<?xml version="1.0" encoding="UTF-8"?>
+    const xmlTemplates = {
+      simple: `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_test" targetNamespace="http://bpmn.io/schema/bpmn">
   <bpmn:process id="Process_parent" isExecutable="false">
     <bpmn:startEvent id="start1" name="Start">
@@ -138,11 +146,106 @@
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
-</bpmn:definitions>`;
+</bpmn:definitions>`,
+      complex: `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_test_complex" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:process id="Process_parent_complex" isExecutable="false">
+    <bpmn:startEvent id="start1" name="Start">
+      <bpmn:outgoing>Flow_start_sub</bpmn:outgoing>
+    </bpmn:startEvent>
+    
+    <bpmn:subProcess id="SubProcess_loop" name="Complex Subprocess">
+      <bpmn:incoming>Flow_start_sub</bpmn:incoming>
+      <bpmn:outgoing>Flow_sub_end</bpmn:outgoing>
+      
+      <bpmn:startEvent id="sub_start" name="Loop Start">
+        <bpmn:outgoing>Flow_1</bpmn:outgoing>
+      </bpmn:startEvent>
+      
+      <bpmn:exclusiveGateway id="gw1" name="Check">
+        <bpmn:incoming>Flow_1</bpmn:incoming>
+        <bpmn:outgoing>Flow_2</bpmn:outgoing>
+        <bpmn:outgoing>Flow_3</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+
+      <bpmn:serviceTask id="taskA" name="Path A">
+        <bpmn:incoming>Flow_2</bpmn:incoming>
+        <bpmn:outgoing>Flow_4</bpmn:outgoing>
+      </bpmn:serviceTask>
+      
+      <bpmn:serviceTask id="taskB" name="Path B">
+        <bpmn:incoming>Flow_3</bpmn:incoming>
+        <bpmn:outgoing>Flow_5</bpmn:outgoing>
+      </bpmn:serviceTask>
+
+      <bpmn:exclusiveGateway id="gw2" name="Join">
+        <bpmn:incoming>Flow_4</bpmn:incoming>
+        <bpmn:incoming>Flow_5</bpmn:incoming>
+        <bpmn:outgoing>Flow_6</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      
+      <bpmn:endEvent id="sub_end" name="Loop End">
+        <bpmn:incoming>Flow_6</bpmn:incoming>
+      </bpmn:endEvent>
+      
+      <bpmn:sequenceFlow id="Flow_1" sourceRef="sub_start" targetRef="gw1" />
+      <bpmn:sequenceFlow id="Flow_2" sourceRef="gw1" targetRef="taskA" name="Yes" />
+      <bpmn:sequenceFlow id="Flow_3" sourceRef="gw1" targetRef="taskB" name="No" />
+      <bpmn:sequenceFlow id="Flow_4" sourceRef="taskA" targetRef="gw2" />
+      <bpmn:sequenceFlow id="Flow_5" sourceRef="taskB" targetRef="gw2" />
+      <bpmn:sequenceFlow id="Flow_6" sourceRef="gw2" targetRef="sub_end" />
+    </bpmn:subProcess>
+    
+    <bpmn:endEvent id="end1" name="End">
+      <bpmn:incoming>Flow_sub_end</bpmn:incoming>
+    </bpmn:endEvent>
+    
+    <bpmn:sequenceFlow id="Flow_start_sub" sourceRef="start1" targetRef="SubProcess_loop" />
+    <bpmn:sequenceFlow id="Flow_sub_end" sourceRef="SubProcess_loop" targetRef="end1" />
+  </bpmn:process>
+  <!-- simplified diagram -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_parent_complex">
+      <bpmndi:BPMNShape id="start1_di" bpmnElement="start1">
+        <dc:Bounds x="50" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubProcess_loop_di" bpmnElement="SubProcess_loop" isExpanded="true">
+        <dc:Bounds x="150" y="100" width="700" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sub_start_di" bpmnElement="sub_start">
+        <dc:Bounds x="180" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw1_di" bpmnElement="gw1" isMarkerVisible="true">
+        <dc:Bounds x="260" y="193" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskA_di" bpmnElement="taskA">
+        <dc:Bounds x="350" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="taskB_di" bpmnElement="taskB">
+        <dc:Bounds x="350" y="250" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw2_di" bpmnElement="gw2" isMarkerVisible="true">
+        <dc:Bounds x="500" y="193" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sub_end_di" bpmnElement="sub_end">
+        <dc:Bounds x="650" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      
+      <bpmndi:BPMNShape id="end1_di" bpmnElement="end1">
+        <dc:Bounds x="900" y="200" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <!-- Edge rendering could be done manually, logic is same -->
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`
+    };
 
     document.getElementById('loadBtn').addEventListener('click', async () => {
       try {
-        await modeler1.importXML(originalXML);
+        const complexity = document.getElementById('complexitySelect').value;
+        const selectedXML = xmlTemplates[complexity];
+        
+        await modeler1.importXML(selectedXML);
         modeler1.get('canvas').zoom('fit-viewport');
         document.getElementById('extractBtn').disabled = false;
         console.log('✅ Parent process loaded');
