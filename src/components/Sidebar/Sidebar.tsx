@@ -22,7 +22,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from '../Header/Navbar';
 import SidebarList from './SidebarList';
 import { useSelector, useDispatch } from 'react-redux';
-import { homeSelector } from '@/redux/selector';
+import { homeSelector, userSelector } from '@/redux/selector';
 import {
   setCurrentWorkspace,
   clearCurrentWorkspace,
@@ -40,6 +40,7 @@ const Sidebar = ({ children }: Props) => {
   const pathName = usePathname();
   const dispatch = useDispatch();
   const { isHiddenSidebar, currentWorkspaceId } = useSelector(homeSelector);
+  const user = useSelector(userSelector);
   const sidebarWidth = isHiddenSidebar ? 81 : 250;
 
   const personalSidebarItems = [
@@ -75,7 +76,12 @@ const Sidebar = ({ children }: Props) => {
   }, [pathName, dispatch, currentWorkspaceId]);
 
   // Always use personal sidebar items in this layout
-  const sidebarItems = personalSidebarItems;
+  const sidebarItems = personalSidebarItems.filter(item => {
+    if (item.path === '/admin/packages') {
+      return user?.role?.toLowerCase() === 'admin';
+    }
+    return true;
+  });
 
   return (
     <Box

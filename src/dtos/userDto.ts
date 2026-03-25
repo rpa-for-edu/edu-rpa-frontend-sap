@@ -6,6 +6,7 @@ export interface UserDto {
   language: string;
   provider: string;
   providerId: string | null;
+  role?: string;
 }
 
 export interface UpdateProfileDto {

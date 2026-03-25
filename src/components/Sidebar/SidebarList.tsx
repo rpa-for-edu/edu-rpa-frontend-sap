@@ -51,6 +51,7 @@ const SidebarList = ({ onClose, data, path, ...props }: SidebarListProps) => {
           return (
             <SidebarItem
               key={link.name}
+              id={'sidebar-item-' + link.path.replace(/\//g, '-')}
               icon={link.icon}
               onClick={() => router.push(link.path)}
               className={activeStyle}>

@@ -19,6 +19,7 @@ import GoogleAnalytics from '@/components/GoogleAnalytics/GoogleAnalytics';
 import { GA } from '@/constants/ga';
 import Head from 'next/head';
 import { appWithTranslation } from 'next-i18next';
+import TourGuide from '@/components/TourGuide/TourGuide';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (_page: React.ReactElement) => React.ReactElement;
@@ -89,6 +90,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
               <Component {...pageProps} />
               <GoogleAnalytics gaID={GA.MEASUREMENT_ID} />
             </Layout>
+            <TourGuide />
           </PubNubProvider>
         </ChakraProvider>
       </QueryClientProvider>

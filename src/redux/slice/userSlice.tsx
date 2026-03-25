@@ -6,6 +6,7 @@ interface UserState {
   email: string;
   avatarUrl: string;
   language: string;
+  role?: string;
 }
 
 const initialState: UserState = {
@@ -14,6 +15,7 @@ const initialState: UserState = {
   email: '',
   avatarUrl: '',
   language: 'vi',
+  role: '',
 };
 
 const userSlice = createSlice({
@@ -26,6 +28,7 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.avatarUrl = action.payload.avatarUrl;
       state.language = action.payload.language || 'vi';
+      state.role = action.payload.role || '';
     },
 
     setUserLanguage: (state, action: PayloadAction<string>) => {
