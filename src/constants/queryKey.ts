@@ -36,4 +36,11 @@ export const QUERY_KEY = {
   DASHBOARD_ROBOT_STATUSES: 'dashboard-robot-statuses',
   DASHBOARD_JOBS_HISTORY: 'dashboard-jobs-history',
   DASHBOARD_TRANSACTIONS: 'dashboard-transactions',
+
+  // Workspace Dashboard query keys
+  WS_DASHBOARD_PROCESS_COUNT: 'ws-dashboard-process-count',
+  WS_DASHBOARD_ROBOT_COUNT: 'ws-dashboard-robot-count',
+  WS_DASHBOARD_ROBOT_STATUSES: 'ws-dashboard-robot-statuses',
+  WS_DASHBOARD_JOBS_HISTORY: 'ws-dashboard-jobs-history',
+  WS_DASHBOARD_TRANSACTIONS: 'ws-dashboard-transactions',
 };

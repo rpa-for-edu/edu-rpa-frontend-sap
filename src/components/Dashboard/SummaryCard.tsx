@@ -33,7 +33,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
       <Box
         bgGradient={gradient}
         px={6}
-        py={5}
+        py={3}
       >
         <Flex align="center" justify="space-between">
           <Box>

@@ -350,24 +350,24 @@ export default function WorkspaceStudio() {
     reader.onload = async (e) => {
       try {
         const xml = e.target?.result as string;
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xml, "text/xml");
-        const bpmnNamespace = "http://www.omg.org/spec/BPMN/20100524/MODEL";
-        const processElement = xmlDoc.getElementsByTagNameNS(
-          bpmnNamespace,
-          "process"
-        )[0];
-        const processID = processElement.getAttribute("id");
-
-        const importProcess = {
-          processName: processID,
-          processType: "free",
-          processDesc: "Import XML",
-          processID: processID,
-          xml: xml,
-          activities: [],
-          variables: {},
-        };
+               const parser = new DOMParser();
+               const xmlDoc = parser.parseFromString(xml, 'text/xml');
+               const bpmnNamespace = 'http://www.omg.org/spec/BPMN/20100524/MODEL';
+               const processElement = xmlDoc.getElementsByTagNameNS(
+                 bpmnNamespace,
+                 'process'
+               )[0];
+               const processID =  generateProcessID();
+       
+               const importProcess = {
+                 processName: processID,
+                 processType: 'free',
+                 processDesc: 'Import XML from ' + processElement.getAttribute('id'),
+                 processID: processID,
+                 xml: xml,
+                 activities: [],
+                 variables: {},
+               };
 
         setLocalStorageObject(LocalStorage.PROCESS_LIST, [
           ...getLocalStorageObject(LocalStorage.PROCESS_LIST),
