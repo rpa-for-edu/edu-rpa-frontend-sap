@@ -90,7 +90,7 @@ interface UseRobotTrackingSocketReturn {
 }
 
 // BE WebSocket path for robot report logs
-const WS_BASE_URL = process.env.NEXT_PUBLIC_DEV_API || 'http://localhost:8080';
+const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8080';
 const SOCKET_PATH = '/robot-report-logs-realtime';
 
 export function useRobotTrackingSocket({

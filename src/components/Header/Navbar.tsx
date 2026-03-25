@@ -37,6 +37,7 @@ import { useEffect, useState } from 'react';
 import { getLocalStorageObject } from '@/utils/localStorageService';
 import { LocalStorage } from '@/constants/localStorage';
 import NotificationMenu from './NotificationMenu';
+import ProfileMenu from './ProfileMenu';
 import { toastInfo } from '@/utils/common';
 import { Notification } from '@/interfaces/notification';
 import { refetchNotifications } from '@/redux/slice/notificationSlice';
@@ -68,12 +69,6 @@ const Navbar = () => {
   const { currentWorkspaceId, workspaces } = useSelector(homeSelector);
 
   const [userInfo, setUserInfo] = useState<any>(null);
-
-  const removeAuthToken = () => {
-    localStorage.removeItem(LocalStorage.ACCESS_TOKEN);
-    localStorage.removeItem(LocalStorage.PROCESS_LIST);
-    localStorage.removeItem(LocalStorage.VARIABLE_LIST);
-  };
 
   useEffect(() => {
     const accessToken = getLocalStorageObject(LocalStorage.ACCESS_TOKEN);
@@ -353,53 +348,7 @@ const Navbar = () => {
         />
         <NotificationMenu />
         <Flex alignItems="center" mr={8}>
-          <Menu>
-            <MenuButton py={2} transition="all 0.3s">
-              <HStack>
-                <Avatar size="sm" bg="gray.500" src={user.avatarUrl || undefined} />
-              </HStack>
-            </MenuButton>
-            <MenuList
-              bg={useColorModeValue('white', 'gray.900')}
-              borderColor={useColorModeValue('gray.200', 'gray.700')}
-            >
-              <MenuDivider />
-
-              <MenuItem onClick={() => router.push('/profile')}>
-                <Flex
-                  align="center"
-                  justify="center"
-                  onClick={() => router.push('/invitation')}
-                >
-                  <MdOutlinePerson size={20} />
-                  <Text ml="10px">{t('profile')}</Text>
-                </Flex>
-              </MenuItem>
-              {/* Invitations */}
-              <MenuItem onClick={() => router.push('/invitation')}>
-                <Flex
-                  align="center"
-                  justify="center"
-                  onClick={() => router.push('/invitation')}
-                >
-                  <MdMail size={20} />
-                  <Text ml="10px">{t('invitations')}</Text>
-                </Flex>
-              </MenuItem>
-              <MenuDivider />
-              <MenuItem
-                onClick={() => {
-                  router.push('/');
-                  removeAuthToken();
-                }}
-              >
-                <Flex align="center" justify="center">
-                  <MdMail size={20} />
-                  <Text ml="10px">{t('signOut')}</Text>
-                </Flex>
-              </MenuItem>
-            </MenuList>
-          </Menu>
+          <ProfileMenu />
         </Flex>
       </HStack>
     </Flex>

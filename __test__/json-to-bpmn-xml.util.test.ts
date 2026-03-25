@@ -379,7 +379,7 @@ describe("JSON to BPMN XML - XML Generation", () => {
       const data = createSimpleProcess();
       const xml = jsonToBpmnXml(data);
       expect(xml).toMatch(
-        /<bpmn:process id="Process_[^"]+" isExecutable="true">/
+        /<bpmn:process id="Process_[^"]+" isExecutable="false">/
       );
     });
 
@@ -1312,5 +1312,94 @@ describe("JSON to BPMN XML - Improved Layout (No Overlap)", () => {
     // Join gateway (n4) should be approximately centered
     const expectedCenter = (n2Y! + n3Y!) / 2;
     expect(Math.abs(n4Y! - expectedCenter)).toBeLessThan(30);
+  });
+});
+
+// =============================================================================
+// SUBPROCESS TESTS (SIMPLE TO COMPLEX)
+// =============================================================================
+
+describe("JSON to BPMN XML - SubProcesses (Simple to Complex)", () => {
+  it("should handle simple subprocess", () => {
+    const data: BpmnJsonData = {
+      bpmn: {
+        nodes: [
+          { id: "s1", type: "StartEvent", name: "Start", in_loop: false },
+          { id: "n1", type: "Task", name: "Task 1", in_loop: true },
+          { id: "e1", type: "EndEvent", name: "End", in_loop: false },
+        ],
+        flows: [
+          { source: "s1", target: "n1", type: "SequenceFlow", condition: null },
+          { source: "n1", target: "e1", type: "SequenceFlow", condition: null },
+        ],
+      },
+      mapping: [
+        { node_id: "n1", activity_id: "test", candidates: [], is_automatic: true } as any
+      ]
+    };
+    const xml = jsonToBpmnXml(data);
+    expect(xml).toContain("<bpmn:subProcess");
+    expect(xml).toContain("Task 1");
+  });
+
+  it("should handle complex subprocess with gateway", () => {
+    const data: BpmnJsonData = {
+      bpmn: {
+        nodes: [
+          { id: "s1", type: "StartEvent", name: "Start", in_loop: false },
+          { id: "n1", type: "ExclusiveGateway", name: "Decision", in_loop: true },
+          { id: "n2", type: "Task", name: "Path A", in_loop: true },
+          { id: "n3", type: "Task", name: "Path B", in_loop: true },
+          { id: "n4", type: "ExclusiveGateway", name: "Join", in_loop: true },
+          { id: "e1", type: "EndEvent", name: "End", in_loop: false },
+        ],
+        flows: [
+          { source: "s1", target: "n1", type: "SequenceFlow", condition: null },
+          { source: "n1", target: "n2", type: "SequenceFlow", condition: "Yes" },
+          { source: "n1", target: "n3", type: "SequenceFlow", condition: "No" },
+          { source: "n2", target: "n4", type: "SequenceFlow", condition: null },
+          { source: "n3", target: "n4", type: "SequenceFlow", condition: null },
+          { source: "n4", target: "e1", type: "SequenceFlow", condition: null },
+        ],
+      },
+      mapping: [
+        { node_id: "n1", activity_id: "test", candidates: [], is_automatic: true } as any,
+        { node_id: "n2", activity_id: "test", candidates: [], is_automatic: true } as any,
+        { node_id: "n3", activity_id: "test", candidates: [], is_automatic: true } as any,
+        { node_id: "n4", activity_id: "test", candidates: [], is_automatic: true } as any
+      ]
+    };
+    const xml = jsonToBpmnXml(data);
+    expect(xml).toContain("<bpmn:subProcess");
+    expect(xml).toContain("Path A");
+    expect(xml).toContain("Path B");
+    expect(xml).toContain(">Yes</bpmn:conditionExpression>");
+  });
+
+  it("should handle multiple separate subprocesses", () => {
+    const data: BpmnJsonData = {
+      bpmn: {
+        nodes: [
+          { id: "s1", type: "StartEvent", name: "Start", in_loop: false },
+          { id: "n1", type: "Task", name: "Loop 1", in_loop: true },
+          { id: "mid", type: "Task", name: "Middle", in_loop: false },
+          { id: "n2", type: "Task", name: "Loop 2", in_loop: true },
+          { id: "e1", type: "EndEvent", name: "End", in_loop: false },
+        ],
+        flows: [
+          { source: "s1", target: "n1", type: "SequenceFlow", condition: null },
+          { source: "n1", target: "mid", type: "SequenceFlow", condition: null },
+          { source: "mid", target: "n2", type: "SequenceFlow", condition: null },
+          { source: "n2", target: "e1", type: "SequenceFlow", condition: null },
+        ],
+      },
+      mapping: [
+        { node_id: "n1", activity_id: "test", candidates: [], is_automatic: true } as any,
+        { node_id: "n2", activity_id: "test", candidates: [], is_automatic: true } as any
+      ]
+    };
+    const xml = jsonToBpmnXml(data);
+    const subProcessCount = (xml.match(/<bpmn:subProcess/g) || []).length;
+    expect(subProcessCount).toBe(4);
   });
 });

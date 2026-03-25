@@ -15,6 +15,8 @@ import {
 import { ChevronRightIcon, BellIcon, QuestionIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
+import NotificationMenu from '../Header/NotificationMenu';
+import ProfileMenu from '../Header/ProfileMenu';
 
 interface BpmnTopHeaderProps {
   processID: string;
@@ -73,7 +75,7 @@ export default function BpmnTopHeader({
       borderBottom="1px solid"
       borderColor="gray.200"
       px={4}
-      py={2}
+     
     >
       <Flex justify="space-between" align="center">
         {/* Breadcrumbs */}
@@ -113,14 +115,8 @@ export default function BpmnTopHeader({
         </Breadcrumb>
 
         {/* Right Icons */}
-        <Flex align="center" gap={2}>
-          <IconButton
-            aria-label={t('navigation.notifications')}
-            icon={<BellIcon />}
-            variant="ghost"
-            size="sm"
-            colorScheme="gray"
-          />
+        <Flex align="center" gap={4}>
+          <NotificationMenu />
 
           <IconButton
             aria-label={t('navigation.help')}
@@ -130,16 +126,7 @@ export default function BpmnTopHeader({
             colorScheme="gray"
           />
 
-          <Menu>
-            <MenuButton>
-              <Avatar size="sm" name="User" bg="teal.500" />
-            </MenuButton>
-            <MenuList>
-              <MenuItem>{t('navigation.profile')}</MenuItem>
-              <MenuItem>{t('navigation.settings')}</MenuItem>
-              <MenuItem>{t('navigation.logout')}</MenuItem>
-            </MenuList>
-          </Menu>
+          <ProfileMenu />
         </Flex>
       </Flex>
     </Box>

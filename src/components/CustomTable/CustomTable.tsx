@@ -110,9 +110,9 @@ const CustomTable = (props: TableProps) => {
         return (
           <Tag
             colorScheme={
-              value === 'draft'
+              value === 'Draft'
                 ? 'yellow'
-                : value === 'deployed'
+                : value === 'Published'
                   ? 'green'
                   : value === 'Connected'
                     ? 'green'
@@ -354,7 +354,7 @@ const CustomTable = (props: TableProps) => {
                               {t('table.share')}
                             </MenuItem>
                           )}
-                          {props.onDownload && (
+                          {/* {props.onDownload && (
                             <MenuItem
                               icon={<DownloadIcon />}
                               onClick={(e) => {
@@ -364,7 +364,7 @@ const CustomTable = (props: TableProps) => {
                             >
                               {t('table.download')}
                             </MenuItem>
-                          )}
+                          )} */}
                           {props.onPin && (
                             <MenuItem
                               icon={
