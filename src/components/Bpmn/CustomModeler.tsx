@@ -1431,8 +1431,91 @@ function CustomModeler() {
     };
   }, [bpmnReactJs.bpmnModeler]);
 
+  // Track khi BPMN modeler đã sẵn sàng (sau khi API xong)
+  const [isModelerReady, setIsModelerReady] = useState(false);
+
+  useEffect(() => {
+    if (currentLoading || !currentProcessDetail) {
+      // Còn đang fetch API → chưa ready
+      setIsModelerReady(false);
+      return;
+    }
+
+    // API xong → chờ canvas BPMN mount
+    // Poll mỗi 200ms cho đến khi bpmnModeler khởi tạo xong
+    let attempts = 0;
+    const maxAttempts = 25; // tối đa 5s
+
+    const poll = setInterval(() => {
+      attempts++;
+      if (bpmnReactJs.bpmnModeler || attempts >= maxAttempts) {
+        clearInterval(poll);
+        // Thêm 400ms để canvas render xong
+        setTimeout(() => setIsModelerReady(true), 400);
+      }
+    }, 200);
+
+    return () => clearInterval(poll);
+  }, [currentLoading, currentProcessDetail, bpmnReactJs.bpmnModeler]);
+
   if (currentLoading) {
-    return <LoadingIndicator />;
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', zIndex: 50,
+        fontFamily: "'Inter','Segoe UI',sans-serif",
+      }}>
+        <div style={{ position: 'relative', width: 56, height: 56, marginBottom: 20 }}>
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            border: '4px solid #B2F5EA',
+          }} />
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            border: '4px solid #319795', borderTopColor: 'transparent',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+        </div>
+        <p style={{ fontSize: 15, fontWeight: 600, color: '#2d3748', margin: 0 }}>
+          Đang tải dữ liệu process...
+        </p>
+        <p style={{ fontSize: 13, color: '#718096', marginTop: 6 }}>
+          Vui lòng đợi trong giây lát
+        </p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  if (!isModelerReady) {
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)', zIndex: 50,
+        fontFamily: "'Inter','Segoe UI',sans-serif",
+      }}>
+        <div style={{ position: 'relative', width: 56, height: 56, marginBottom: 20 }}>
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            border: '4px solid #B2F5EA',
+          }} />
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: '50%',
+            border: '4px solid #319795', borderTopColor: 'transparent',
+            animation: 'spin 0.8s linear infinite',
+          }} />
+        </div>
+        <p style={{ fontSize: 15, fontWeight: 600, color: '#2d3748', margin: 0 }}>
+          Đang khởi tạo Modeler...
+        </p>
+        <p style={{ fontSize: 13, color: '#718096', marginTop: 6 }}>
+          Canvas đang được chuẩn bị
+        </p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
   }
 
   return (

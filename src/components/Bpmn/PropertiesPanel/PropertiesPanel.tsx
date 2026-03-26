@@ -434,7 +434,7 @@ export default function PropertiesPanel({
 
             const renderStepOne = () => (
               <Tooltip label={description}>
-                <Box my={4} display="flex" justifyContent="center">
+                <Box className="activity-package-item" my={4} display="flex" justifyContent="center">
                   <IconImage
                     icon={getPackageIcon(_id) as any}
                     label={displayName}
@@ -464,6 +464,7 @@ export default function PropertiesPanel({
                   <Box key={activity.displayName}>
                     <Tooltip label={activity.description}>
                       <Button
+                        className="activity-template-btn"
                         my={2}
                         w="100%"
                         onClick={() => {

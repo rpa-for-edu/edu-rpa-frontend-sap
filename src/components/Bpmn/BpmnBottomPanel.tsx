@@ -119,6 +119,7 @@ export default function BpmnBottomPanel({
     >
       {/* Tab Header - Always visible */}
       <Flex
+        id="modeler-bottom-panel-tabs"
         align="center"
         justify="space-between"
         px={4}
@@ -135,6 +136,7 @@ export default function BpmnBottomPanel({
         >
           <TabList>
             <Tab
+              className="modeler-problems-tab"
               _selected={{
                 color: 'teal.600',
                 borderBottom: '2px solid',
@@ -168,6 +170,7 @@ export default function BpmnBottomPanel({
               </Flex>
             </Tab>
             <Tab
+              className="modeler-logs-tab"
               _selected={{
                 color: 'teal.600',
                 borderBottom: '2px solid',
@@ -201,6 +204,7 @@ export default function BpmnBottomPanel({
               </Flex>
             </Tab>
             <Tab
+              className="modeler-variables-tab"
               _selected={{
                 color: 'teal.600',
                 borderBottom: '2px solid',

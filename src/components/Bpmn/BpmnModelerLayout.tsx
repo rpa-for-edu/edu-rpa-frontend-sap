@@ -82,7 +82,7 @@ export default function BpmnModelerLayout({
   return (
     <Flex direction="column" height="100vh" overflow="hidden">
       {/* Top Header */}
-      <BpmnTopHeader processID={processID} processName={processName} />
+      <BpmnTopHeader processID={processID} processName={processName} modelerRef={modelerRef} />
 
       {/* Sub Header */}
       <BpmnSubHeader

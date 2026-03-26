@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Flex,
@@ -11,24 +11,29 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Tooltip,
 } from '@chakra-ui/react';
 import { ChevronRightIcon, BellIcon, QuestionIcon } from '@chakra-ui/icons';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import NotificationMenu from '../Header/NotificationMenu';
 import ProfileMenu from '../Header/ProfileMenu';
+import ModelerTourGuide from '@/components/TourGuide/ModelerTourGuide';
 
 interface BpmnTopHeaderProps {
   processID: string;
   processName: string;
+  modelerRef?: any;
 }
 
 export default function BpmnTopHeader({
   processID,
   processName,
+  modelerRef,
 }: BpmnTopHeaderProps) {
   const router = useRouter();
   const { t } = useTranslation('studio');
+  const [isTourOpen, setIsTourOpen] = useState(false);
   
   // Extract context from URL
   const { workspaceId, teamId } = router.query;
@@ -70,7 +75,8 @@ export default function BpmnTopHeader({
   const contextInfo = getContextInfo();
 
   return (
-    <Box
+    <>
+      <Box
       bg="white"
       borderBottom="1px solid"
       borderColor="gray.200"
@@ -118,18 +124,25 @@ export default function BpmnTopHeader({
         <Flex align="center" gap={4}>
           <NotificationMenu />
 
-          <IconButton
-            aria-label={t('navigation.help')}
-            icon={<QuestionIcon />}
-            variant="ghost"
-            size="sm"
-            colorScheme="gray"
-          />
+          <Tooltip label="Hướng dẫn sử dụng Modeler" placement="bottom">
+            <IconButton
+              id="modeler-tour-btn"
+              aria-label={t('navigation.help')}
+              icon={<QuestionIcon />}
+              variant="ghost"
+              size="sm"
+              colorScheme="teal"
+              onClick={() => setIsTourOpen(true)}
+            />
+          </Tooltip>
 
           <ProfileMenu />
         </Flex>
       </Flex>
     </Box>
+
+    <ModelerTourGuide isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} modelerRef={modelerRef} />
+    </>
   );
 }
 

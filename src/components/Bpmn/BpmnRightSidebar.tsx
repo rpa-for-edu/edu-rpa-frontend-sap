@@ -95,6 +95,7 @@ export default function BpmnRightSidebar({
       )}
 
       <Box
+        id="modeler-right-sidebar"
         ref={sidebarRef}
         width={isCollapsed ? '0px' : `${sidebarWidth}px`}
         transition={isResizing ? 'none' : 'width 0.3s ease'}

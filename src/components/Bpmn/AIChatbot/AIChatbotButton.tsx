@@ -26,6 +26,7 @@ export default function AIChatbotButton({
       <Tooltip label="AI Chatbot - Generate BPMN" placement="top">
         <IconButton
           aria-label="AI Chatbot"
+          id="modeler-ai-chatbot-btn"
           icon={<RiRobot2Fill size={24} />}
           colorScheme="teal"
           size="lg"
