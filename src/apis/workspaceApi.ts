@@ -623,6 +623,118 @@ const deleteWorkspaceConnection = async (
     .then((res: any) => res.data.data);
 };
 
+// ==================== Workspace Dashboard APIs ====================
+
+import type {
+  RobotStatusCounts,
+  DashboardJobsHistory,
+  DashboardTransactions,
+} from './robotReportApi';
+
+/**
+ * Get aggregated robot status counts for a workspace
+ * Calls GET /workspace/:workspaceId/dashboard/all-statuses
+ * TODO: Remove mock fallback once backend implements this endpoint
+ * @see docs/workspace-dashboard-api-docs.md
+ */
+const getWorkspaceDashboardRobotStatuses = async (
+  workspaceId: string
+): Promise<RobotStatusCounts> => {
+  try {
+    const res = await apiBase.get(
+      `${process.env.NEXT_PUBLIC_DEV_API}/robot-report/dashboard/${workspaceId}/all-statuses`
+    );
+    return res.data;
+  } catch {
+    return {
+      running: 0,
+      stopped: 2,
+      terminating: 0,
+      idle: 3,
+      robots: [],
+      triggerTypeCounts: { manual: 4, schedule: 3, 'event-gmail': 1 },
+    };
+  }
+};
+
+/**
+ * Get aggregated jobs history for a workspace
+ * Calls GET /workspace/:workspaceId/dashboard/jobs-history
+ * TODO: Remove mock fallback once backend implements this endpoint
+ * @see docs/workspace-dashboard-api-docs.md
+ */
+const getWorkspaceDashboardJobsHistory = async (
+  workspaceId: string,
+  date?: string
+): Promise<DashboardJobsHistory> => {
+  try {
+    let url = `${process.env.NEXT_PUBLIC_DEV_API}/robot-report/dashboard/${workspaceId}/jobs-history`;
+    if (date) url += `?date=${date}`;
+    const res = await apiBase.get(url);
+    return res.data;
+  } catch {
+    return { successful: 8, faulted: 3, stopped: 1, total: 12 };
+  }
+};
+
+/**
+ * Get aggregated transactions timeline for a workspace
+ * Calls GET /workspace/:workspaceId/dashboard/transactions
+ * TODO: Remove mock fallback once backend implements this endpoint
+ * @see docs/workspace-dashboard-api-docs.md
+ */
+const getWorkspaceDashboardTransactions = async (
+  workspaceId: string,
+  date?: string,
+  granularity?: 'minute' | 'hour' | 'day'
+): Promise<DashboardTransactions> => {
+  try {
+    let url = `${process.env.NEXT_PUBLIC_DEV_API}/robot-report/dashboard/${workspaceId}/transactions`;
+    const params: string[] = [];
+    if (date) params.push(`date=${date}`);
+    if (granularity) params.push(`granularity=${granularity}`);
+    if (params.length > 0) url += `?${params.join('&')}`;
+    const res = await apiBase.get(url);
+    return res.data;
+  } catch {
+    // Generate mock data matching the granularity
+    const now = new Date();
+    if (granularity === 'minute') {
+      const labels: string[] = [];
+      const data: number[] = [];
+      for (let i = 11; i >= 0; i--) {
+        const t = new Date(now.getTime() - i * 5 * 60 * 1000);
+        labels.push(
+          `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`
+        );
+        data.push(Math.floor(Math.random() * 5));
+      }
+      return { labels, data, total: data.reduce((a, b) => a + b, 0) };
+    }
+    if (granularity === 'hour') {
+      const labels: string[] = [];
+      const data: number[] = [];
+      for (let i = 23; i >= 0; i--) {
+        const t = new Date(now.getTime() - i * 60 * 60 * 1000);
+        labels.push(`${String(t.getHours()).padStart(2, '0')}:00`);
+        data.push(Math.floor(Math.random() * 6));
+      }
+      return { labels, data, total: data.reduce((a, b) => a + b, 0) };
+    }
+    // day
+    const labels: string[] = [];
+    const data: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const t = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      labels.push(
+        `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
+      );
+      data.push(Math.floor(Math.random() * 12));
+    }
+    return { labels, data, total: data.reduce((a, b) => a + b, 0) };
+  }
+};
+
 const workspaceApi = {
   // Workspace
   getAllWorkspaces,
@@ -696,6 +808,11 @@ const workspaceApi = {
   createWorkspaceConnection,
   updateWorkspaceConnection,
   deleteWorkspaceConnection,
+
+  // Workspace Dashboard
+  getWorkspaceDashboardRobotStatuses,
+  getWorkspaceDashboardJobsHistory,
+  getWorkspaceDashboardTransactions,
 };
 
 export default workspaceApi;

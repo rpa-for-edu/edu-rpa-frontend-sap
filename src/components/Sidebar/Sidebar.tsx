@@ -20,7 +20,7 @@ import {
 } from 'react-icons/md';
 import { usePathname } from 'next/navigation';
 import Navbar from '../Header/Navbar';
-import SidebarList from './SidebarList';
+import SidebarList, { SidebarSection } from './SidebarList';
 import { useSelector, useDispatch } from 'react-redux';
 import { homeSelector, userSelector } from '@/redux/selector';
 import {
@@ -42,10 +42,11 @@ const Sidebar = ({ children }: Props) => {
   const { isHiddenSidebar, currentWorkspaceId } = useSelector(homeSelector);
   const user = useSelector(userSelector);
   const sidebarWidth = isHiddenSidebar ? 81 : 250;
+  const isAdmin = user?.role?.toLowerCase() === 'admin';
 
   const personalSidebarItems = [
     { path: '/home', name: t('home'), icon: FaHome },
-    { path: '/robot/dashboard', name: 'Dashboard', icon: MdDashboard },
+    { path: '/robot/dashboard', name: t('dashboard') || 'Dashboard', icon: MdDashboard },
     { path: '/studio', name: t('studio'), icon: RiFlowChart },
     { path: '/robot', name: t('robot'), icon: FaRobot },
     {
@@ -60,7 +61,14 @@ const Sidebar = ({ children }: Props) => {
       icon: FaFileInvoice,
     },
     { path: '/workspace', name: t('workspace'), icon: MdWorkspaces },
-    // Admin menu - Package Management
+  ];
+
+  const adminSidebarItems = [
+    {
+      path: '/admin/dashboard',
+      name: t('adminDashboard') || 'Dashboard',
+      icon: MdDashboard,
+    },
     {
       path: '/admin/packages',
       name: t('packageManagement') || 'Package Management',
@@ -75,13 +83,22 @@ const Sidebar = ({ children }: Props) => {
     }
   }, [pathName, dispatch, currentWorkspaceId]);
 
-  // Always use personal sidebar items in this layout
-  const sidebarItems = personalSidebarItems.filter(item => {
-    if (item.path === '/admin/packages') {
-      return user?.role?.toLowerCase() === 'admin';
+  // Build sections: personal items always shown; admin section only for admin role
+  const sections: SidebarSection[] = useMemo(() => {
+    const result: SidebarSection[] = [
+      { items: personalSidebarItems },
+    ];
+    if (isAdmin) {
+      result.push({
+        label: t('adminSection') || 'Administration',
+        items: adminSidebarItems,
+      });
     }
-    return true;
-  });
+    return result;
+  }, [isAdmin, t]);
+
+  // Flat list for backward compat (used as fallback)
+  const sidebarItems = personalSidebarItems;
 
   return (
     <Box
@@ -91,7 +108,7 @@ const Sidebar = ({ children }: Props) => {
       overflow="hidden"
     >
       {/* Sidebar */}
-      <SidebarList data={sidebarItems} path={pathName} onClose={onClose} />
+      <SidebarList data={sidebarItems} sections={sections} path={pathName} onClose={onClose} />
       <Drawer
         isOpen={isOpen}
         placement="left"
@@ -101,7 +118,7 @@ const Sidebar = ({ children }: Props) => {
         size="full"
       >
         <DrawerContent>
-          <SidebarList data={sidebarItems} path={pathName} onClose={onClose} />
+          <SidebarList data={sidebarItems} sections={sections} path={pathName} onClose={onClose} />
         </DrawerContent>
       </Drawer>
 

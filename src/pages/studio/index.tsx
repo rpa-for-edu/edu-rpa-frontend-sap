@@ -361,12 +361,12 @@ export default function Studio() {
           bpmnNamespace,
           'process'
         )[0];
-        const processID = processElement.getAttribute('id');
+        const processID =  generateProcessID();
 
         const importProcess = {
           processName: processID,
           processType: 'free',
-          processDesc: 'Import XML',
+          processDesc: 'Import XML from ' + processElement.getAttribute('id'),
           processID: processID,
           xml: xml,
           activities: [],

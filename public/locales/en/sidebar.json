@@ -11,5 +11,7 @@
   "member": "Member",
   "members": "Members",
   "teams": "Teams",
-  "settings": "Settings"
+  "settings": "Settings",
+  "adminSection": "Administration",
+  "adminDashboard": "System Dashboard"
 }
