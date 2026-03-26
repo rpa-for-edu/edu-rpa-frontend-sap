@@ -82,5 +82,98 @@
     "stayUpToDate": "Stay up to date",
     "emailPlaceholder": "Your email address",
     "copyright": "@ 2026, Made with ❤️ by ErpRpa And EduRpa Team for a better business solutions."
+  },
+  "tour": {
+    "welcome": {
+      "title": "Welcome to EduRPA!",
+      "desc1": "The quick guide will help you get familiar with the core features of the platform. It takes only ",
+      "desc2": "~2 minutes",
+      "desc3": " to complete!",
+      "start": "Start exploring →",
+      "skip": "Skip",
+      "features": {
+        "studio": "Visual process design studio",
+        "robot": "Automation robot management",
+        "integration": "Third-party service connection",
+        "storage": "Document storage & management"
+      }
+    },
+    "finish": {
+      "title": "You are ready!",
+      "desc1": "Great! You have fully explored the features of ",
+      "desc2": "Let's start automating today!",
+      "back": "← Back",
+      "start": "Start using"
+    },
+    "general": {
+      "skip": "Skip",
+      "next": "Next",
+      "back": "Back",
+      "waiting": "Waiting for you to drag...",
+      "waitingClick": "Waiting for you to click..."
+    },
+    "app": {
+      "welcome": "Welcome to the ERP-RPA system! Here is a quick guide to help you get familiar with the main features.",
+      "home": "Home: Displays recent activities and gives quick access to system functions.",
+      "dashboard": "Dashboard: Track overall statistics and performance metrics of the Robot system.",
+      "studio": "Studio: Design environment where you can build and draw workflows.",
+      "robot": "Robot: Manage the list of Robots, assign tasks, and monitor execution processes.",
+      "integration": "Connection: Configure and manage connections with third-party services (ERP, Database, etc.).",
+      "storage": "Storage: Store and manage essential files and documents used in processes.",
+      "template": "Document Template: Design and manage forms and invoices for automatic data extraction and processing.",
+      "workspace": "Workspace: Manage and switch working contexts between different collaboration teams.",
+      "finish": "The guide has ended! You are ready to start using ERP-RPA."
+    },
+    "modeler": {
+      "palette": {
+        "title": "Tool Palette",
+        "content": "This is the BPMN tool palette. You will drag elements from here onto the canvas."
+      },
+      "dragTask": {
+        "title": "Drag Task to canvas",
+        "content": "Drag this icon (rectangle) onto the canvas."
+      },
+      "dragEnd": {
+        "title": "Drag End Event to canvas",
+        "content": "Drag this icon (thick circle) onto the canvas to end the process."
+      },
+      "autoAdvance": "The tour will automatically advance when you drop it.",
+      "connect": {
+        "title": "Connect elements",
+        "content": "Click an element → an arrow appears → drag it to another element to connect. Let's connect: Start Event → Task → End Event."
+      },
+      "nameTask": {
+        "title": "Name the Task",
+        "content": "Double-click the Task on the canvas to name it.\n\nA clear name makes the process easier to read and generates more accurate robot code."
+      },
+      "properties": {
+        "title": "Properties Sidebar",
+        "content": "Click the Task on the canvas to open the right sidebar.\n\nThe sidebar displays information and allows detailed configuration for each element."
+      },
+      "package": {
+        "title": "Select Activity Package",
+        "content": "In the sidebar, select a suitable Activity Package (e.g., Browser Automation, Data Manipulation...).\n\nEach package contains activities that can be automated."
+      },
+      "template": {
+        "title": "Assign Activity Template",
+        "content": "After selecting the package, choose a specific Activity Template.\n\nThen provide appropriate values for the parameters."
+      },
+      "ai": {
+        "title": "Use AI Chatbot",
+        "content": "Click this AI Robot button to open the AI Chatbot.\n\nAI can automatically generate BPMN processes from your natural language description."
+      },
+      "problems": {
+        "title": "View Problems",
+        "content": "The \"Problems\" tab displays errors and warnings in the process. Click here to view details."
+      },
+      "logs": {
+        "title": "View Logs",
+        "content": "The \"Logs\" tab displays the history and run logs of the Robot. Monitor Logs to know the execution process."
+      },
+      "variables": {
+        "title": "Create Variables",
+        "content": "The \"Variables\" tab is for declaring variables used in the process. Click it and press \"+ Add Variable\" to add a new one."
+      }
+    }
   }
 }

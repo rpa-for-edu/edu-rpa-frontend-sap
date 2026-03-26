@@ -10,10 +10,13 @@ import {
 } from 'react-joyride';
 import { useToken } from '@chakra-ui/react';
 
+import { useTranslation } from 'next-i18next';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Step definitions — waitFor: BPMN type auto-advance khi user drag shape
 // ─────────────────────────────────────────────────────────────────────────────
-interface ModelerStep extends Step {
+export interface ModelerStep extends Step {
+  spotlightClicks?: boolean;
   data?: {
     isWelcome?: boolean;
     isFinish?: boolean;
@@ -22,7 +25,7 @@ interface ModelerStep extends Step {
   };
 }
 
-const modelerSteps: ModelerStep[] = [
+export const getModelerSteps = (t: any): ModelerStep[] => [
   {
     target: 'body',
     placement: 'center',
@@ -32,40 +35,37 @@ const modelerSteps: ModelerStep[] = [
     data: { isWelcome: true },
   },
   {
-    // Highlight toàn bộ palette — luôn tồn tại
     target: '.djs-palette',
     placement: 'right',
     skipBeacon: true,
-    title: 'Bảng công cụ (Palette)',
-    content: 'Đây là bảng công cụ BPMN. Bạn sẽ kéo các phần tử từ đây vào canvas.',
+    title: t('tour.modeler.palette.title'),
+    content: t('tour.modeler.palette.content'),
     data: {},
   },
   {
-    // Target đúng icon Task trong palette
     target: '.djs-palette [data-action="create.task"]',
     placement: 'right',
     skipBeacon: true,
-    title: 'Kéo Task vào canvas',
+    title: t('tour.modeler.dragTask.title'),
     content: (
       <span>
-        Kéo biểu tượng này (hình chữ nhật) vào canvas.
+        {t('tour.modeler.dragTask.content', 'Kéo biểu tượng này (hình chữ nhật) vào canvas.')}
         <br /><br />
-        Tour sẽ <strong>tự chuyển bước</strong> khi bạn thả xuống.
+        <strong>{t('tour.modeler.autoAdvance', 'Tour sẽ tự chuyển bước khi bạn thả xuống.')}</strong>
       </span>
     ),
     data: { waitFor: 'bpmn:Task', highlightAction: 'create.task' },
   },
   {
-    // Target đúng icon End Event trong palette
     target: '.djs-palette [data-action="create.end-event"]',
     placement: 'right',
     skipBeacon: true,
-    title: 'Kéo End Event vào canvas',
+    title: t('tour.modeler.dragEnd.title'),
     content: (
       <span>
-        Kéo biểu tượng này (vòng tròn đậm) vào canvas để kết thúc quy trình.
+        {t('tour.modeler.dragEnd.content', 'Kéo biểu tượng này (vòng tròn đậm) vào canvas để kết thúc quy trình.')}
         <br /><br />
-        Tour sẽ <strong>tự chuyển bước</strong> khi bạn thả xuống.
+        <strong>{t('tour.modeler.autoAdvance', 'Tour sẽ tự chuyển bước khi bạn thả xuống.')}</strong>
       </span>
     ),
     data: { waitFor: 'bpmn:EndEvent', highlightAction: 'create.end-event' },
@@ -74,107 +74,80 @@ const modelerSteps: ModelerStep[] = [
     target: '.djs-container',
     placement: 'center',
     skipBeacon: true,
-    title: 'Kết nối các phần tử',
-    content: 'Click chuột vào một phần tử → xuất hiện mũi tên → kéo sang phần tử khác để nối. Hãy nối: Start Event → Task → End Event.',
+    title: t('tour.modeler.connect.title'),
+    content: t('tour.modeler.connect.content'),
     data: {},
   },
   {
-    // Hướng dẫn đặt tên task bằng cách double-click
     target: '.djs-element[data-element-id^="Activity_"]',
     placement: 'bottom',
     skipBeacon: true,
-    title: 'Đặt tên cho Task',
-    content: (
-      <span>
-        <strong>Double-click</strong> vào Task trên canvas để đặt tên.
-        <br /><br />
-        Đặt tên rõ ràng giúp dễ đọc quy trình và tạo robot code chính xác hơn.
-      </span>
-    ),
+    title: t('tour.modeler.nameTask.title'),
+    content: t('tour.modeler.nameTask.content'),
     data: {},
   },
   {
-    // Hướng dẫn mở sidebar bên phải
-    target: '.djs-element[data-element-id^="Activity_"]',
+    target: '.djs-container .djs-element[data-element-id^="Activity_"]',
     placement: 'bottom',
     skipBeacon: true,
-    title: 'Properties Sidebar',
+    spotlightClicks: true,
+    title: t('tour.modeler.properties.title'),
     content: (
       <span>
-        Click vào <strong>Task</strong> trên canvas để mở sidebar bên phải.
-        <br /><br />
-        Sidebar hiển thị thông tin và cho phép cấu hình chi tiết cho từng phần tử.
+        {t('tour.modeler.properties.content')}
       </span>
     ),
     data: {},
   },
   {
-    // Hướng dẫn chọn Activity Package
     target: '#modeler-right-sidebar',
     placement: 'left',
     skipBeacon: true,
-    title: 'Chọn Activity Package',
-    content: (
-      <span>
-        Trong sidebar, chọn <strong>Activity Package</strong> phù hợp (ví dụ: Browser Automation, Data Manipulation...).
-        <br /><br />
-        Mỗi package chứa các hoạt động có thể tự động hóa được.
-      </span>
-    ),
+    title: t('tour.modeler.package.title'),
+    content: t('tour.modeler.package.content'),
     data: {},
   },
   {
-    // Hướng dẫn chọn Activity Template
     target: '#modeler-right-sidebar',
     placement: 'left',
     skipBeacon: true,
-    title: 'Gắn Activity Template vào Task',
-    content: (
-      <span>
-        Sau khi chọn package, chọn <strong>Activity Template</strong> cụ thể.
-        <br /><br />
-        Sau đó thêm giá trị phù hợp cho các tham số
-      </span>
-    ),
-  data: {},
+    title: t('tour.modeler.template.title'),
+    content: t('tour.modeler.template.content'),
+    data: {},
   },
   {
-    // Hướng dẫn AI Chatbot
     target: '#modeler-ai-chatbot-btn',
     placement: 'left',
     skipBeacon: true,
-    title: 'Sử dụng AI Chatbot',
-    content: (
-      <span>
-        Nhấn nút <strong>AI Robot</strong> này để mở AI Chatbot.
-        <br /><br />
-        AI có thể tự động tạo quy trình BPMN từ mô tả bằng ngôn ngữ tự nhiên của bạn.
-      </span>
-    ),
+    title: t('tour.modeler.ai.title'),
+    content: t('tour.modeler.ai.content'),
     data: {},
   },
   {
     target: '.modeler-problems-tab',
     placement: 'top-start',
     skipBeacon: true,
-    title: 'Xem Problems',
-    content: 'Tab "Problems" hiển thị lỗi và cảnh báo trong quy trình. Click vào đây để xem chi tiết.',
+    spotlightClicks: true,
+    title: t('tour.modeler.problems.title'),
+    content: t('tour.modeler.problems.content'),
     data: {},
   },
   {
     target: '.modeler-logs-tab',
     placement: 'top-start',
     skipBeacon: true,
-    title: 'Xem Logs',
-    content: 'Tab "Logs" hiển thị lịch sử và nhật ký chạy của Robot. Theo dõi Logs để biết quá trình thực thi.',
+    spotlightClicks: true,
+    title: t('tour.modeler.logs.title'),
+    content: t('tour.modeler.logs.content'),
     data: {},
   },
   {
     target: '.modeler-variables-tab',
     placement: 'top-start',
     skipBeacon: true,
-    title: 'Tạo Variables',
-    content: 'Tab "Variables" để khai báo biến dùng trong quy trình. Click vào rồi nhấn "+ Add Variable" để thêm mới.',
+    spotlightClicks: true,
+    title: t('tour.modeler.variables.title'),
+    content: t('tour.modeler.variables.content'),
     data: {},
   },
   {
@@ -190,11 +163,9 @@ const modelerSteps: ModelerStep[] = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 const cleanOverlay = () => {
-  const portal = document.getElementById('react-joyride-portal');
-  if (portal) portal.innerHTML = '';
   document
     .querySelectorAll('.react-joyride__overlay, .react-joyride__spotlight')
-    .forEach((el) => el.remove());
+    .forEach((el: any) => (el.style.display = 'none'));
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -202,7 +173,9 @@ const cleanOverlay = () => {
 // ─────────────────────────────────────────────────────────────────────────────
 const WelcomePanel: React.FC<
   TooltipRenderProps & { color: string; onStart: () => void; onSkip: () => void }
-> = ({ tooltipProps, color, onStart, onSkip }) => (
+> = ({ tooltipProps, color, onStart, onSkip }) => {
+  const { t } = useTranslation('common');
+  return (
   <div
     {...tooltipProps}
     style={{
@@ -212,43 +185,33 @@ const WelcomePanel: React.FC<
     }}
   >
     <h2 style={{ margin: '0 0 12px', fontSize: '22px', fontWeight: 700, color: '#1a202c' }}>
-      Hướng dẫn tạo Process trong Studio
+      {t('tour.welcome.title')}
     </h2>
     <p style={{ margin: '0 0 20px', fontSize: '14px', color: '#718096', lineHeight: 1.7 }}>
-      Tour này sẽ chỉ từng bước để bạn tự thực hiện:
+      {t('tour.welcome.desc1')}
     </p>
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '28px' }}>
-      {[
-        'Kéo Start Event, Task, End Event vào canvas',
-        'Kết nối các phần tử với nhau',
-        'Gắn Activity Template vào Task',
-        'Xem Problems và khai báo Variables',
-      ].map((text) => (
-        <div key={text} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: color, flexShrink: 0 }} />
-          <span style={{ fontSize: '13px', color: '#4a5568' }}>{text}</span>
-        </div>
-      ))}
-    </div>
     <div style={{ display: 'flex', gap: '10px' }}>
       <button onClick={onStart} style={{
         flex: 1, padding: '11px 16px', background: color, color: '#fff',
         border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-      }}>Bắt đầu →</button>
+      }}>{t('tour.welcome.start')}</button>
       <button onClick={onSkip} style={{
         padding: '11px 16px', background: '#f7fafc', color: '#718096',
         border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', cursor: 'pointer',
-      }}>Bỏ qua</button>
+      }}>{t('tour.general.skip')}</button>
     </div>
   </div>
-);
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Finish Panel
 // ─────────────────────────────────────────────────────────────────────────────
 const FinishPanel: React.FC<
   TooltipRenderProps & { color: string; onDone: () => void; onBack: () => void }
-> = ({ tooltipProps, color, onDone, onBack }) => (
+> = ({ tooltipProps, color, onDone, onBack }) => {
+  const { t } = useTranslation('common');
+  return (
   <div
     {...tooltipProps}
     style={{
@@ -258,23 +221,24 @@ const FinishPanel: React.FC<
     }}
   >
     <h2 style={{ margin: '0 0 12px', fontSize: '22px', fontWeight: 700, color: '#1a202c' }}>
-      Hoàn thành!
+      {t('tour.finish.title')}
     </h2>
     <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#718096', lineHeight: 1.7 }}>
-      Bạn đã nắm được các bước cơ bản. Hãy thử tạo quy trình của riêng bạn ngay bây giờ!
+      {t('tour.finish.desc1')}
     </p>
     <div style={{ display: 'flex', gap: '10px' }}>
       <button onClick={onBack} style={{
         padding: '11px 16px', background: '#f7fafc', color: '#718096',
         border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', cursor: 'pointer',
-      }}>← Xem lại</button>
+      }}>{t('tour.general.back')}</button>
       <button onClick={onDone} style={{
         flex: 1, padding: '11px 16px', background: color, color: '#fff',
         border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer',
-      }}>Bắt đầu tạo process</button>
+      }}>{t('tour.finish.start')}</button>
     </div>
   </div>
-);
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Step Panel — hiển thị waiting UI khi có waitFor
@@ -282,6 +246,7 @@ const FinishPanel: React.FC<
 const StepPanel: React.FC<
   TooltipRenderProps & { color: string; stepData?: ModelerStep['data'] }
 > = ({ tooltipProps, step, index, size, backProps, skipProps, primaryProps, color, stepData }) => {
+  const { t } = useTranslation('common');
   const isWaiting = !!stepData?.waitFor;
   return (
     <div
@@ -297,7 +262,7 @@ const StepPanel: React.FC<
           {step.title as string}
         </div>
       )}
-      <div style={{ padding: '14px 16px', lineHeight: 1.65, color: '#444' }}>
+      <div style={{ padding: '14px 16px', lineHeight: 1.65, color: '#444', whiteSpace: 'pre-line' }}>
         {step.content as React.ReactNode}
       </div>
       <div style={{
@@ -305,13 +270,13 @@ const StepPanel: React.FC<
         alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', gap: '8px',
       }}>
         <button {...skipProps} style={{ background: 'none', border: 'none', color: '#999', fontSize: '13px', cursor: 'pointer', padding: '4px 0' }}>
-          Bỏ qua
+          {t('tour.general.skip')}
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontSize: '12px', color: '#bbb' }}>{index} / {size - 2}</span>
           {index > 1 && (
             <button {...backProps} style={{ padding: '7px 14px', background: 'transparent', color: '#444', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', cursor: 'pointer' }}>
-              Quay lại
+              {t('tour.general.back')}
             </button>
           )}
           {isWaiting ? (
@@ -325,12 +290,12 @@ const StepPanel: React.FC<
                 border: '2px solid #4299E1', borderTopColor: 'transparent',
                 borderRadius: '50%', animation: 'mSpin 0.8s linear infinite', flexShrink: 0,
               }} />
-              Đang chờ bạn kéo...
+              {stepData.waitFor?.includes('Selected') || stepData.waitFor?.startsWith('tab:') ? t('tour.general.waitingClick') : t('tour.general.waiting')}
               <style>{`@keyframes mSpin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : (
             <button {...primaryProps} style={{ padding: '7px 14px', background: color, color: '#fff', border: 'none', borderRadius: '4px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-              Tiếp theo
+              {t('tour.general.next')}
             </button>
           )}
         </div>
@@ -353,6 +318,8 @@ export default function ModelerTourGuide({ isOpen, onClose, modelerRef }: Modele
   const [stepIndex, setStepIndex] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [primaryColor] = useToken('colors', ['teal.500']);
+  const { t } = useTranslation('common');
+  const modelerSteps = getModelerSteps(t);
   const stepIndexRef = useRef(0);
 
   useEffect(() => { stepIndexRef.current = stepIndex; }, [stepIndex]);
@@ -363,7 +330,7 @@ export default function ModelerTourGuide({ isOpen, onClose, modelerRef }: Modele
     else { setRun(false); cleanOverlay(); }
   }, [isOpen]);
 
-  // ── Lắng nghe BPMN shape.added để auto-advance action steps ──
+  // ── Lắng nghe BPMN shape.added và Selection để auto-advance action steps ──
   useEffect(() => {
     const bpmnModeler = modelerRef?.bpmnModeler;
     if (!bpmnModeler || !isOpen || !run) return;
@@ -373,25 +340,40 @@ export default function ModelerTourGuide({ isOpen, onClose, modelerRef }: Modele
     if (!waitFor) return;
 
     let handled = false;
-    const handleShapeAdded = (event: any) => {
+    const handleNext = () => {
       if (handled) return;
+      handled = true;
+      setTimeout(() => {
+        const next = stepIndexRef.current + 1;
+        if (next < modelerSteps.length) setStepIndex(next);
+        else { setRun(false); cleanOverlay(); onClose(); }
+      }, 600);
+    };
+
+    // 1. Lắng nghe thả Shape vào canvas
+    const handleShapeAdded = (event: any) => {
+      if (handled || (waitFor && waitFor.includes('Selected'))) return;
       const shapeType = event.element?.type;
-      if (shapeType === waitFor) {
-        handled = true;
-        setTimeout(() => {
-          const next = stepIndexRef.current + 1;
-          if (next < modelerSteps.length) setStepIndex(next);
-          else { setRun(false); cleanOverlay(); onClose(); }
-        }, 600);
-      }
+      if (shapeType === waitFor) handleNext();
+    };
+
+    // 2. Lắng nghe chọn Task mở properties sidebar
+    const handleSelectionChanged = (event: any) => {
+      if (handled || waitFor !== 'bpmn:Task_Selected') return;
+      const selected = event.newSelection?.[0];
+      if (selected && selected.type === 'bpmn:Task') handleNext();
     };
 
     try {
       const eventBus = bpmnModeler.get('eventBus');
       eventBus.on('shape.added', handleShapeAdded);
-      return () => eventBus.off('shape.added', handleShapeAdded);
+      eventBus.on('selection.changed', handleSelectionChanged);
+      return () => {
+        eventBus.off('shape.added', handleShapeAdded);
+        eventBus.off('selection.changed', handleSelectionChanged);
+      };
     } catch { return undefined; }
-  }, [modelerRef?.bpmnModeler, stepIndex, isOpen, run]);
+  }, [modelerRef?.bpmnModeler, stepIndex, isOpen, run, modelerSteps.length]);
 
   const handleCallback = (data: EventData) => {
     const { action, index, status, type } = data;
@@ -403,13 +385,14 @@ export default function ModelerTourGuide({ isOpen, onClose, modelerRef }: Modele
 
     if (type === EVENTS.STEP_AFTER) {
       const isWaiting = !!modelerSteps[index]?.data?.waitFor;
-      // Chặn "Next" cho action steps — chỉ BPMN event mới advance
+      // Chặn "Next" cho action steps — chỉ interaction thật sự mới advance
       if (isWaiting && action === ACTIONS.NEXT) return;
 
       const next = index + (action === ACTIONS.PREV ? -1 : 1);
       if (next < 0 || next >= modelerSteps.length) {
         setTimeout(cleanOverlay, 50); setRun(false); onClose(); return;
       }
+
       setStepIndex(next);
     }
   };

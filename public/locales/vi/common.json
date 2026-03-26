@@ -82,5 +82,98 @@
     "stayUpToDate": "Cập nhật tin tức",
     "emailPlaceholder": "Địa chỉ email của bạn",
     "copyright": "@ 2026, Được tạo với ❤️ bởi ErpRpa và EduRpa Team cho giải pháp kinh doanh tốt hơn."
+  },
+  "tour": {
+    "welcome": {
+      "title": "Chào mừng đến với EduRPA!",
+      "desc1": "Hướng dẫn nhanh sẽ giúp bạn làm quen với các tính năng chính của nền tảng. Chỉ mất ",
+      "desc2": "~2 phút",
+      "desc3": " để hoàn thành!",
+      "start": "Bắt đầu khám phá →",
+      "skip": "Bỏ qua",
+      "features": {
+        "studio": "Studio thiết kế quy trình trực quan",
+        "robot": "Quản lý Robot tự động hóa",
+        "integration": "Kết nối dịch vụ bên thứ ba",
+        "storage": "Lưu trữ & quản lý tài liệu"
+      }
+    },
+    "finish": {
+      "title": "Bạn đã sẵn sàng!",
+      "desc1": "Tuyệt vời! Bạn đã khám phá đầy đủ các chức năng của ",
+      "desc2": "Hãy bắt đầu tự động hóa ngay hôm nay!",
+      "back": "← Xem lại",
+      "start": "Bắt đầu sử dụng"
+    },
+    "general": {
+      "skip": "Bỏ qua",
+      "next": "Tiếp theo",
+      "back": "Quay lại",
+      "waiting": "Đang chờ bạn kéo...",
+      "waitingClick": "Đang chờ bạn click..."
+    },
+    "app": {
+      "welcome": "Chào mừng bạn đến với hệ thống ERP-RPA! Dưới đây là hướng dẫn nhanh để giúp bạn làm quen với các tính năng chính.",
+      "home": "Trang chủ: Nơi hiển thị các hoạt động gần đây và truy cập nhanh vào các chức năng của hệ thống.",
+      "dashboard": "Dashboard: Theo dõi các thống kê và chỉ số hoạt động tổng thể của hệ thống Robot.",
+      "studio": "Studio: Môi trường thiết kế, nơi bạn có thể xây dựng và vẽ các quy trình làm việc (workflows).",
+      "robot": "Robot: Quản lý danh sách các Robot, giao nhiệm vụ và giám sát quy trình thực thi.",
+      "integration": "Connection (Kết nối hệ thống): Cấu hình và quản lý các kết nối với các dịch vụ bên thứ ba (ERP, Database, v.v.).",
+      "storage": "Lưu trữ: Nơi lưu trữ, quản lý các tệp tin và tài liệu thiết yếu được sử dụng trong các quy trình.",
+      "template": "Mẫu tài liệu: Thiết kế và quản lý các loại biểu mẫu, hóa đơn dùng cho việc trích xuất và xử lý dữ liệu tự động.",
+      "workspace": "Không gian làm việc (Workspace): Quản lý và chuyển đổi ngữ cảnh làm việc giữa các nhóm cộng tác khác nhau.",
+      "finish": "Hướng dẫn đã kết thúc! Bạn đã sẵn sàng để bắt đầu sử dụng ERP-RPA."
+    },
+    "modeler": {
+      "palette": {
+        "title": "Bảng công cụ (Palette)",
+        "content": "Đây là bảng công cụ BPMN. Bạn sẽ kéo các phần tử từ đây vào canvas."
+      },
+      "dragTask": {
+        "title": "Kéo Task vào canvas",
+        "content": "Kéo biểu tượng này (hình chữ nhật) vào canvas."
+      },
+      "dragEnd": {
+        "title": "Kéo End Event vào canvas",
+        "content": "Kéo biểu tượng này (vòng tròn đậm) vào canvas để kết thúc quy trình."
+      },
+      "autoAdvance": "Tour sẽ tự chuyển bước khi bạn thả xuống.",
+      "connect": {
+        "title": "Kết nối các phần tử",
+        "content": "Click chuột vào một phần tử → xuất hiện mũi tên → kéo sang phần tử khác để nối. Hãy nối: Start Event → Task → End Event."
+      },
+      "nameTask": {
+        "title": "Đặt tên cho Task",
+        "content": "Double-click vào Task trên canvas để đặt tên.\n\nĐặt tên rõ ràng giúp dễ đọc quy trình và tạo robot code chính xác hơn."
+      },
+      "properties": {
+        "title": "Properties Sidebar",
+        "content": "Click vào Task trên canvas để mở sidebar bên phải.\n\nSidebar này hiển thị thông tin và cho phép cấu hình chi tiết cho từng phần tử."
+      },
+      "package": {
+        "title": "Chọn Activity Package",
+        "content": "Trong sidebar, chọn Activity Package phù hợp (ví dụ: Browser Automation, Data Manipulation...).\n\nMỗi package chứa các hoạt động có thể tự động hóa được."
+      },
+      "template": {
+        "title": "Gắn Activity Template vào Task",
+        "content": "Sau khi chọn package, chọn Activity Template cụ thể.\n\nSau đó thêm giá trị phù hợp cho các tham số"
+      },
+      "ai": {
+        "title": "Sử dụng AI Chatbot",
+        "content": "Nhấn nút AI Robot này để mở AI Chatbot.\n\nAI có thể tự động tạo quy trình BPMN từ mô tả bằng ngôn ngữ tự nhiên của bạn."
+      },
+      "problems": {
+        "title": "Xem Problems",
+        "content": "Tab \"Problems\" hiển thị lỗi và cảnh báo trong quy trình. Click vào đây để xem chi tiết."
+      },
+      "logs": {
+        "title": "Xem Logs",
+        "content": "Tab \"Logs\" hiển thị lịch sử và nhật ký chạy của Robot. Theo dõi Logs để biết quá trình thực thi."
+      },
+      "variables": {
+        "title": "Tạo Variables",
+        "content": "Tab \"Variables\" để khai báo biến dùng trong quy trình. Click vào rồi nhấn \"+ Add Variable\" để thêm mới."
+      }
+    }
   }
 }

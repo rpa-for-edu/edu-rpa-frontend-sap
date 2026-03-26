@@ -32,13 +32,16 @@ function IconImage(props: IconImageProps) {
                 No Icon
               </Text>
             </Box>
-            <Text className="text-black mt-[10px] text-[13px] text-center">
-              {label.split(' ').map((word, index, array) => (
-                <span key={index}>
-                  {word}
-                  {index < array.length - 1 ? <br /> : ''}
-                </span>
-              ))}
+            <Text
+              className="mt-[10px] text-center"
+              fontSize="13px"
+              color="black"
+              lineHeight="1.2"
+              whiteSpace="normal"
+              wordBreak="break-word"
+              px="4px"
+            >
+              {label}
             </Text>
           </Box>
         }
@@ -57,13 +60,16 @@ function IconImage(props: IconImageProps) {
       icon={
         <Box className="flex flex-col items-center">
           <Image src={icon} alt="Icon" width={width} height={height} />
-          <Text className="text-black mt-[10px] text-[13px] text-center">
-            {label.split(' ').map((word, index, array) => (
-              <span key={index}>
-                {word}
-                {index < array.length - 1 ? <br /> : ''}
-              </span>
-            ))}
+          <Text 
+            className="mt-[10px] text-center"
+            fontSize="13px"
+            color="black"
+            lineHeight="1.2"
+            whiteSpace="normal"
+            wordBreak="break-word"
+            px="4px"
+          >
+            {label}
           </Text>
         </Box>
       }

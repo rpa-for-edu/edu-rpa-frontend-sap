@@ -12,7 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { tourSelector } from '@/redux/selector';
 import { setRun, setStepIndex, stopTour } from '@/redux/slice/tourSlice';
-import { steps } from './steps';
+import { getSteps } from './steps';
+import { useTranslation } from 'next-i18next';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Custom Tooltip — màn hình Welcome (step đầu)
@@ -22,7 +23,9 @@ const WelcomeTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
   primaryProps,
   skipProps,
   color,
-}) => (
+}) => {
+  const { t } = useTranslation('common');
+  return (
   <div
     {...tooltipProps}
     style={{
@@ -36,20 +39,21 @@ const WelcomeTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
     }}
   >
     <h2 style={{ margin: '0 0 12px', fontSize: '24px', fontWeight: 700, lineHeight: 1.3, color: '#1a202c' }}>
-      Chào mừng đến với EduRPA!
+      {t('tour.welcome.title')}
     </h2>
     <p style={{ margin: '0 0 24px', fontSize: '15px', color: '#718096', lineHeight: 1.75 }}>
-      Hướng dẫn nhanh sẽ giúp bạn làm quen với các tính năng chính của nền tảng.
-      Chỉ mất <strong style={{ color }}>~2 phút</strong> để hoàn thành!
+      {t('tour.welcome.desc1')}
+      <strong style={{ color }}>{t('tour.welcome.desc2')}</strong>
+      {t('tour.welcome.desc3')}
     </p>
 
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '32px' }}>
       {[
-        'Studio thiết kế quy trình trực quan',
-        'Quản lý Robot tự động hóa',
-        'Kết nối dịch vụ bên thứ ba',
-        'Lưu trữ & quản lý tài liệu',
-      ].map((text) => (
+        t('tour.welcome.features.studio'),
+        t('tour.welcome.features.robot'),
+        t('tour.welcome.features.integration'),
+        t('tour.welcome.features.storage')
+      ].map((text: string) => (
         <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
             width: '6px', height: '6px', borderRadius: '50%',
@@ -73,7 +77,7 @@ const WelcomeTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
         onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
         onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
       >
-        Bắt đầu khám phá →
+        {t('tour.welcome.start')}
       </button>
       <button
         {...skipProps}
@@ -88,11 +92,12 @@ const WelcomeTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
         onMouseEnter={(e) => (e.currentTarget.style.background = '#edf2f7')}
         onMouseLeave={(e) => (e.currentTarget.style.background = '#f7fafc')}
       >
-        Bỏ qua
+        {t('tour.general.skip')}
       </button>
     </div>
   </div>
-);
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Custom Tooltip — màn hình Finish (step cuối)
@@ -102,7 +107,9 @@ const FinishTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
   closeProps,
   backProps,
   color,
-}) => (
+}) => {
+  const { t } = useTranslation('common');
+  return (
   <div
     {...tooltipProps}
     style={{
@@ -117,12 +124,12 @@ const FinishTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
     }}
   >
     <h2 style={{ margin: '0 0 14px', fontSize: '24px', fontWeight: 700, color: '#1a202c' }}>
-      Bạn đã sẵn sàng!
+      {t('tour.finish.title')}
     </h2>
     <p style={{ margin: '0 0 28px', fontSize: '15px', color: '#718096', lineHeight: 1.75 }}>
-      Tuyệt vời! Bạn đã khám phá đầy đủ các chức năng của{' '}
+      {t('tour.finish.desc1')}
       <strong style={{ color }}>EduRPA</strong>.
-      Hãy bắt đầu tự động hóa ngay hôm nay!
+      {t('tour.finish.desc2')}
     </p>
 
     <div style={{ display: 'flex', gap: '12px' }}>
@@ -138,7 +145,7 @@ const FinishTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
         onMouseEnter={(e) => (e.currentTarget.style.background = '#edf2f7')}
         onMouseLeave={(e) => (e.currentTarget.style.background = '#f7fafc')}
       >
-        ← Xem lại
+        {t('tour.general.back')}
       </button>
       <button
         {...closeProps}
@@ -152,11 +159,12 @@ const FinishTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
         onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
         onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
       >
-        Bắt đầu sử dụng
+        {t('tour.finish.start')}
       </button>
     </div>
   </div>
-);
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Tooltip mặc định cho các bước giữa — giống Joyride default (nền trắng)
@@ -170,7 +178,9 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
   backProps,
   skipProps,
   color,
-}) => (
+}) => {
+  const { t } = useTranslation('common');
+  return (
   <div
     {...tooltipProps}
     style={{
@@ -211,7 +221,7 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
           fontSize: '14px', cursor: 'pointer', padding: '4px 0',
         }}
       >
-        Bỏ qua
+        {t('tour.general.skip')}
       </button>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -228,7 +238,7 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
               fontSize: '14px', fontWeight: 500, cursor: 'pointer',
             }}
           >
-            Quay lại
+            {t('tour.general.back')}
           </button>
         )}
         <button
@@ -240,12 +250,13 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
             fontSize: '14px', fontWeight: 600, cursor: 'pointer',
           }}
         >
-          Tiếp theo
+          {t('tour.general.next')}
         </button>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Wrapper chọn đúng tooltip component theo stepIndex
@@ -266,6 +277,8 @@ const TourGuide: React.FC = () => {
   const { run, stepIndex, isActive } = useSelector(tourSelector);
   const [isClient, setIsClient] = useState(false);
   const [primaryColor] = useToken('colors', ['teal.500']);
+  const { t } = useTranslation('common');
+  const steps = getSteps(t);
 
   useEffect(() => {
     setIsClient(true);
@@ -274,11 +287,11 @@ const TourGuide: React.FC = () => {
   const handleJoyrideCallback = (data: EventData) => {
     const { action, index, status, type } = data;
 
-    // Helper xóa overlay
+    // Helper ẩn overlay an toàn tránh lỗi React unmount node
     const cleanOverlay = () => {
-      const portal = document.getElementById('react-joyride-portal');
-      if (portal) portal.innerHTML = '';
-      document.querySelectorAll('.react-joyride__overlay, .react-joyride__spotlight').forEach(el => el.remove());
+      document.querySelectorAll('.react-joyride__overlay, .react-joyride__spotlight').forEach((el: any) => {
+        el.style.display = 'none';
+      });
     };
 
     // STATUS.SKIPPED (nhấn skip) → dừng tour
