@@ -102,10 +102,10 @@ const getPackageAndActivityFromActivityId = (
     (pkg) => {return pkg.activityTemplates.find((template: any) => template.templateId === activityId)}
   );
   const activityTemplate = activityPackage?.activityTemplates.find((template: any) => template.templateId === activityId);
-
+  if (!activityPackage || !activityTemplate) return null;
   return {
     packageName: activityPackage?.displayName,
-    activityDisplayName: activityTemplate.displayName,
+    activityDisplayName: activityTemplate?.displayName,
     activityTemplate,
   };
 };

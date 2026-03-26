@@ -43,4 +43,13 @@ export const QUERY_KEY = {
   WS_DASHBOARD_ROBOT_STATUSES: 'ws-dashboard-robot-statuses',
   WS_DASHBOARD_JOBS_HISTORY: 'ws-dashboard-jobs-history',
   WS_DASHBOARD_TRANSACTIONS: 'ws-dashboard-transactions',
+
+  // Admin Dashboard query keys
+  ADMIN_PROCESS_COUNT: 'admin-process-count',
+  ADMIN_ROBOT_COUNT: 'admin-robot-count',
+  ADMIN_WORKSPACE_COUNT: 'admin-workspace-count',
+  ADMIN_USER_COUNT: 'admin-user-count',
+  ADMIN_ROBOT_STATUSES: 'admin-robot-statuses',
+  ADMIN_JOBS_HISTORY: 'admin-jobs-history',
+  ADMIN_TRANSACTIONS: 'admin-transactions',
 };
