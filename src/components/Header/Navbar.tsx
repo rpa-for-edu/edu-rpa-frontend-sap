@@ -24,7 +24,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { FiMenu } from 'react-icons/fi';
-import { MdArrowDropDown, MdOutlinePerson } from 'react-icons/md';
+import { startTour } from '@/redux/slice/tourSlice';
+import { MdArrowDropDown, MdOutlinePerson, MdHelpOutline } from 'react-icons/md';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '@/redux/slice/userSlice';
@@ -337,6 +338,14 @@ const Navbar = () => {
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <LanguageSwitcher />
+        <IconButton
+          aria-label="Start Tour"
+          icon={<MdHelpOutline fontSize="20" />}
+          variant="ghost"
+          onClick={() => {
+            dispatch(startTour());
+          }}
+        />
         <NotificationMenu />
         <Flex alignItems="center" mr={8}>
           <ProfileMenu />

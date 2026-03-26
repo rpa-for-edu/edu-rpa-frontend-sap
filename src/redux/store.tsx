@@ -5,6 +5,7 @@ import bpmnSlice from './slice/bpmnSlice';
 import userSlice from './slice/userSlice';
 import scheduleSlice from './slice/scheduleSlice';
 import notificationSlice from './slice/notificationSlice';
+import tourSlice from './slice/tourSlice';
 
 const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ const store = configureStore({
     user: userSlice.reducer,
     schedule: scheduleSlice.reducer,
     notification: notificationSlice.reducer,
+    tour: tourSlice.reducer,
   },
 });
 
