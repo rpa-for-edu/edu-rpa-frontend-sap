@@ -168,7 +168,7 @@ export default function BpmnRightSidebar({
           left="-35px"
           top="50%"
           transform="translateY(-50%)"
-          zIndex={30}
+          zIndex={10}
         >
           <Flex
             direction="column"

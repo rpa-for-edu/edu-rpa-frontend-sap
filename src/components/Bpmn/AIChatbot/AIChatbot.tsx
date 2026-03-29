@@ -121,10 +121,15 @@ export default function AIChatbot({
     {
       id: "welcome",
       role: "assistant",
-      content: `Chat with the Chatbot RPA 
-for assistance creating a new BPMN process and assign existing activity package properly. For the best results:
+      content: `Chat with the RPA Copilot for assistance creating a new BPMN process and assign existing activity packages properly. 
+      
+For the best results:
 - Please provide your goal, the actors involved, the step-by-step actions, conditions/branches, and any systems or data used.
-- You can also mention existing activity packages so the assistant can map tasks correctly into your RPA library.`,
+- You can also mention existing activity packages so the assistant can map tasks correctly into your RPA library.
+
+NOTE:
+- Generating a new BPMN will overwrite your current process.
+- Automatable nodes will be grouped into a subprocess.`,
       timestamp: Date.now(),
     },
   ]);
@@ -1366,7 +1371,7 @@ I don't always get it right, so please review the process and feel free to try a
     const welcome: ChatMessage = {
       id: "welcome",
       role: "assistant",
-      content: `Chat with the Chatbot RPA 
+      content: `Chat with the RPA Copilot 
 for assistance creating a new BPMN process and assign existing activity package properly. For the best results:
 - Please provide your goal, the actors involved, the step-by-step actions, conditions/branches, and any systems or data used.
 - You can also mention existing activity packages so the assistant can map tasks correctly into your RPA library.`,
@@ -1490,7 +1495,7 @@ for assistance creating a new BPMN process and assign existing activity package 
               color="white"
               letterSpacing="tight"
             >
-              Chatbot RPA
+              RPA Copilot
             </Text>
             <Badge
               px={1.5}

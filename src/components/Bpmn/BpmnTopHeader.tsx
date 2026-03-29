@@ -19,6 +19,7 @@ import { useTranslation } from 'next-i18next';
 import NotificationMenu from '../Header/NotificationMenu';
 import ProfileMenu from '../Header/ProfileMenu';
 import ModelerTourGuide from '@/components/TourGuide/ModelerTourGuide';
+import HeaderAIChatbot from '../Header/HeaderAIChatbot';
 
 interface BpmnTopHeaderProps {
   processID: string;
@@ -90,6 +91,7 @@ export default function BpmnTopHeader({
           separator={<ChevronRightIcon color="gray.500" />}
         >
           <BreadcrumbItem>
+          
             <BreadcrumbLink
               onClick={() => router.push(contextInfo.homeLink)}
               fontSize="sm"
@@ -122,6 +124,7 @@ export default function BpmnTopHeader({
 
         {/* Right Icons */}
         <Flex align="center" gap={4}>
+           <HeaderAIChatbot />
           <NotificationMenu />
 
           <Tooltip label="Hướng dẫn sử dụng Modeler" placement="bottom">
