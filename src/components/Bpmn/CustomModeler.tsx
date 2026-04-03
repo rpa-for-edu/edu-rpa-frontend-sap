@@ -1045,10 +1045,10 @@ function CustomModeler() {
 
       toast({
         title:
-          status === 'PASS'
-            ? '🎉 Robot completed successfully!'
-            : '⚠️ Robot finished with errors',
-        status: status === 'PASS' ? 'success' : 'error',
+          status === 'SUCCESS'
+            ? 'Robot completed successfully!'
+            : 'Robot finished with errors',
+        status: status === 'SUCCESS' ? 'success' : 'error',
         duration: 5000,
         isClosable: true,
         position: 'top',

@@ -22,7 +22,7 @@ export type RobotEventType =
   | 'STEP_END'
   | 'STEP_LOG';
 
-export type StepStatus = 'PASS' | 'ERROR' | 'FAIL' | 'SKIP' | 'RUNNING';
+export type StepStatus = 'PASS' | 'ERROR' | 'FAIL' | 'SKIP' | 'RUNNING' | 'SUCCESS';
 
 export interface RobotStep {
   id: string;
