@@ -96,16 +96,44 @@ const getPackageAndActivityFromActivityId = (
   activityTemplate: any;
 } | null => {
   if (!activityId) return null;
-  // Find the package
-  // Find the activity template by templateId
-  const activityPackage = ActivityPackages.find(
-    (pkg) => {return pkg.activityTemplates.find((template: any) => template.templateId === activityId)}
+
+  // Sanitize: trim, lowercase, and remove potential literal quotes from AI or fragments
+  const searchId = activityId.trim().toLowerCase().replace(/^["']|["']$/g, "");
+
+  // Find the package that contains a template matching the activityId
+  const activityPackage = ActivityPackages.find((pkg) =>
+    pkg.activityTemplates?.some((template: any) => {
+      const tid = template.templateId?.toLowerCase();
+      if (!tid) return false;
+      return (
+        tid === searchId || tid.includes(searchId) || searchId.includes(tid)
+      );
+    })
   );
-  const activityTemplate = activityPackage?.activityTemplates.find((template: any) => template.templateId === activityId);
-  if (!activityPackage || !activityTemplate) return null;
+
+  if (!activityPackage) {
+    console.warn(
+      `⚠️ [Chatbot] No package found for activityId: "${activityId}" (sanitized as "${searchId}")`
+    );
+    return null;
+  }
+
+  // Find the specific activity template within the package
+  const activityTemplate = activityPackage.activityTemplates.find(
+    (template: any) => {
+      const tid = template.templateId?.toLowerCase();
+      if (!tid) return false;
+      return (
+        tid === searchId || tid.includes(searchId) || searchId.includes(tid)
+      );
+    }
+  );
+
+  if (!activityTemplate) return null;
+
   return {
-    packageName: activityPackage?.displayName,
-    activityDisplayName: activityTemplate?.displayName,
+    packageName: activityPackage.displayName,
+    activityDisplayName: activityTemplate.displayName,
     activityTemplate,
   };
 };
