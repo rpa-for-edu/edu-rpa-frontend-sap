@@ -23,7 +23,7 @@ export default function AIChatbotButton({
       borderColor="gray.200"
       zIndex={10}
     >
-      <Tooltip label="AI Chatbot - Generate BPMN" placement="top">
+      <Tooltip label="RPA Copilot - Generate BPMN" placement="top">
         <IconButton
           aria-label="AI Chatbot"
           id="modeler-ai-chatbot-btn"

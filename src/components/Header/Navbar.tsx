@@ -55,6 +55,7 @@ import workspaceApi from '@/apis/workspaceApi';
 import { Workspace } from '@/interfaces/workspace';
 import { RiArrowGoBackFill } from 'react-icons/ri';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import HeaderAIChatbot from './HeaderAIChatbot';
 import { useTranslation } from 'next-i18next';
 
 const privateNotiChannelPrefix = 'notification.';
@@ -337,6 +338,7 @@ const Navbar = () => {
       </Flex>
 
       <HStack spacing={{ base: '0', md: '6' }}>
+        <HeaderAIChatbot />
         <LanguageSwitcher />
         <IconButton
           aria-label="Start Tour"

@@ -159,8 +159,8 @@
         "content": "After selecting the package, choose a specific Activity Template.\n\nThen provide appropriate values for the parameters."
       },
       "ai": {
-        "title": "Use AI Chatbot",
-        "content": "Click this AI Robot button to open the AI Chatbot.\n\nAI can automatically generate BPMN processes from your natural language description."
+        "title": "Use RPA Copilot",
+        "content": "Click this RPA Copilot button to open the RPA Copilot.\n\nAI can automatically generate BPMN processes from your natural language description."
       },
       "problems": {
         "title": "View Problems",

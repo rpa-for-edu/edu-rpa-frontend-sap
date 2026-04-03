@@ -159,8 +159,8 @@
         "content": "Sau khi chọn package, chọn Activity Template cụ thể.\n\nSau đó thêm giá trị phù hợp cho các tham số"
       },
       "ai": {
-        "title": "Sử dụng AI Chatbot",
-        "content": "Nhấn nút AI Robot này để mở AI Chatbot.\n\nAI có thể tự động tạo quy trình BPMN từ mô tả bằng ngôn ngữ tự nhiên của bạn."
+        "title": "Sử dụng RPA Copilot",
+        "content": "Nhấn nút RPA Copilot này để mở RPA Copilot.\n\nAI có thể tự động tạo quy trình BPMN từ mô tả bằng ngôn ngữ tự nhiên của bạn."
       },
       "problems": {
         "title": "Xem Problems",

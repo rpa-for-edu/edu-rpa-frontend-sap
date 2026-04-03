@@ -96,16 +96,44 @@ const getPackageAndActivityFromActivityId = (
   activityTemplate: any;
 } | null => {
   if (!activityId) return null;
-  // Find the package
-  // Find the activity template by templateId
-  const activityPackage = ActivityPackages.find(
-    (pkg) => {return pkg.activityTemplates.find((template: any) => template.templateId === activityId)}
+
+  // Sanitize: trim, lowercase, and remove potential literal quotes from AI or fragments
+  const searchId = activityId.trim().toLowerCase().replace(/^["']|["']$/g, "");
+
+  // Find the package that contains a template matching the activityId
+  const activityPackage = ActivityPackages.find((pkg) =>
+    pkg.activityTemplates?.some((template: any) => {
+      const tid = template.templateId?.toLowerCase();
+      if (!tid) return false;
+      return (
+        tid === searchId || tid.includes(searchId) || searchId.includes(tid)
+      );
+    })
   );
-  const activityTemplate = activityPackage?.activityTemplates.find((template: any) => template.templateId === activityId);
-  if (!activityPackage || !activityTemplate) return null;
+
+  if (!activityPackage) {
+    console.warn(
+      `⚠️ [Chatbot] No package found for activityId: "${activityId}" (sanitized as "${searchId}")`
+    );
+    return null;
+  }
+
+  // Find the specific activity template within the package
+  const activityTemplate = activityPackage.activityTemplates.find(
+    (template: any) => {
+      const tid = template.templateId?.toLowerCase();
+      if (!tid) return false;
+      return (
+        tid === searchId || tid.includes(searchId) || searchId.includes(tid)
+      );
+    }
+  );
+
+  if (!activityTemplate) return null;
+
   return {
-    packageName: activityPackage?.displayName,
-    activityDisplayName: activityTemplate?.displayName,
+    packageName: activityPackage.displayName,
+    activityDisplayName: activityTemplate.displayName,
     activityTemplate,
   };
 };
@@ -121,10 +149,15 @@ export default function AIChatbot({
     {
       id: "welcome",
       role: "assistant",
-      content: `Chat with the Chatbot RPA 
-for assistance creating a new BPMN process and assign existing activity package properly. For the best results:
+      content: `Chat with the RPA Copilot for assistance creating a new BPMN process and assign existing activity packages properly. 
+      
+For the best results:
 - Please provide your goal, the actors involved, the step-by-step actions, conditions/branches, and any systems or data used.
-- You can also mention existing activity packages so the assistant can map tasks correctly into your RPA library.`,
+- You can also mention existing activity packages so the assistant can map tasks correctly into your RPA library.
+
+NOTE:
+- Generating a new BPMN will overwrite your current process.
+- Automatable nodes will be grouped into a subprocess.`,
       timestamp: Date.now(),
     },
   ]);
@@ -1366,7 +1399,7 @@ I don't always get it right, so please review the process and feel free to try a
     const welcome: ChatMessage = {
       id: "welcome",
       role: "assistant",
-      content: `Chat with the Chatbot RPA 
+      content: `Chat with the RPA Copilot 
 for assistance creating a new BPMN process and assign existing activity package properly. For the best results:
 - Please provide your goal, the actors involved, the step-by-step actions, conditions/branches, and any systems or data used.
 - You can also mention existing activity packages so the assistant can map tasks correctly into your RPA library.`,
@@ -1490,7 +1523,7 @@ for assistance creating a new BPMN process and assign existing activity package 
               color="white"
               letterSpacing="tight"
             >
-              Chatbot RPA
+              RPA Copilot
             </Text>
             <Badge
               px={1.5}

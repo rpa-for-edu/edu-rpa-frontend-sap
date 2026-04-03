@@ -5,6 +5,7 @@ import { Button, HStack } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import HeaderAIChatbot from './HeaderAIChatbot';
 
 export default function Header() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function Header() {
           onClick={() => router.push('/')}
         />
         <HStack spacing={4}>
+          <HeaderAIChatbot />
           <LanguageSwitcher />
           <div className="flex justify-between items-center gap-2">
             <Button
