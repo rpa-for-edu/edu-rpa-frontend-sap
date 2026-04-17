@@ -1,6 +1,7 @@
 import {
   CreateProcessDto,
   CreateProcessWithAllParamsDto,
+  CreateSubprocessDto,
   SaveProcessDto,
   UpdateProcessDto,
 } from "@/dtos/processDto";
@@ -18,6 +19,14 @@ const getAllProcess = async (limit: number, page: number) => {
 };
 
 const createProcess = async (payload: CreateProcessDto) => {
+  return await apiBase
+    .post(`${process.env.NEXT_PUBLIC_DEV_API}/processes`, payload)
+    .then((res: any) => {
+      return res.data;
+    });
+};
+
+const createSubprocess = async (payload: CreateSubprocessDto) => {
   return await apiBase
     .post(`${process.env.NEXT_PUBLIC_DEV_API}/processes`, payload)
     .then((res: any) => {
@@ -96,6 +105,7 @@ const createProcessWithAllParams = async (
 const processApi = {
   getAllProcess,
   createProcess,
+  createSubprocess,
   createProcessWithAllParams,
   getNumberOfProcess,
   getProcessByID,

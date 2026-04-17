@@ -27,6 +27,7 @@ import {
   MenuItem,
   MenuDivider,
   Select,
+  Tooltip,
 } from '@chakra-ui/react';
 import {
   DownloadIcon,
@@ -43,7 +44,7 @@ import { FaPlay, FaEllipsisV } from 'react-icons/fa';
 import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 import { FaCode } from 'react-icons/fa6';
 import { BsPinAngleFill, BsPinAngle } from 'react-icons/bs';
-import { MdContentCopy, MdShare, MdSettings } from 'react-icons/md';
+import { MdContentCopy, MdShare, MdSettings, MdAccountTree } from 'react-icons/md';
 import { useTranslation } from 'next-i18next';
 
 interface TableProps {
@@ -62,6 +63,7 @@ interface TableProps {
   onShare?: (id: string) => void;
   onPin?: (id: string) => void;
   onProcessSettings?: (id: string) => void;
+  onCreateSubprocess?: (id: string) => void;
   sortOrder?: 'asc' | 'desc' | null;
   onSortChange?: () => void;
 }
@@ -73,6 +75,11 @@ const CustomTable = (props: TableProps) => {
   const [currentDeletingId, setCurrentDeletingId] = useState<string | null>(
     null
   );
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+
+  const toggleExpand = (id: string) => {
+    setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const pageCount = Math.ceil(props.data.length / itemsPerPage);
   const startIndex = currentPage * itemsPerPage;
@@ -104,7 +111,7 @@ const CustomTable = (props: TableProps) => {
     }
   };
 
-  const renderTableCell = (type: string, value: string, item?: any) => {
+  const renderTableCell = (type: string, value: string, item?: any, isChild: boolean = false) => {
     switch (type) {
       case 'status':
         return (
@@ -140,9 +147,38 @@ const CustomTable = (props: TableProps) => {
         );
       case 'name':
         return (
-          <HStack>
-            {item?.pinned && <BsPinAngleFill color="#319795" />}
-            <Text>{value}</Text>
+          <HStack pl={isChild ? 6 : 0} spacing={2}>
+            {!isChild && item?.children && item.children.length > 0 && (
+              <Tooltip
+                label={expandedRows[item.id] ? 'Thu gọn subprocess' : 'Xem subprocess'}
+                placement="top"
+                hasArrow
+              >
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="teal"
+                  aria-label="Expand row"
+                  borderRadius="full"
+                  icon={expandedRows[item.id] ? <ChevronDownIcon boxSize={3.5} /> : <ChevronRightIcon boxSize={3.5} />}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleExpand(item.id);
+                  }}
+                />
+              </Tooltip>
+            )}
+            {isChild && (
+              <Box
+                w="2px"
+                h="20px"
+                bg="blue.300"
+                borderRadius="full"
+                flexShrink={0}
+              />
+            )}
+            {item?.pinned && !isChild && <BsPinAngleFill color="#319795" />}
+            <Text fontWeight={!isChild && item?.children && item.children.length > 0 ? 'bold' : 'normal'}>{value}</Text>
           </HStack>
         );
       case 'parseStatus':
@@ -252,179 +288,212 @@ const CustomTable = (props: TableProps) => {
             </Tr>
           </Thead>
           <Tbody>
-            {currentData.map((item, index) => (
-              <Tr
-                key={item.id}
-                bg={item.pinned ? 'teal.50' : 'transparent'}
-                _hover={{
-                  bg: '#4FD1C5',
-                  cursor: 'pointer',
-                  color: 'white',
-                }}
-                onClick={() =>
-                  props.onView && props.onView(item.id, item.name, item.version)
-                }
-              >
-                {props.headerKeys
-                  ? props.headerKeys.map((key, columnIndex) => (
-                      <Td key={key} px={3} py={3}>
-                        {renderTableCell(key, item[key], item)}
-                      </Td>
-                    ))
-                  : Object.keys(item).map((key, columnIndex) =>
-                      columnIndex < (props.maxRows ?? DEFAULT_MAX_ROWS) ? (
-                        <Td key={key} px={3} py={3}>
-                          {renderTableCell(key, item[key], item)}
+            {currentData.map((item, index) => {
+              const renderRow = (rowItem: any, isChild: boolean = false) => (
+                <Tr
+                  key={rowItem.id}
+                  bg={isChild ? 'blue.25' : rowItem.pinned ? 'teal.50' : 'transparent'}
+                  borderLeft={isChild ? '3px solid' : undefined}
+                  borderLeftColor={isChild ? 'blue.200' : undefined}
+                  sx={isChild ? {
+                    backgroundColor: '#f0f7ff',
+                    '&:hover': {
+                      backgroundColor: '#dbeafe',
+                      cursor: 'pointer',
+                    },
+                  } : {}}
+                  _hover={!isChild ? {
+                    bg: '#4FD1C5',
+                    cursor: 'pointer',
+                    color: 'white',
+                  } : undefined}
+                  onClick={() =>
+                    props.onView && props.onView(rowItem.id, rowItem.name, rowItem.version)
+                  }
+                >
+                  {props.headerKeys
+                    ? props.headerKeys.map((key, columnIndex) => (
+                        <Td key={key} px={3} py="10px">
+                          {renderTableCell(key, rowItem[key], rowItem, isChild)}
                         </Td>
-                      ) : null
-                    )}
-                <Td px={3} py={3}>
-                  <HStack spacing={2}>
-                    {props.onRun && (
-                      <IconButton
-                        bg="white"
-                        aria-label="Run"
-                        onClick={(e: any) => {
-                          e.stopPropagation();
-                          props.onRun && props.onRun(item.id);
-                        }}
-                        icon={<FaPlay color="#319795" />}
-                      />
-                    )}
-                    {props.onViewFile && (
-                      <IconButton
-                        bg="white"
-                        aria-label="View Item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          props.onViewFile &&
-                            props.onViewFile(item.id, item.name, item.version);
-                        }}
-                        icon={<FaCode color="#319795" />}
-                      />
-                    )}
-                    {(props.onDownload ||
-                      props.onDelete ||
-                      props.onDuplicate ||
-                      props.onShare ||
-                      props.onPin ||
-                      props.onProcessSettings) && (
-                      <Menu>
-                        <MenuButton
-                          as={IconButton}
-                          aria-label="Options"
-                          icon={<FaEllipsisV />}
-                          variant="ghost"
-                          onClick={(e) => e.stopPropagation()}
+                      ))
+                    : Object.keys(rowItem).map((key, columnIndex) =>
+                        columnIndex < (props.maxRows ?? DEFAULT_MAX_ROWS) ? (
+                          <Td key={key} px={3} py="10px">
+                            {renderTableCell(key, rowItem[key], rowItem, isChild)}
+                          </Td>
+                        ) : null
+                      )}
+                  <Td px={3} py="10px">
+                    <HStack spacing={2}>
+                      {props.onRun && (
+                        <IconButton
+                          bg="white"
+                          color="#319795"
+                          aria-label="Run"
+                          onClick={(e: any) => {
+                            e.stopPropagation();
+                            props.onRun && props.onRun(rowItem.id);
+                          }}
+                          icon={<FaPlay />}
                         />
-                        <MenuList
-                          textColor={'black'}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {props.onProcessSettings && (
-                            <MenuItem
-                              icon={<MdSettings />}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                props.onProcessSettings!(item.id);
-                              }}
-                            >
-                              {t('table.processSettings')}
-                            </MenuItem>
-                          )}
-                          {props.onDuplicate && (
-                            <MenuItem
-                              icon={<MdContentCopy />}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                props.onDuplicate!(item.id);
-                              }}
-                            >
-                              {t('table.duplicate')}
-                            </MenuItem>
-                          )}
-                          {props.onShare && (
-                            <MenuItem
-                              icon={<MdShare />}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                props.onShare!(item.id);
-                              }}
-                            >
-                              {t('table.share')}
-                            </MenuItem>
-                          )}
-                          {/* {props.onDownload && (
-                            <MenuItem
-                              icon={<DownloadIcon />}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                props.onDownload!(item.id);
-                              }}
-                            >
-                              {t('table.download')}
-                            </MenuItem>
-                          )} */}
-                          {props.onPin && (
-                            <MenuItem
-                              icon={
-                                item.pinned ? (
-                                  <BsPinAngleFill />
-                                ) : (
-                                  <BsPinAngle />
-                                )
-                              }
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                props.onPin!(item.id);
-                              }}
-                            >
-                              {item.pinned ? t('table.unpin') : t('table.pin')}
-                            </MenuItem>
-                          )}
-                          {props.onDelete && props.onProcessSettings && (
-                            <MenuDivider />
-                          )}
-                          {props.onDelete && (
-                            <MenuItem
-                              icon={<DeleteIcon />}
-                              color="red.500"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteClick(item.id);
-                              }}
-                            >
-                              {t('buttons.delete')}
-                            </MenuItem>
-                          )}
-                        </MenuList>
-                      </Menu>
-                    )}
-                  </HStack>
-                  <Modal isOpen={isOpen} onClose={onClose}>
-                    <ModalOverlay bg="blackAlpha.300" />
-                    <ModalContent>
-                      <ModalHeader>{t('table.deleteConfirmTitle')}</ModalHeader>
-                      <ModalCloseButton />
-                      <ModalBody>
-                        <Text>{t('table.deleteConfirmMessage')}</Text>
-                        <Text>
-                          {t('table.deleteConfirmWarning')}
-                        </Text>
-                      </ModalBody>
-                      <ModalFooter>
-                        <Button variant="outline" mr={3} onClick={onClose}>
-                          {t('buttons.cancel')}
-                        </Button>
-                        <Button colorScheme="red" onClick={confirmDelete}>
-                          {t('buttons.delete')}
-                        </Button>
-                      </ModalFooter>
-                    </ModalContent>
-                  </Modal>
-                </Td>
-              </Tr>
-            ))}
+                      )}
+                      {props.onViewFile && (
+                        <IconButton
+                          bg="white"
+                          color="#319795"
+                          aria-label="View Item"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            props.onViewFile &&
+                              props.onViewFile(rowItem.id, rowItem.name, rowItem.version);
+                          }}
+                          icon={<FaCode />}
+                        />
+                      )}
+                      {(props.onDownload ||
+                        props.onDelete ||
+                        props.onDuplicate ||
+                        props.onShare ||
+                        props.onPin ||
+                        props.onProcessSettings ||
+                        props.onCreateSubprocess) && (
+                        <Menu>
+                          <MenuButton
+                            as={IconButton}
+                            aria-label="Options"
+                            icon={<FaEllipsisV />}
+                            variant="ghost"
+                            color="gray.600"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <MenuList
+                            textColor={'black'}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {props.onProcessSettings && (
+                              <MenuItem
+                                icon={<MdSettings />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onProcessSettings!(rowItem.id);
+                                }}
+                              >
+                                {t('table.processSettings')}
+                              </MenuItem>
+                            )}
+                            {props.onCreateSubprocess && !isChild && (
+                              <MenuItem
+                                icon={<MdAccountTree />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onCreateSubprocess!(rowItem.id);
+                                }}
+                              >
+                                Create Subprocess
+                              </MenuItem>
+                            )}
+                            {props.onDuplicate && !isChild && (
+                              <MenuItem
+                                icon={<MdContentCopy />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onDuplicate!(rowItem.id);
+                                }}
+                              >
+                                {t('table.duplicate')}
+                              </MenuItem>
+                            )}
+                            {props.onShare && (
+                              <MenuItem
+                                icon={<MdShare />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onShare!(rowItem.id);
+                                }}
+                              >
+                                {t('table.share')}
+                              </MenuItem>
+                            )}
+                            {/* {props.onDownload && (
+                              <MenuItem
+                                icon={<DownloadIcon />}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onDownload!(rowItem.id);
+                                }}
+                              >
+                                {t('table.download')}
+                              </MenuItem>
+                            )} */}
+                            {props.onPin && !isChild && (
+                              <MenuItem
+                                icon={
+                                  rowItem.pinned ? (
+                                    <BsPinAngleFill />
+                                  ) : (
+                                    <BsPinAngle />
+                                  )
+                                }
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onPin!(rowItem.id);
+                                }}
+                              >
+                                {rowItem.pinned ? t('table.unpin') : t('table.pin')}
+                              </MenuItem>
+                            )}
+                            {props.onDelete && props.onProcessSettings && (
+                              <MenuDivider />
+                            )}
+                            {props.onDelete && (
+                              <MenuItem
+                                icon={<DeleteIcon />}
+                                color="red.500"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(rowItem.id);
+                                }}
+                              >
+                                {t('buttons.delete')}
+                              </MenuItem>
+                            )}
+                          </MenuList>
+                        </Menu>
+                      )}
+                    </HStack>
+                    <Modal isOpen={isOpen} onClose={onClose}>
+                      <ModalOverlay bg="blackAlpha.300" />
+                      <ModalContent>
+                        <ModalHeader>{t('table.deleteConfirmTitle')}</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                          <Text>{t('table.deleteConfirmMessage')}</Text>
+                          <Text>
+                            {t('table.deleteConfirmWarning')}
+                          </Text>
+                        </ModalBody>
+                        <ModalFooter>
+                          <Button variant="outline" mr={3} onClick={onClose}>
+                            {t('buttons.cancel')}
+                          </Button>
+                          <Button colorScheme="red" onClick={confirmDelete}>
+                            {t('buttons.delete')}
+                          </Button>
+                        </ModalFooter>
+                      </ModalContent>
+                    </Modal>
+                  </Td>
+                </Tr>
+              );
+
+              return (
+                <React.Fragment key={item.id}>
+                  {renderRow(item, false)}
+                  {expandedRows[item.id] && item.children?.map((child: any) => renderRow(child, true))}
+                </React.Fragment>
+              );
+            })}
           </Tbody>
         </Table>
       </Box>

@@ -5,6 +5,14 @@ export interface CreateProcessDto {
   xml: string;
 }
 
+export interface CreateSubprocessDto {
+  id: string;
+  name: string;
+  description: string;
+  xml: string;
+  parentId: string;
+}
+
 export interface UpdateProcessDto {
   name: string;
   description: string;
@@ -23,4 +31,5 @@ export interface CreateProcessWithAllParamsDto {
   xml: string;
   variables: any;
   activities: Array<any>;
+  parentId: string;
 }

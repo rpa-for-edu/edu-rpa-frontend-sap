@@ -825,6 +825,7 @@ function CustomModeler() {
         xml: extracted.xml,
         activities: subProcessData.activities,
         variables: subProcessData.variables,
+        parentId: processID as string,
       });
 
       console.log('✅ Process created successfully!');
