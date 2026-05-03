@@ -101,7 +101,9 @@ export function trackProblems(processID: string): Problem[] {
       activity.activityType === "bpmn:EndEvent" ||
       activity.activityType === "bpmn:ExclusiveGateway" ||
       activity.activityType === "bpmn:ParallelGateway" ||
-      activity.activityType === "bpmn:InclusiveGateway"
+      activity.activityType === "bpmn:InclusiveGateway" ||
+      activity.activityType === "bpmn:CallActivity" ||
+      activity.activityType === "bpmn:SubProcess"
     ) {
       return;
     }

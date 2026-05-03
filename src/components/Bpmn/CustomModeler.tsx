@@ -9,6 +9,15 @@ import {
   IconButton,
   useDisclosure,
   useToast,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea
 } from '@chakra-ui/react';
 import ModelerSideBar from './ModelerSidebar';
 import { BpmnParser } from '@/utils/bpmn-parser/bpmn-parser.util';
@@ -112,6 +121,14 @@ function CustomModeler() {
     onOpen: onOpenUnsavedChangesModal,
     onClose: onCloseUnsavedChangesModal,
   } = useDisclosure();
+  const {
+    isOpen: isCreateCallActivityOpen,
+    onOpen: onOpenCreateCallActivity,
+    onClose: onCloseCreateCallActivity,
+  } = useDisclosure();
+  const [callActivityData, setCallActivityData] = useState<{ processId: string; elementId: string } | null>(null);
+  const [callActivityName, setCallActivityName] = useState('');
+  const [callActivityDesc, setCallActivityDesc] = useState('');
   const [errorTrace, setErrorTrace] = useState<string>('');
   const [showRobotCode, setShowRobotCode] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(
@@ -272,6 +289,33 @@ function CustomModeler() {
       })
     );
   }, [currentProcessDetail, processID]);
+
+  useEffect(() => {
+    const handleOpenCallActivity = async (event: any) => {
+      const { processId, elementId } = event.detail;
+      try {
+        const data = await processApi.getProcessByID(processId);
+        if (data && data.id) {
+          window.open(`/studio/modeler/${processId}`, '_blank');
+        } else {
+          setCallActivityData({ processId, elementId });
+          setCallActivityName('');
+          setCallActivityDesc('');
+          onOpenCreateCallActivity();
+        }
+      } catch (err) {
+        setCallActivityData({ processId, elementId });
+        setCallActivityName('');
+        setCallActivityDesc('');
+        onOpenCreateCallActivity();
+      }
+    };
+
+    window.addEventListener('open-call-activity', handleOpenCallActivity);
+    return () => {
+      window.removeEventListener('open-call-activity', handleOpenCallActivity);
+    };
+  }, []);
 
   const mutateSaveAll = useMutation({
     mutationFn: async (payload: SaveProcessDto) => {
@@ -447,6 +491,43 @@ function CustomModeler() {
       mutateSaveAll.mutate(payload);
     }
   };
+
+  const mutateCreateCallActivity = useMutation({
+    mutationFn: async () => {
+      if (!callActivityData) throw new Error("No data provided");
+      const emptyXml = `<?xml version="1.0" encoding="UTF-8"?><bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn"><bpmn:process id="Process_1" isExecutable="false"><bpmn:startEvent id="StartEvent_1" /></bpmn:process><bpmndi:BPMNDiagram id="BPMNDiagram_1"><bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1"><bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1"><dc:Bounds x="152" y="102" width="36" height="36" /></bpmndi:BPMNShape></bpmndi:BPMNPlane></bpmndi:BPMNDiagram></bpmn:definitions>`;
+      const payload = {
+        id: callActivityData.processId,
+        name: callActivityName,
+        description: callActivityDesc,
+        xml: emptyXml,
+        parentId: processID as string,
+      };
+      return await processApi.createSubprocess(payload);
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Subprocess created successfully",
+        status: "success",
+        position: "top-right",
+        duration: 2000,
+        isClosable: true,
+      });
+      onCloseCreateCallActivity();
+      window.open(`/studio/modeler/${data.id}`, '_blank');
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to create subprocess",
+        description: error.message,
+        status: "error",
+        position: "top-right",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
+  });
+
   const handleSaveAndExit = async () => {
     try {
       await handleSaveAll();
@@ -1649,6 +1730,49 @@ function CustomModeler() {
         onExit={handleExit}
         isLoading={mutateSaveAll.isPending}
       />
+
+      {/* Create Call Activity Modal */}
+      <Modal isOpen={isCreateCallActivityOpen} onClose={onCloseCreateCallActivity}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Create New Subprocess</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <p style={{ marginBottom: "16px" }}>
+              The subprocess was not found. Please create a new subprocess.
+            </p>
+            <FormControl isRequired mb={4}>
+              <FormLabel>Name</FormLabel>
+              <Input
+                placeholder="Enter process name"
+                value={callActivityName}
+                onChange={(e) => setCallActivityName(e.target.value)}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>Description</FormLabel>
+              <Textarea
+                placeholder="Enter process description"
+                value={callActivityDesc}
+                onChange={(e) => setCallActivityDesc(e.target.value)}
+              />
+            </FormControl>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onCloseCreateCallActivity}>
+              Cancel
+            </Button>
+            <Button
+              colorScheme="blue"
+              onClick={() => mutateCreateCallActivity.mutate()}
+              isLoading={mutateCreateCallActivity.isPending}
+              isDisabled={!callActivityName.trim()}
+            >
+              Create
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </BpmnModelerLayout>
   );
 }

@@ -62,7 +62,8 @@ const removeUnsupportedBpmnFunctions = () => {
           businessObject.$type === "bpmn:SendTask" ||
           businessObject.$type === "bpmn:ReceiveTask" ||
           businessObject.$type === "bpmn:ScriptTask" ||
-          businessObject.$type === "bpmn:BusinessRuleTask"
+          businessObject.$type === "bpmn:BusinessRuleTask" ||
+          businessObject.$type === "bpmn:CallActivity"
         ) {
           // Change to Task
           if (businessObject.$type !== "bpmn:Task") {
@@ -178,6 +179,29 @@ const removeUnsupportedBpmnFunctions = () => {
               },
             };
           }
+
+          // Change to Call Activity
+          if (businessObject.$type !== "bpmn:CallActivity") {
+            customizesEntries["replace-with-call-activity"] = {
+              group: "edit",
+              className: "bpmn-icon-call-activity",
+              title: translate("Change to Call Activity"),
+              action: function () {
+                const oldId = element.id;
+                const oldName = element.businessObject.name;
+                const newElement = bpmnReplace.replaceElement(element, {
+                  type: "bpmn:CallActivity",
+                });
+                // Keep the same ID and name
+                if (newElement && newElement.id !== oldId) {
+                  modeling.updateProperties(newElement, {
+                    id: oldId,
+                    name: oldName,
+                  });
+                }
+              },
+            };
+          }
         }
 
         // Add change type menu for Gateways
@@ -259,6 +283,24 @@ const removeUnsupportedBpmnFunctions = () => {
                     }
                   }
                 }
+              },
+            },
+          };
+        }
+        // Add open entry for CallActivity
+        if (businessObject.$type === "bpmn:CallActivity") {
+          customizesEntries["open-call-activity"] = {
+            group: "model",
+            className: "bpmn-icon-subprocess-expanded",
+            title: translate("Open Process"),
+            action: {
+              click: function () {
+                const processId = element.businessObject.calledElement || element.id;
+                window.dispatchEvent(
+                  new CustomEvent("open-call-activity", {
+                    detail: { processId: processId, elementId: element.id }
+                  })
+                );
               },
             },
           };

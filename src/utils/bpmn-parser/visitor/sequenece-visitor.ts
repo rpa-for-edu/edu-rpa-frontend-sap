@@ -74,8 +74,8 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
   private keywordToInitKeyword: Map<string, string> = new Map();
   // Set of all init keyword names (e.g. "Init Drive", "Init Gmail", "Init Sheets")
   private initKeywordSet: Set<string> = new Set();
-  // Maps init keyword name → credential file path (populated as init tasks are visited)
-  private initCredentialPaths: Map<string, string> = new Map();
+  // Maps init keyword name → { credentialPath, keywordArg } (populated as init tasks are visited)
+  private initCredentialPaths: Map<string, { credentialPath: string; keywordArg: string }> = new Map();
 
   private _buildInitMappings() {
     for (const pkg of this.activityPackages) {
@@ -360,6 +360,15 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
         connectionKey: connectionKey,
         provider: provider,
       });
+
+      // If this task is an Init keyword, record its credential path
+      // so parallel branches can auto-inject it later
+      if (this.initKeywordSet.has(keyword)) {
+        this.initCredentialPaths.set(keyword, {
+          credentialPath: connectionArgs.value,
+          keywordArg: connectionArgs.keywordArg || 'token_file',
+        });
+      }
     }
 
     let keywords = [new Keyword(keyword, keywordArg, keywordAssigns)];
@@ -502,8 +511,10 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
     // Auto-inject missing Init keywords at the beginning of the branch
     const injectedInits: BodyItem[] = [];
     Array.from(requiredInits.keys()).forEach((initKeyword) => {
-      const credentialPath = this.initCredentialPaths.get(initKeyword);
-      if (!credentialPath) {
+      const initInfo = this.initCredentialPaths.get(initKeyword);
+      if (!initInfo) {
+        console.log(`Missing Init for parallel branch: "${initKeyword}" is required but no Init task with credential was found in the main body. Please add "${initKeyword}" before the Parallel Gateway.`);
+        console.log(this.initCredentialPaths);
         throw new BpmnParseError(
           `Missing Init for parallel branch: "${initKeyword}" is required but no Init task with credential was found in the main body. Please add "${initKeyword}" before the Parallel Gateway.`,
           node.flowId
@@ -512,7 +523,7 @@ export class ConcreteSequenceVisitor extends SequenceVisitor {
       // Create the init keyword with the same credential path
       const initKwItem = new Keyword(
         initKeyword,
-        [new Argument('token_file', credentialPath)],
+        [new Argument(initInfo.keywordArg, initInfo.credentialPath)],
         []
       );
       injectedInits.push(initKwItem);
