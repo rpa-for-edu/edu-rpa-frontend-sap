@@ -48,6 +48,7 @@ const STATUS_COLORS: Record<StepStatus, string> = {
   ERROR: "red",
   FAIL: "red",
   SKIP: "gray",
+  SUCCESS: "green",
 };
 
 const STATUS_ICONS: Record<StepStatus, React.ReactElement> = {
@@ -56,6 +57,7 @@ const STATUS_ICONS: Record<StepStatus, React.ReactElement> = {
   ERROR: <FiX />,
   FAIL: <FiX />,
   SKIP: <FiMinus />,
+  SUCCESS: <FiCheck />,
 };
 
 export default function ExecutionLogsPanel({

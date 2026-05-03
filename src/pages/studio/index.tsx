@@ -44,7 +44,7 @@ import { useRouter } from 'next/router';
 import { deleteVariableById } from '@/utils/variableService';
 import AutomationTemplateImage from '@/assets/images/AutomationTemplate.jpg';
 import { QueryClient, useMutation, useQuery } from '@tanstack/react-query';
-import { CreateProcessDto } from '@/dtos/processDto';
+import { CreateProcessDto, CreateSubprocessDto } from '@/dtos/processDto';
 import processApi from '@/apis/processApi';
 import { QUERY_KEY } from '@/constants/queryKey';
 import LoadingIndicator from '@/components/LoadingIndicator/LoadingIndicator';
@@ -75,6 +75,11 @@ export default function Studio() {
     onOpen: onSettingsOpen,
     onClose: onSettingsClose,
   } = useDisclosure();
+  const {
+    isOpen: isCreateSubprocessOpen,
+    onOpen: onCreateSubprocessOpen,
+    onClose: onCreateSubprocessClose,
+  } = useDisclosure();
 
   const initialRef = useRef<HTMLInputElement>(null);
   const descRepf = useRef<HTMLInputElement>(null);
@@ -83,6 +88,8 @@ export default function Studio() {
   const shareEmailRef = useRef<HTMLInputElement>(null);
   const settingsNameRef = useRef<HTMLInputElement>(null);
   const settingsDescRef = useRef<HTMLInputElement>(null);
+  const subprocessNameRef = useRef<HTMLInputElement>(null);
+  const subprocessDescRef = useRef<HTMLInputElement>(null);
 
   const [processType, setProcessType] = useState('free');
   const [selectFilter, setSelectFilter] = useState('all');
@@ -96,6 +103,7 @@ export default function Studio() {
   const [selectedProcessId, setSelectedProcessId] = useState<string | null>(
     null
   );
+  const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
   const [pinnedProcesses, setPinnedProcesses] = useState<string[]>([]);
 
   const toast = useToast();
@@ -176,22 +184,40 @@ export default function Studio() {
     setLocalStorageObject(LocalStorage.VARIABLE_LIST, filteredVariableStorage);
   };
 
-  const formatData =
-    allProcess &&
-    allProcess?.map((item: any) => {
-      return {
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        sharedBy: item.sharedByUser ? item.sharedByUser.name : 'me',
-        last_modified: formatDateTime(item.updatedAt),
-        last_modified_timestamp: new Date(item.updatedAt).getTime(),
-        version: item.version,
-        status: item.status || 'draft',
-        pinned: pinnedProcesses.includes(item.id),
-      };
-    });
+  type MappedProcess = {
+    id: string;
+    name: string;
+    description: string;
+    sharedBy: string;
+    last_modified: string;
+    last_modified_timestamp: number;
+    version: number;
+    status: string;
+    pinned: boolean;
+    children?: MappedProcess[];
+  };
 
+  const formatData: MappedProcess[] | undefined =
+    allProcess &&
+    allProcess?.map((item: any): MappedProcess => {
+      const mapProc = (proc: any): MappedProcess => ({
+        id: proc.id,
+        name: proc.name,
+        description: proc.description,
+        sharedBy: proc.sharedByUser ? proc.sharedByUser.name : 'me',
+        last_modified: formatDateTime(proc.updatedAt),
+        last_modified_timestamp: new Date(proc.updatedAt).getTime(),
+        version: proc.version,
+        status: proc.status || 'draft',
+        pinned: pinnedProcesses.includes(proc.id),
+      });
+
+      const parentProcess: MappedProcess = mapProc(item);
+      if (item.children && item.children.length > 0) {
+        parentProcess.children = item.children.map(mapProc);
+      }
+      return parentProcess;
+    });
   // Apply filters, search, and sort
   let filteredData = formatData ?? [];
 
@@ -280,6 +306,33 @@ export default function Studio() {
         isClosable: true,
       });
       router.reload();
+    },
+  });
+
+  const handleCreateSubprocessWithApi = useMutation({
+    mutationFn: async (payload: CreateSubprocessDto) => {
+      return await processApi.createSubprocess(payload);
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Subprocess created successfully',
+        status: 'success',
+        position: 'top-right',
+        duration: 2000,
+        isClosable: true,
+      });
+      onCreateSubprocessClose();
+      router.reload();
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({
+        title: 'Failed to create subprocess',
+        status: 'error',
+        position: 'top-right',
+        duration: 2000,
+        isClosable: true,
+      });
     },
   });
 
@@ -532,6 +585,37 @@ export default function Studio() {
     setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
   };
 
+  const handleCreateSubprocess = (parentId: string) => {
+    setSelectedParentId(parentId);
+    onCreateSubprocessOpen();
+  };
+
+  const confirmCreateSubprocess = () => {
+    if (!selectedParentId || !subprocessNameRef.current?.value) {
+      toast({
+        title: 'Subprocess name is required',
+        status: 'warning',
+        position: 'top-right',
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const subprocessID = generateProcessID();
+    const xml = defaultXML(subprocessID);
+
+    const payload: CreateSubprocessDto = {
+      id: subprocessID,
+      name: subprocessNameRef.current.value,
+      description: subprocessDescRef.current?.value ?? '',
+      xml,
+      parentId: selectedParentId,
+    };
+
+    handleCreateSubprocessWithApi.mutate(payload);
+  };
+
   if (isLoadingProcess || handleDeleteProcessWithApi.isPending) {
     return <LoadingIndicator />;
   }
@@ -684,6 +768,7 @@ export default function Studio() {
                 onShare={handleShareProcess}
                 onPin={handlePinProcess}
                 onProcessSettings={handleProcessSettings}
+                onCreateSubprocess={handleCreateSubprocess}
                 sortOrder={sortOrder}
                 onSortChange={handleSortToggle}
                 isLoading={countProcessLoading}
@@ -908,6 +993,60 @@ export default function Studio() {
               </Button>
               <Button colorScheme="teal" onClick={confirmProcessSettings}>
                 {t('modals.settings.save')}
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* Create Subprocess Modal */}
+        <Modal
+          initialFocusRef={subprocessNameRef}
+          isOpen={isCreateSubprocessOpen}
+          onClose={onCreateSubprocessClose}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Create Subprocess</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody pb={6}>
+              <FormControl mb={4} isRequired>
+                <FormLabel>Subprocess Name</FormLabel>
+                <Input
+                  ref={subprocessNameRef}
+                  placeholder="Enter subprocess name"
+                  borderColor="blue.400"
+                  borderWidth="2px"
+                  _hover={{ borderColor: 'blue.500' }}
+                  _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px #3B82F6' }}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Description</FormLabel>
+                <Input
+                  ref={subprocessDescRef}
+                  placeholder="Enter description (optional)"
+                  borderColor="blue.400"
+                  borderWidth="2px"
+                  _hover={{ borderColor: 'blue.500' }}
+                  _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px #3B82F6' }}
+                />
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                colorScheme="blue"
+                variant="outline"
+                mr={3}
+                onClick={onCreateSubprocessClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="blue"
+                onClick={confirmCreateSubprocess}
+                isLoading={handleCreateSubprocessWithApi.isPending}
+              >
+                Create Subprocess
               </Button>
             </ModalFooter>
           </ModalContent>
