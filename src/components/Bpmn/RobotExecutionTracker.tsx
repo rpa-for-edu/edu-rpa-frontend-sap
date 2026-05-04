@@ -47,6 +47,7 @@ interface RobotExecutionTrackerProps {
 const STATUS_COLORS: Record<StepStatus, string> = {
   RUNNING: 'orange',
   PASS: 'green',
+  SUCCESS: 'green',
   ERROR: 'red',
   FAIL: 'red',
   SKIP: 'gray',
@@ -55,6 +56,7 @@ const STATUS_COLORS: Record<StepStatus, string> = {
 const STATUS_ICONS: Record<StepStatus, React.ReactNode> = {
   RUNNING: <FiClock />,
   PASS: <FiCheck />,
+  SUCCESS: <FiCheck />,
   ERROR: <FiX />,
   FAIL: <FiX />,
   SKIP: <FiMinus />,
