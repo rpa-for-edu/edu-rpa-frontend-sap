@@ -64,7 +64,7 @@ export default function WorkspaceIntegrationService() {
         isClosable: true,
       });
       // Clean up URL
-      router.replace(router.pathname, undefined, { shallow: true });
+      router.replace({ pathname: router.pathname, query: { workspaceId } }, undefined, { shallow: true });
     }
 
     if (successMessage) {
@@ -78,7 +78,7 @@ export default function WorkspaceIntegrationService() {
       // Refresh connections
       refetch();
       // Clean up URL
-      router.replace(router.pathname, undefined, { shallow: true });
+      router.replace({ pathname: router.pathname, query: { workspaceId } }, undefined, { shallow: true });
     }
   }, [router.query.error, router.query.message]);
 
@@ -188,7 +188,7 @@ export default function WorkspaceIntegrationService() {
 
           {tableProps.data.length > 0 ? (
             <div className="w-90 m-auto">
-              <ConnectionTable {...tableProps} isLoading={isLoading} />
+              <ConnectionTable {...tableProps} isLoading={isLoading} workspaceId={workspaceId as string} />
             </div>
           ) : (
             <div className="w-90 m-auto flex justify-center items-center">

@@ -38,6 +38,7 @@ import { useTranslation } from 'next-i18next';
 interface ConnectionRowProps {
   data: Connection;
   robotKey?: string;
+  workspaceId?: string;
   onView?: (connectionKey: string, provider: string, name: string) => void;
   onSelectedForRemove: (provider: string, name: string) => void;
 }
@@ -48,9 +49,14 @@ const ConnectionRow = (props: ConnectionRowProps) => {
   const [status, setStatus] = useState('Connected');
   const user = useSelector(userSelector);
   const toast = useToast();
-  const { connectionKey, userId, isActivate, ...data } = props.data;
+  const { connectionKey, userId, isActivate, updatedAt, ...data } = props.data;
 
   const handleRefreshConnection = async () => {
+    // Workspace connections: skip user-level test API, mặc định Connected
+    if (props.workspaceId) {
+      setStatus('Connected');
+      return;
+    }
     setIsLoadingRefresh(true);
     try {
       // For Moodle connections, use the test endpoint
@@ -92,11 +98,20 @@ const ConnectionRow = (props: ConnectionRowProps) => {
         });
         return;
       }
-      
-      window.open(
-        `${process.env.NEXT_PUBLIC_DEV_API}/auth/${provider.slug}?fromUser=${user.id}&reconnect=true`,
-        '_blank'
-      );
+
+      if (props.workspaceId) {
+        // Workspace OAuth flow
+        window.open(
+          `${process.env.NEXT_PUBLIC_DEV_API}/auth/workspace/${props.workspaceId}/${provider.slug}?fromUser=${user.id}&reconnect=true`,
+          '_self'
+        );
+      } else {
+        // User OAuth flow
+        window.open(
+          `${process.env.NEXT_PUBLIC_DEV_API}/auth/${provider.slug}?fromUser=${user.id}&reconnect=true`,
+          '_blank'
+        );
+      }
     }
   };
 

@@ -24,7 +24,7 @@ import {
   Box,
   Text,
 } from "@chakra-ui/react";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import CustomDatePicker from "@/components/CustomDatePicker/ CustomDatePicker";
 import { LocalStorage } from "@/constants/localStorage";
@@ -68,7 +68,7 @@ export default function PropertiesSideBar({
   onClose,
   activityItem,
 }: PropertiesSideBarProps) {
-  const params = useParams();
+  const router = useRouter();
   const {
     sideBarState,
     setPackage,
@@ -78,7 +78,10 @@ export default function PropertiesSideBar({
     setDefault,
     setProperty,
   } = usePropertiesSidebar();
-  const processID = params.id as string;
+  const processID = router.query.id as string;
+  const workspaceId = router.query.workspaceId as string | undefined;
+  console.log('[PropertiesSideBar] router.query:', router.query);
+  console.log('[PropertiesSideBar] workspaceId:', workspaceId, '| processID:', processID);
   const [formValues, setFormValues] = useState<FormValues>({});
   const [saveResult, setSaveResult] = useState<string | null>(null);
   const [isExist, setIsExist] = useState(false);
@@ -385,6 +388,7 @@ export default function PropertiesSideBar({
                   value={formValues[paramKey]?.value ?? ""}
                   onChange={(e) => handleInputChange(paramKey, e.target.value)}
                   provider={provider}
+                  workspaceId={workspaceId}
                 />
               );
 

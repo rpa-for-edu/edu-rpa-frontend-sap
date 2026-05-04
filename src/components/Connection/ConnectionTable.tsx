@@ -31,6 +31,7 @@ import {
 import ReactPaginate from 'react-paginate';
 import { Connection } from '@/interfaces/connection';
 import connectionApi from '@/apis/connectionApi';
+import workspaceApi from '@/apis/workspaceApi';
 import LoadingIndicator from '../LoadingIndicator/LoadingIndicator';
 import ConnectionRow from './ConnectionRow';
 import { useTranslation } from 'next-i18next';
@@ -42,6 +43,7 @@ interface ConnectionTableProps {
   robotKey?: string;
   maxRows?: number;
   isLoading?: boolean;
+  workspaceId?: string;
 }
 
 const ConnectionTable = (props: ConnectionTableProps) => {
@@ -86,7 +88,13 @@ const ConnectionTable = (props: ConnectionTableProps) => {
 
   const handleRemoveConnection = async (provider: string, name: string) => {
     try {
-      await connectionApi.removeConnection(provider, name);
+      if (props.workspaceId) {
+        // Workspace connection: dùng workspace API
+        await workspaceApi.deleteWorkspaceConnection(props.workspaceId, provider, name);
+      } else {
+        // User connection: dùng user API như cũ
+        await connectionApi.removeConnection(provider, name);
+      }
       toast({
         title: t('table.connection.removedSuccess'),
         status: 'success',
@@ -134,6 +142,7 @@ const ConnectionTable = (props: ConnectionTableProps) => {
                 key={index}
                 data={item}
                 robotKey={props.robotKey}
+                workspaceId={props.workspaceId}
                 onView={handleNavigateServiceDetail}
                 onSelectedForRemove={handleSelectForRemove}
               />
