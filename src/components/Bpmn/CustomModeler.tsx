@@ -295,7 +295,8 @@ function CustomModeler() {
       const { processId, elementId } = event.detail;
       try {
         const data = await processApi.getProcessByID(processId);
-        if (data && data.id) {
+        console.log('data', data);
+        if (data && data._id) {
           window.open(`/studio/modeler/${processId}`, '_blank');
         } else {
           setCallActivityData({ processId, elementId });
