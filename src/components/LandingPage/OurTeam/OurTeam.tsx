@@ -108,6 +108,22 @@ const OurTeamSection: React.FC = () => {
 
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
         <TeamMemberCard
+          name="Nguyễn Minh Khánh"
+          title="MT22KH03, VNU-HCMUT"
+          imageSrc={MT22KH03Avatar}
+          githubUrl="https://github.com/mahara0511"
+          email="khanh.nguyenminh0101@hcmut.edu.vn"
+          linkedInUrl="https://github.com/mahara0511"
+        />
+        <TeamMemberCard
+          name="Nông Minh Chiến"
+          title="MT22KH01, VNU-HCMUT"
+          imageSrc={MT22KH02Avatar}
+          githubUrl="https://github.com/chiencse"
+          email="minhchien662004@gmail.com"
+          linkedInUrl="https://www.linkedin.com/in/chienminhn/"
+        />
+        <TeamMemberCard
           name="Huỳnh Đại Vinh"
           title="MT20KHTN, VNU-HCMUT"
           imageSrc={VinhAvatar}
@@ -130,22 +146,6 @@ const OurTeamSection: React.FC = () => {
           githubUrl="https://github.com/devquangkhanh09"
           email="khanh.nguyenqk09@hcmut.edu.vn"
           linkedInUrl="https://www.linkedin.com/in/quang-khanh-nguyen/"
-        />
-        <TeamMemberCard
-          name="Nguyễn Minh Khánh"
-          title="MT22KH03, VNU-HCMUT"
-          imageSrc={MT22KH03Avatar}
-          githubUrl="https://github.com/mahara0511"
-          email="khanh.nguyenminh0101@hcmut.edu.vn"
-          linkedInUrl="https://github.com/mahara0511"
-        />
-        <TeamMemberCard
-          name="Nông Minh Chiến"
-          title="MT22KH02, VNU-HCMUT"
-          imageSrc={MT22KH02Avatar}
-          githubUrl="#"
-          email="#"
-          linkedInUrl="#"
         />
       </SimpleGrid>
     </Box>
