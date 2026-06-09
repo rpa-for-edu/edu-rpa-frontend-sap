@@ -128,7 +128,7 @@ const FinishTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
     </h2>
     <p style={{ margin: '0 0 28px', fontSize: '15px', color: '#718096', lineHeight: 1.75 }}>
       {t('tour.finish.desc1')}
-      <strong style={{ color }}>EduRPA</strong>.
+      <strong style={{ color }}>ERPRPA</strong>.
       {t('tour.finish.desc2')}
     </p>
 
@@ -167,9 +167,35 @@ const FinishTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Step Dots — clickable progress indicator
+// ─────────────────────────────────────────────────────────────────────────────
+const StepDots: React.FC<{ total: number; current: number; color: string; goToStep: (i: number) => void }> = ({ total, current, color, goToStep }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap', justifyContent: 'center' }}>
+    {Array.from({ length: total }).map((_, i) => (
+      <button
+        key={i}
+        title={`Bước ${i + 1}`}
+        onClick={() => goToStep(i)}
+        style={{
+          width: i === current ? '18px' : '8px',
+          height: '8px',
+          borderRadius: '4px',
+          background: i === current ? color : '#cbd5e0',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          transition: 'all 0.25s ease',
+          flexShrink: 0,
+        }}
+      />
+    ))}
+  </div>
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Tooltip mặc định cho các bước giữa — giống Joyride default (nền trắng)
 // ─────────────────────────────────────────────────────────────────────────────
-const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
+const StepTooltip: React.FC<TooltipRenderProps & { color: string; goToStep: (i: number) => void }> = ({
   tooltipProps,
   step,
   index,
@@ -178,6 +204,7 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
   backProps,
   skipProps,
   color,
+  goToStep,
 }) => {
   const { t } = useTranslation('common');
   return (
@@ -187,7 +214,7 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
       background: '#ffffff',
       borderRadius: '4px',
       padding: '0',
-      maxWidth: '380px',
+      maxWidth: '480px',
       boxShadow: '0 0 0 1px rgba(0,0,0,.1), 0 4px 16px rgba(0,0,0,.2)',
       color: '#333',
       fontFamily: "'Inter', 'Segoe UI', sans-serif",
@@ -209,25 +236,32 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
       {step.content as React.ReactNode}
     </div>
 
+
+    {/* Footer: Skip | số+dots | Back+Next */}
     <div style={{
       borderTop: '1px solid rgba(0,0,0,.1)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '8px 16px', gap: '8px',
     }}>
+      {/* Left: Skip */}
       <button
         {...skipProps}
         style={{
           background: 'none', border: 'none', color: '#999',
-          fontSize: '14px', cursor: 'pointer', padding: '4px 0',
+          fontSize: '14px', cursor: 'pointer', padding: '4px 0', flexShrink: 0,
         }}
       >
         {t('tour.general.skip')}
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '13px', color: '#999' }}>
-          {index + 1} / {size}
-        </span>
+      {/* Center: số + dots */}
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'center' }}>
+        <span style={{ fontSize: '11px', color: '#999', flexShrink: 0 }}>{index + 1} / {size}</span>
+        <StepDots total={size} current={index} color={color} goToStep={goToStep} />
+      </div>
+
+      {/* Right: Back + Next */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
         {index > 0 && (
           <button
             {...backProps}
@@ -261,11 +295,11 @@ const StepTooltip: React.FC<TooltipRenderProps & { color: string }> = ({
 // ─────────────────────────────────────────────────────────────────────────────
 // Wrapper chọn đúng tooltip component theo stepIndex
 // ─────────────────────────────────────────────────────────────────────────────
-const TooltipWrapper: React.FC<TooltipRenderProps & { color: string; totalSteps: number }> = (props) => {
+const TooltipWrapper: React.FC<TooltipRenderProps & { color: string; totalSteps: number; goToStep: (i: number) => void }> = (props) => {
   const { index, totalSteps } = props;
   if (index === 0) return <WelcomeTooltip {...props} />;
   if (index === totalSteps - 1) return <FinishTooltip {...props} />;
-  return <StepTooltip {...props} />;
+  return <StepTooltip {...props} goToStep={props.goToStep} />;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -284,15 +318,30 @@ const TourGuide: React.FC = () => {
     setIsClient(true);
   }, []);
 
+  // Helper ẩn overlay an toàn tránh lỗi React unmount node
+  const cleanOverlay = () => {
+    document.querySelectorAll('.react-joyride__overlay, .react-joyride__spotlight').forEach((el: any) => {
+      el.style.display = 'none';
+    });
+  };
+
+  // Nhảy thẳng đến bước bất kỳ (từ step dots)
+  const goToStep = (targetIndex: number) => {
+    if (targetIndex < 0 || targetIndex >= steps.length) return;
+    const targetStep = steps[targetIndex];
+    if (targetStep.route && targetStep.route !== router.pathname) {
+      dispatch(setRun(false));
+      router.push(targetStep.route).then(() => {
+        dispatch(setStepIndex(targetIndex));
+        setTimeout(() => dispatch(setRun(true)), 600);
+      });
+    } else {
+      dispatch(setStepIndex(targetIndex));
+    }
+  };
+
   const handleJoyrideCallback = (data: EventData) => {
     const { action, index, status, type } = data;
-
-    // Helper ẩn overlay an toàn tránh lỗi React unmount node
-    const cleanOverlay = () => {
-      document.querySelectorAll('.react-joyride__overlay, .react-joyride__spotlight').forEach((el: any) => {
-        el.style.display = 'none';
-      });
-    };
 
     // STATUS.SKIPPED (nhấn skip) → dừng tour
     if ((STATUS.SKIPPED as string) === status) {
@@ -351,6 +400,7 @@ const TourGuide: React.FC = () => {
           {...props}
           color={primaryColor}
           totalSteps={steps.length}
+          goToStep={goToStep}
         />
       )}
       options={{

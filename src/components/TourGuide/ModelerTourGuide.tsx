@@ -169,6 +169,35 @@ const cleanOverlay = () => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Step Dots — clickable progress indicator
+// ─────────────────────────────────────────────────────────────────────────────
+const StepDots: React.FC<{ total: number; current: number; color: string; goToStep: (i: number) => void; isActionStep?: (i: number) => boolean }> = ({ total, current, color, goToStep, isActionStep }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap', justifyContent: 'center' }}>
+    {Array.from({ length: total }).map((_, i) => {
+      const isAction = isActionStep ? isActionStep(i) : false;
+      return (
+        <button
+          key={i}
+          title={`Bước ${i + 1}${isAction ? ' (cần tương tác)' : ''}`}
+          onClick={() => goToStep(i)}
+          style={{
+            width: i === current ? '18px' : '8px',
+            height: '8px',
+            borderRadius: '4px',
+            background: i === current ? color : isAction ? '#F6AD55' : '#cbd5e0',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            transition: 'all 0.25s ease',
+            flexShrink: 0,
+          }}
+        />
+      );
+    })}
+  </div>
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Welcome Panel
 // ─────────────────────────────────────────────────────────────────────────────
 const WelcomePanel: React.FC<
@@ -244,15 +273,15 @@ const FinishPanel: React.FC<
 // Step Panel — hiển thị waiting UI khi có waitFor
 // ─────────────────────────────────────────────────────────────────────────────
 const StepPanel: React.FC<
-  TooltipRenderProps & { color: string; stepData?: ModelerStep['data'] }
-> = ({ tooltipProps, step, index, size, backProps, skipProps, primaryProps, color, stepData }) => {
+  TooltipRenderProps & { color: string; stepData?: ModelerStep['data']; goToStep: (i: number) => void; isActionStep?: (i: number) => boolean }
+> = ({ tooltipProps, step, index, size, backProps, skipProps, primaryProps, color, stepData, goToStep, isActionStep }) => {
   const { t } = useTranslation('common');
   const isWaiting = !!stepData?.waitFor;
   return (
     <div
       {...tooltipProps}
       style={{
-        background: '#fff', borderRadius: '4px', padding: 0, maxWidth: '360px',
+        background: '#fff', borderRadius: '4px', padding: 0, maxWidth: '480px',
         boxShadow: '0 0 0 1px rgba(0,0,0,.1), 0 4px 16px rgba(0,0,0,.18)',
         fontFamily: "'Inter','Segoe UI',sans-serif", fontSize: '14px', color: '#333',
       }}
@@ -265,15 +294,32 @@ const StepPanel: React.FC<
       <div style={{ padding: '14px 16px', lineHeight: 1.65, color: '#444', whiteSpace: 'pre-line' }}>
         {step.content as React.ReactNode}
       </div>
+
+
+      {/* Footer: Skip | số+dots | Back+Next/Waiting */}
       <div style={{
         borderTop: '1px solid rgba(0,0,0,.08)', display: 'flex',
         alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', gap: '8px',
       }}>
-        <button {...skipProps} style={{ background: 'none', border: 'none', color: '#999', fontSize: '13px', cursor: 'pointer', padding: '4px 0' }}>
+        {/* Left: Skip */}
+        <button {...skipProps} style={{ background: 'none', border: 'none', color: '#999', fontSize: '13px', cursor: 'pointer', padding: '4px 0', flexShrink: 0 }}>
           {t('tour.general.skip')}
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '12px', color: '#bbb' }}>{index} / {size - 2}</span>
+
+        {/* Center: số + dots */}
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px', flex: 1, justifyContent: 'center' }}>
+          <span style={{ fontSize: '11px', color: '#bbb', flexShrink: 0 }}>{index} / {size - 2}</span>
+          <StepDots
+            total={size}
+            current={index}
+            color={color}
+            goToStep={goToStep}
+            isActionStep={isActionStep}
+          />
+        </div>
+
+        {/* Right: Back + Next/Waiting */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
           {index > 1 && (
             <button {...backProps} style={{ padding: '7px 14px', background: 'transparent', color: '#444', border: '1px solid #ddd', borderRadius: '4px', fontSize: '13px', cursor: 'pointer' }}>
               {t('tour.general.back')}
@@ -412,7 +458,15 @@ export default function ModelerTourGuide({ isOpen, onClose, modelerRef }: Modele
         onBack={() => setStepIndex(modelerSteps.length - 2)}
       />
     );
-    return <StepPanel {...props} color={primaryColor} stepData={stepData} />;
+    return (
+      <StepPanel
+        {...props}
+        color={primaryColor}
+        stepData={stepData}
+        goToStep={(targetIndex) => setStepIndex(targetIndex)}
+        isActionStep={(i) => !!modelerSteps[i]?.data?.waitFor}
+      />
+    );
   };
 
   if (!isClient || !isOpen) return null;

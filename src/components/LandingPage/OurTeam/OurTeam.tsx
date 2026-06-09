@@ -15,6 +15,8 @@ import Image from 'next/image';
 import VinhAvatar from '@/assets/images/teams/Vinh.jpg';
 import KhanhAvatar from '@/assets/images/teams/Khanh.jpg';
 import AnAvatar from '@/assets/images/teams/An.jpg';
+import MT22KH03Avatar from '@/assets/images/teams/MT22KH03.png';
+import MT22KH02Avatar from '@/assets/images/teams/MT22KH02.png';
 
 interface TeamMemberCardProps {
   name: string;
@@ -128,6 +130,22 @@ const OurTeamSection: React.FC = () => {
           githubUrl="https://github.com/devquangkhanh09"
           email="khanh.nguyenqk09@hcmut.edu.vn"
           linkedInUrl="https://www.linkedin.com/in/quang-khanh-nguyen/"
+        />
+        <TeamMemberCard
+          name="Nguyễn Minh Khánh"
+          title="MT22KH03, VNU-HCMUT"
+          imageSrc={MT22KH03Avatar}
+          githubUrl="https://github.com/mahara0511"
+          email="khanh.nguyenminh0101@hcmut.edu.vn"
+          linkedInUrl="https://github.com/mahara0511"
+        />
+        <TeamMemberCard
+          name="Nông Minh Chiến"
+          title="MT22KH02, VNU-HCMUT"
+          imageSrc={MT22KH02Avatar}
+          githubUrl="#"
+          email="#"
+          linkedInUrl="#"
         />
       </SimpleGrid>
     </Box>
